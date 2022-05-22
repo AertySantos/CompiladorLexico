@@ -3,6 +3,7 @@
 using namespace std;
 
 int main() {
+
   
   PreCompilador pc;
   pc.leitura();

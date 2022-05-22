@@ -11,7 +11,7 @@ class PreCompilador{
     PreCompilador();//construtor
     void leitura();//leitura do codigo inicial
     void escrita();//escreve um novo arquivo apos o codigo inicial ser pre-compilado
-    void trataInclude();
-    void trataIf();
+    void trataInclude(char, string*, bool*);
+    void trataIf(char, string*, bool*);
 };
 #endif

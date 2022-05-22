@@ -1,5 +1,10 @@
 #include <iostream>
+#include "preCompilador.h"
+using namespace std;
 
 int main() {
-  std::cout << "Hello World!\n";
+  
+  PreCompilador pc;
+  pc.leitura();
+
 }

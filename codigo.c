@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 int main(void) {
-  #if  1 = 2
+  #if defined __USE_XOPEN
     printf("Hello World\n");
     return 0;
   #else

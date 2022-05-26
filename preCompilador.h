@@ -19,7 +19,7 @@ class PreCompilador{
     void escritaInclude();//escreve um novo arquivo apos o codigo inicial ser pre-compilado
     void escritaIfs();
     void trataInclude(char, string*, bool*, bool*);
-    void trataIf(char, string*, bool*);
+    void trataIf(char, string*, bool*, bool*, bool*);
     string getInclusao();
     void  setInclusao();
     string getTextoSup();
@@ -28,7 +28,7 @@ class PreCompilador{
     void  setTextoInf(string);
     string getArquivoInc();
     void  setArquivoInc(string);
-    string getCondicao();
-    void  setCondicao(string);
+    bool  verificaCondicao(string);
+    void limpar();
 };
 #endif

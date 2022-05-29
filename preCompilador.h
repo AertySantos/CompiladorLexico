@@ -1,6 +1,7 @@
 #ifndef __PreCompilador_H
 #define __PreCompilador_H
 #include <iostream>
+#include<list>
 using namespace std;
 
 class PreCompilador{
@@ -10,15 +11,18 @@ class PreCompilador{
     string inclusao;//texto do arquivo que sera incluido
     string arquivoInc;//arquivo a ser incluido
     string condicao;
+    bool  aspas;
+    list<string>lista;//lista onde serão incluidos os includeres
 
   public:
     PreCompilador();//construtor
     void iniciar();//loop precompilação
-    void leituraInclude();//leitura e adiçao de includes
+    bool leituraInclude(string);//leitura e adiçao de includes
     void leituraIfs();
     void escritaInclude();//escreve um novo arquivo apos o codigo inicial ser pre-compilado
     void escritaIfs();
-    void trataInclude(char, string*, bool*, bool*);
+    void trataInclude(char, string*, bool*, bool*, string*);
+    bool verificaLista(string);
     void trataIf(char, string*, bool*, bool*, bool*);
     string getInclusao();
     void  setInclusao();

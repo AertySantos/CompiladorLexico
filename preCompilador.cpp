@@ -2,6 +2,7 @@
 #include <iostream>
 #include<fstream>
 #include <string>
+#include<list>
 using namespace std;
 
 PreCompilador::PreCompilador(){
@@ -9,46 +10,71 @@ PreCompilador::PreCompilador(){
   inclusao = "";//texto do novo aquivo
   textoInf = "";//variavel para guardar o texto inferior
   arquivoInc = "";//arquivo para acessar
-  
+  aspas = false;
 }
 
 void PreCompilador::iniciar(){
   
-  leituraIfs();
-  escritaIfs();
+  bool op = true;
+  string arquivo = "codigo.c";
+  cout << endl << "Iniciando execução...\n" << endl;
+  int i = 0;
   
-  leituraInclude();
-  escritaInclude();
+  while(op){
+    op = leituraInclude(arquivo);
+    escritaInclude();
+    arquivo = "codigoPre.c";
+    //op = false;
+    //i++;
+    //if(i == 19){
+    //  op = false;
+    //}
+    
+    
+    
+  }
   
-  cout<<"Pre Compilador executado!";
+  //leituraIfs();
+  //escritaIfs();
+  
+  cout << endl << "Pre Compilador executado!" << endl;
+  //cout << getArquivoInc()[getArquivoInc().size() -1];
 }
 
-void PreCompilador::leituraInclude(){//verificação dos includers
+bool PreCompilador::leituraInclude(string nomeArquivo){//verificação dos includers
   
-    string texto = "", txt ="", comando = "",localInc = "";
+    string texto = "", txt ="", comando = "",localInc = "",salva="";
+    string nomArq = nomeArquivo;
     string txtInclude = "#include";
     bool arquivoInc = false, IncVez = true;
     bool txtSup = true;
     bool txtInf = false;
-    
+    bool retorno = false;
+    limpar();//limpa as variaveis privadas da classe
+  
     ifstream leitor;
-    leitor.open("codigoPre.c", ios::in);//codigo a ser pre-compilado
+    leitor.open(nomArq, ios::in);//codigo a ser pre-compilado
     int i = 0;
   
     if(leitor.is_open()){//verifica se o arquivo esta aberto
-      char c;
+      char c, anterior = '\n';
       bool trata = false;
+      //int i2 = 0;
       
         while (!leitor.eof()) {//enquanto nao chegar ao fim do arquivo
           
                 c = ' ';//limpa c, para nao repetir o ultimo caractere
                 leitor.get(c);//lê caracter a caracter
-                //cout << c;
+               // cout << c;
           
-                if((c == '#')&&(txtSup)){//se tem # no codigo fz verificação
+                if((c == '#')&&(anterior == '\n')){//se tem # no codigo fz verificação
                   trata = true;
                   txtSup = false;
+                  //i2++;
+                  //cout << i2;
                 }
+
+                anterior = c;//para nao pegar include em comentario
           
                 if(txtSup){
                   setTextoSup(getTextoSup() + c);
@@ -59,28 +85,47 @@ void PreCompilador::leituraInclude(){//verificação dos includers
                 }
           
                 if(arquivoInc){//faz tratamento do #include
-                  trataInclude(c, &localInc, &arquivoInc, &txtInf);
+                  trataInclude(c, &localInc, &arquivoInc, &txtInf, &salva);
                 }
 
-                if(trata){
-                  comando += c;
-                  if(comando.size() >= 3 && comando.size()<= 8){
-                    if(comando == txtInclude){//identifica um #include
-                      arquivoInc = true;
-                      localInc = "";
+                if(trata && !txtInf){
+                  
+                    salva += c;//salva o arquivo acima quando um include é identificado
+                  
+                    if(c!=' '){
+                      comando += c;
                     }
-                  }
-                  if(comando.size() > 8){
-                    trata = false;
-                    comando = "";
-                  }
+                   // cout << comando;
+                    if(comando.size() >= 3 && comando.size()<= 8){
+                      if(comando == txtInclude){//identifica um #include
+                        //cout << comando;
+                        arquivoInc = true;
+                        localInc = "";
+                        retorno = true;
+                        comando = "";
+                        salva = "";
+                        trata = false;
+                      }
+                    }
+                    if(comando.size() > 8){
+                      trata = false;
+                      
+                      setTextoSup(getTextoSup() + salva);
+                      comando = "";
+                      txtSup = true;
+                      salva = "";
+                    }
                 }
 
             }
       leitor.close();//fecha o arquivo
+      
+      }else{
+        cout << "Falha ao abrir arquivo";
       }
     
-    setArquivoInc(localInc.erase(0,1));
+  setArquivoInc(localInc);//seto o include para ser incluido na escrita.
+  return retorno;
 }
 
 void PreCompilador::leituraIfs(){
@@ -216,14 +261,34 @@ void PreCompilador::escritaIfs(){
   limpar();
 }
 
-void PreCompilador::trataInclude(char c, string*txtInc, bool*arqinc, bool *txinf){
+void PreCompilador::trataInclude(char c, string*txtInc, bool*arqinc, bool *txinf, string *txtsal){
     char c2 = c;  
-    if(c2 == '>'){//fecha 
+    if((c2 == '>')||(c == '\n')){//chegou ao final da condição
       *arqinc = false;
-      *txinf = true;
+      
+      if(!verificaLista(*txtInc)){
+        *txinf = true;
+        lista.insert(lista.begin(),1,*txtInc);
+        
+      }else{
+        *txtsal = "";
+        *txtInc = "";
+      }
+     // cout << *txtInc << endl;//------------------------------------------------------
     }else if(c2 != '<' && c2 != '>'){//pega o que esta dentro do include <include>
-      *txtInc += c2;
+      if((c2!=' ')&&(c2!='"')){//retira espacos e aspas
+        *txtInc += c2;
+      }
     }
+}
+
+bool PreCompilador::verificaLista(string novoInc){
+   for (string str : lista) {
+    if(str == novoInc){
+      return true;
+    }
+  }
+  return false;
 }
 
 void PreCompilador::escritaInclude(){
@@ -232,12 +297,18 @@ void PreCompilador::escritaInclude(){
   ofstream escritor;
   escritor.open("codigoPre.c", ios::out | ios::trunc);
   escritor << getTextoSup();
-  setInclusao();//inclui o texto do arquivo a ser incluido
+  
+  if(getArquivoInc()[getArquivoInc().size() -1]!='h'){
+    escritor << getArquivoInc();//caso nao seja um arquivo 
+  }else{
+    setInclusao();//inclui o texto do arquivo a ser incluido
+  }
+  //cout <<getInclusao();
   escritor << getInclusao();
   escritor << getTextoInf();
   escritor.close();
  // cout<< getInclusao();
-  limpar();
+ 
 }
 
 string PreCompilador::getInclusao(){  
@@ -246,7 +317,7 @@ string PreCompilador::getInclusao(){
 
 void PreCompilador::setInclusao(){//inclui novo arquivo de texto
   ifstream leitor;
-  leitor.open(getArquivoInc(), ios::in);//arquivo a ser incluido 
+  leitor.open("include/"+getArquivoInc(), ios::in);//arquivo a ser incluido 
   
   if(leitor.is_open()){//verifica se o arquivo esta aberto
     char letra;
@@ -256,8 +327,35 @@ void PreCompilador::setInclusao(){//inclui novo arquivo de texto
       inclusao += letra;
     }
     leitor.close();//fecha o arquivo
+
+    if(getArquivoInc() != ""){
+      cout << "Incluindo arquivo "+ getArquivoInc() << endl;
+    }
+    
   }else{
-    cout << "erro ao abrir o arquivo " << getArquivoInc();
+    ifstream leitor2;
+    leitor2.open("lib/gcc/mingw32/9.2.0/include/"+getArquivoInc(), ios::in);//arquivo a ser incluido 
+    
+    if(leitor2.is_open()){//verifica se o arquivo esta aberto
+      char letra2;
+        while (!leitor2.eof()) {//enquanto nao chegar ao fim do arquivo
+          letra2 = ' ';//limpa para nao repetir o ultimo caractere
+          leitor2.get(letra2);//lê caracter a caracter
+          inclusao += letra2;
+        }
+        leitor2.close();//fecha o arquivo
+
+        if(getArquivoInc() != ""){
+          cout << "Incluindo arquivo "+ getArquivoInc() << endl;
+        }
+       // cout << inclusao;
+      }else{
+         cout << "Não possui o arquivo " << getArquivoInc() << endl;
+         inclusao += '\n';
+         //inclusao = " #include <"+getArquivoInc()+">";//coloco um espaco para ele nao identificar como include
+        //cout << inclusao;
+      }
+   
   }
 }
 

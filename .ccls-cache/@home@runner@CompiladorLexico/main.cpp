@@ -1,13 +1,13 @@
 #include <iostream>
-#include <stdio.h>
 #include "preCompilador.h"
+#include "leitura.h"
+#include "GeradorToken.h"
 
 using namespace std;
 
 int main() {
   
   PreCompilador pc;
-  pc.leitura();
-  
-  
+  pc.iniciar();
+
 }

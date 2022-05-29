@@ -10,15 +10,17 @@ class PreCompilador{
     string textoInf;//variavel para guardar o texto inferior
     string inclusao;//texto do arquivo que sera incluido
     string arquivoInc;//arquivo a ser incluido
-    string condicao;
-    bool  aspas;
+    string condicao;//guarda a condição do #if
+    bool  aspas;//para verificação de aspas
     list<string>lista;//lista onde serão incluidos os includeres
+    list<string>definicao;
+    list<string>atribuicao;
 
   public:
     PreCompilador();//construtor
     void iniciar();//loop precompilação
     bool leituraInclude(string);//leitura e adiçao de includes
-    void leituraIfs();
+    void leituraIfs(string);//leitura e verificação de #if,#else,#endif
     void escritaInclude();//escreve um novo arquivo apos o codigo inicial ser pre-compilado
     void escritaIfs();
     void trataInclude(char, string*, bool*, bool*, string*);

@@ -18,27 +18,18 @@ void PreCompilador::iniciar(){
   bool op = true;
   string arquivo = "codigo.c";
   cout << endl << "Iniciando execução...\n" << endl;
-  int i = 0;
   
-  while(op){
+  /*while(op){//verifica os includes
     op = leituraInclude(arquivo);
     escritaInclude();
     arquivo = "codigoPre.c";
-    //op = false;
-    //i++;
-    //if(i == 19){
-    //  op = false;
-    //}
-    
-    
-    
-  }
+  }*/
   
-  //leituraIfs();
-  //escritaIfs();
+  leituraIfs("codigoPre.c");//verifica os #if,#else,#endif
+ // escritaIfs();
   
   cout << endl << "Pre Compilador executado!" << endl;
-  //cout << getArquivoInc()[getArquivoInc().size() -1];
+
 }
 
 bool PreCompilador::leituraInclude(string nomeArquivo){//verificação dos includers
@@ -47,9 +38,9 @@ bool PreCompilador::leituraInclude(string nomeArquivo){//verificação dos inclu
     string nomArq = nomeArquivo;
     string txtInclude = "#include";
     bool arquivoInc = false, IncVez = true;
-    bool txtSup = true;
-    bool txtInf = false;
-    bool retorno = false;
+    bool txtSup = true;//texto superior
+    bool txtInf = false;//texto inferior
+    bool retorno = false;//acabou?
     limpar();//limpa as variaveis privadas da classe
   
     ifstream leitor;
@@ -128,7 +119,7 @@ bool PreCompilador::leituraInclude(string nomeArquivo){//verificação dos inclu
   return retorno;
 }
 
-void PreCompilador::leituraIfs(){
+void PreCompilador::leituraIfs(string nomeArquivo){
   
     string texto = "", txt ="", comando = "";
     string txtIf = "#if";
@@ -142,7 +133,7 @@ void PreCompilador::leituraIfs(){
     int testeIf = 1;
     
     ifstream leitor;
-    leitor.open("codigo.c", ios::in);//codigo a ser pre-compilado
+    leitor.open(nomeArquivo, ios::in);//codigo a ser pre-compilado
     
     if(leitor.is_open()){//verifica se o arquivo esta aberto
       char c;
@@ -217,7 +208,7 @@ void PreCompilador::leituraIfs(){
     //cout <<getTextoSup()<<endl;//teste
   
     if(testeIf > 1){
-      cout << "ERRO: falta #endif\n";
+      cout << "ERRO: falta #endif "<<endl<< testeIf;
     }
     cout <<erro<<endl;//teste
     //setCondicao(condicaoIfs.erase(0,1));

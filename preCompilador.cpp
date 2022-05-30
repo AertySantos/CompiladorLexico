@@ -10,6 +10,7 @@ PreCompilador::PreCompilador(){
   inclusao = "";//texto do novo aquivo
   textoInf = "";//variavel para guardar o texto inferior
   arquivoInc = "";//arquivo para acessar
+  varAnterior = '0';
   aspas = false;
 }
 
@@ -25,7 +26,7 @@ void PreCompilador::iniciar(){
     arquivo = "codigoPre.c";
   }*/
   
-  leituraIfs("codigoPre.c");//verifica os #if,#else,#endif
+  leituraIfs("codigo.c");//verifica os #if,#else,#endif
  // escritaIfs();
   
   cout << endl << "Pre Compilador executado!" << endl;
@@ -121,16 +122,24 @@ bool PreCompilador::leituraInclude(string nomeArquivo){//verificação dos inclu
 
 void PreCompilador::leituraIfs(string nomeArquivo){
   
-    string texto = "", txt ="", comando = "";
+    string texto = "", txt ="", comando = "", salva = "";
     string txtIf = "#if";
+    string txtIfndef = "#ifndef";
+    string txtIfdef = "#ifdef"; 
     string txtElse = "#else";
     string txtEndif = "#endif";
+    string txtDef = "#define";
     string erro = "";
-    bool arqIf = false;
+    bool tratamento = false;
+    bool tratamentoDef = false;
     bool arqElse = false;
     bool txtSup = true;
     bool txtInf = false;
+    bool def = false;
+    bool semCom = true;
+    bool operacao = false;
     int testeIf = 1;
+    int ind = 0;
     
     ifstream leitor;
     leitor.open(nomeArquivo, ios::in);//codigo a ser pre-compilado
@@ -143,35 +152,77 @@ void PreCompilador::leituraIfs(string nomeArquivo){
           
                 c = ' ';//limpa c, para nao repetir o ultimo caractere
                 leitor.get(c);//lê caracter a caracter
+                salva += c;
                 //cout << c;
           
-                if(c == '#'){//se tem # no codigo fz verificação
-                  trata = true;
-                  txtSup = false;
+                if((c == '#')&&(semCom)){//se tem # no codigo fz verificação
+                  //if(!operacao){
+                    trata = true;
+                    txtSup = false;
+                 // }
+                 
+                 // cout<<getVarAnterior()<<"sssss";
                 }
           
-                if(txtSup){
+                if(semCom){//caso tenha um ou uns espaços antes do #
+                  if(c != ' '){
+                    semCom = false;
+                  }
+                }
+          
+                if(c == '\n'){
+                  semCom = true;
+                }
+          
+                //setVarAnterior(c);//variavel anterior
+          
+                if((txtSup)&&(!operacao)){
                   setTextoSup(getTextoSup() + c);
                 }
 
-  
-                if(arqIf){//faz tratamento do #if,#else e #endif
-                  trataIf(c, &condicao, &arqIf, &txtSup, &arqElse);
-                }
-
-                if(trata){
-                  comando += c;
+                if(tratamento){//faz tratamento do #if,#else e #endif
+                  //salva += c;
+                  trataIf(c, &condicao, &tratamento, &txtSup, &arqElse, &salva, &operacao);
+                  
+                }else if(tratamentoDef){//faz tratamento da #definicao
+            
+                  trataDefinicao(c, &condicao, &tratamentoDef, &ind, &salva);//trata definicoes
+                  
+                }else if(trata){
+              
+                  if(c != ' '){
+                     comando += c; 
+                  }
                   
                   if(comando.size() >= 3 && comando.size()<= 8){
-                    if(comando == txtIf){//identifica um #if
-                      arqIf = true;
+                    
+                    if(((comando == txtIf)&&(c == ' '))||((comando == txtIfndef)||(comando == txtIfdef))){//identifica um #if                
+                      setCondicional(comando);
+                      tratamento = true;
                       trata = false;
                       comando = "";
                       testeIf++;
                       
+                    }else if(comando == txtDef){//identifica um #else
+                      if(operacao){//esta dentro de um #endif
+                         trata = false;
+                         comando = "";
+                         tratamentoDef = true;
+                         
+                        
+                      }else if(testeIf == 1){
+                         trata = false;
+                         comando = "";
+                         tratamentoDef = true;
+                         txtSup = true;//deixa pegar o texto
+                         setTextoSup(getTextoSup() + txtDef);//pegar o texto #define
+                         //salva = txtDef;
+                      }
+                     
                     }else if(comando == txtElse){//identifica um #else
                       trata = false;
                       comando = "";
+                      salva = "";
                       if(arqElse){//saber se copia ou nao o trecho do else
                         txtSup = true;
                       }else{
@@ -182,63 +233,143 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                       trata = false;
                       txtSup = true;
                       comando = "";
+                      
                       testeIf--;
                       
                       if(testeIf == 0){
                         testeIf++;
                         erro = "ERRO: falta #if\n";
+                        
+                      //  setTextoSup(getTextoSup() + salva);//joga o endif de volta para o texto
                       }
+                      if(operacao){
+                        operacao = false;
+                        setTextoSup(getTextoSup() + salva);
+                      }
+                      salva = "";
                       //cout << c;
                     }
                   }
                   
                   if(comando.size() > 7){//se for maior que sete carcters guardo o comando
                     trata = false;
-                    setTextoSup(getTextoSup() + comando);
+                    setTextoSup(getTextoSup() + salva);
                     txtSup = true;
                     comando = "";
+                    salva ="";
+                    
                   }
                 }
-
+              
             }
       leitor.close();//fecha o arquivo
       
     }
     
-    //cout <<getTextoSup()<<endl;//teste
+    cout <<getTextoSup()<<endl;//teste
   
     if(testeIf > 1){
       cout << "ERRO: falta #endif "<<endl<< testeIf;
     }
-    cout <<erro<<endl;//teste
+    cout << erro << endl;//teste
     //setCondicao(condicaoIfs.erase(0,1));
     //cout << endl<<condicaoIfs;//teste
     
 }
 
-void PreCompilador::trataIf(char c, string*txt, bool*arq, bool*ts, bool*arqelse){
-    char c2 = c;  
-    if(c2 == '\n'){ //chegou ao fim da condição
-      *arq = false;
+void PreCompilador::trataIf(char c, string*txt, bool*arq, bool*ts, bool*arqelse, string*salve, bool*op){
+    char c2 = c;
+    
+      if(c2 == '\n'){ //chegou ao fim da condição
+        
       *ts = verificaCondicao(*txt);
-      *arqelse = !*ts;
-      *txt = "";
-      
-    }else{//pega a condição if
-      *txt += c2;
+      cout<<endl<<*txt+" "<<*ts<<endl;//....................................................
+      if(getCondicional() == "#ifndef"){
+        
+        if(!*ts){
+           *op = true;//pegar definicao
+        }else{
+          *op = false;
+        }
+        *arq = false;//sai do tratamento
+        *txt = "";
+        
+      }else if(getCondicional() == "#ifdef"){
+        
+       
+      }else{//é um #if
+        *arq = false;//sai do tratamento
+        *arqelse = !*ts;
+        *txt = "";
+        *salve = "";
+      }
+    
+    }else{//pega a condição if  
+      if(c2 != ' '){
+        *txt += c2;
+      }
     }
 }
 
-bool PreCompilador::verificaCondicao(string str){
-  if(str == " defined __USE_XOPEN"){
-    if(__USE_XOPEN){
-      return true;
+void PreCompilador::trataDefinicao(char c2, string* txt, bool* destrava, int* ind, string* salve){
+    char c = c2;
+    
+    if(c == '\n'){ //chegou ao fim da condição
+      
+      if(*ind == 0){//se for so uma variavel
+        setaDefinicao(*txt);//seta a definição
+        setaAtribuicao(" ");//seta a definição
+        *ind = 1;
+        cout<<*txt+"->variavel definida<-";//..............................................
+        *txt = "";//apaga a variavel para pegar a definição
+      }else if(*ind == 1){
+            setaAtribuicao(*txt);//seta a definição
+           // cout<<*txt+"foiiiiiiii";
+      }
+      
+      *destrava = false;//sai do tratamento
+      *txt = "";//limpa a variavel acumuladora de texto
+      *ind = 0;
+      
+    }else{//pega a condição if  
+      if(c != ' '){
+        *txt += c;
+        
+      }else{
+        if(*txt!=""){//se nao estiver vazio
+        //cout<<"teste";
+          
+          if(*ind == 0){
+            setaDefinicao(*txt);//seta a definição
+             *ind = 1;
+          //   cout<<*txt;
+            *txt = "";//apaga a variavel para pegar a definição
+            
+          }else if(*ind == 1){
+            setaAtribuicao(*txt);//seta a definição
+            //cout<<*txt+"sdssss";
+            *txt = "";//apaga a variavel para pegar a definição
+            *ind = 2;
+          }
+         
+        }
+      }
     }
-  }
+}
+
+void PreCompilador::setaDefinicao(string def){
+  definicao.insert(definicao.begin(),1,def);
+}
+
+void PreCompilador::setaAtribuicao(string atr){
+  atribuicao.insert(atribuicao.begin(),1,atr);
+}
+
+bool PreCompilador::verificaCondicao(string def){
   
-  if(str == " defined __USE_UNIX98 || defined __USE_XOPEN2K"){
-    if(__USE_UNIX98 || __USE_XOPEN2K){
-       return true;
+   for (string str : definicao) {
+    if(str == def){
+      return true;
     }
   }
   return false;
@@ -372,6 +503,22 @@ string PreCompilador::getTextoInf(){
 
 void PreCompilador::setTextoInf(string txtinf){//inclui novo arquivo de texto
   textoInf = txtinf;
+}
+
+char PreCompilador::getVarAnterior(){  
+  return varAnterior;
+}
+
+void PreCompilador::setVarAnterior(char tx){//inclui novo arquivo de texto
+  varAnterior = tx;
+}
+
+string PreCompilador::getCondicional(){  
+  return condicional;
+}
+
+void PreCompilador::setCondicional(string str){//inclui novo arquivo de texto
+  condicional = str;
 }
 
 void PreCompilador::limpar(){

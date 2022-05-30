@@ -5,7 +5,7 @@ using namespace std;
 
 int main() {
   
-  PreCompilador pc;
+  PreCompilador pc; 
   pc.iniciar();
 
 }

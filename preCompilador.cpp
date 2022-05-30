@@ -138,6 +138,7 @@ void PreCompilador::leituraIfs(string nomeArquivo){
     bool def = false;
     bool semCom = true;
     bool operacao = false;
+    bool guarda = false;
     int testeIf = 1;
     int ind = 0;
     
@@ -152,17 +153,17 @@ void PreCompilador::leituraIfs(string nomeArquivo){
           
                 c = ' ';//limpa c, para nao repetir o ultimo caractere
                 leitor.get(c);//lê caracter a caracter
-                salva += c;
+                //
                 //cout << c;
           
                 if((c == '#')&&(semCom)){//se tem # no codigo fz verificação
-                  //if(!operacao){
+                  
                     trata = true;
                     txtSup = false;
-                 // }
-                 
-                 // cout<<getVarAnterior()<<"sssss";
+                    salva ="";//apaga o salva
+                
                 }
+                salva += c;//resetar para pega logo apos a pausa txtSup
           
                 if(semCom){//caso tenha um ou uns espaços antes do #
                   if(c != ' '){
@@ -176,48 +177,63 @@ void PreCompilador::leituraIfs(string nomeArquivo){
           
                 //setVarAnterior(c);//variavel anterior
           
-                if((txtSup)&&(!operacao)){
+                if(txtSup){
                   setTextoSup(getTextoSup() + c);
                 }
 
                 if(tratamento){//faz tratamento do #if,#else e #endif
                   //salva += c;
-                  trataIf(c, &condicao, &tratamento, &txtSup, &arqElse, &salva, &operacao);
+                  trataIf(c, &condicao, &tratamento, &txtSup, &arqElse, &salva, &operacao, &guarda);
                   
                 }else if(tratamentoDef){//faz tratamento da #definicao
             
                   trataDefinicao(c, &condicao, &tratamentoDef, &ind, &salva);//trata definicoes
                   
-                }else if(trata){
+                }
+          
+              if(trata){
               
                   if(c != ' '){
                      comando += c; 
                   }
                   
                   if(comando.size() >= 3 && comando.size()<= 8){
-                    
+                      
                     if(((comando == txtIf)&&(c == ' '))||((comando == txtIfndef)||(comando == txtIfdef))){//identifica um #if                
                       setCondicional(comando);
                       tratamento = true;
                       trata = false;
-                      comando = "";
                       testeIf++;
                       
-                    }else if(comando == txtDef){//identifica um #else
-                      if(operacao){//esta dentro de um #endif
-                         trata = false;
-                         comando = "";
-                         tratamentoDef = true;
-                         
-                        
-                      }else if(testeIf == 1){
-                         trata = false;
-                         comando = "";
-                         tratamentoDef = true;
-                         txtSup = true;//deixa pegar o texto
-                         setTextoSup(getTextoSup() + txtDef);//pegar o texto #define
-                         //salva = txtDef;
+                      if(comando == txtIfndef){
+                    
+                        setTextoSup(getTextoSup() + txtIfndef);//pegar o texto #define
+                        txtSup = true;//continua gravando o texto
+                      }else if(comando == txtIfdef){
+                   
+                        setTextoSup(getTextoSup() + txtIfdef);//pegar o texto #define
+                        txtSup = true;
                       }
+                       
+                      comando = "";
+                     
+                      
+                    }else if(comando == txtDef){
+                              if(operacao){//esta dentro de um #endif
+                                 trata = false;
+                                 comando = "";
+                                 tratamentoDef = true;
+                                 txtSup = true;//deixa pegar o texto
+                                 setTextoSup(getTextoSup() + txtDef);//pegar o texto #define
+                                
+                              }else if(testeIf == 1){
+                                 trata = false;
+                                 comando = "";
+                                 tratamentoDef = true;
+                                 txtSup = true;//deixa pegar o texto
+                                 setTextoSup(getTextoSup() + txtDef);//pegar o texto #define
+                                 //salva = txtDef;
+                              }
                      
                     }else if(comando == txtElse){//identifica um #else
                       trata = false;
@@ -242,22 +258,26 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                         
                       //  setTextoSup(getTextoSup() + salva);//joga o endif de volta para o texto
                       }
-                      if(operacao){
+                      if(operacao){//#ifndef
                         operacao = false;
                         setTextoSup(getTextoSup() + salva);
+                      }
+                      if(guarda){//#ifdef ja defini
+                        guarda = false;
+                        setTextoSup(getTextoSup() + txtEndif);
                       }
                       salva = "";
                       //cout << c;
                     }
+                    
                   }
                   
-                  if(comando.size() > 7){//se for maior que sete carcters guardo o comando
+                  if(comando.size() > 8){//se for maior que sete carcters guardo o comando
                     trata = false;
                     setTextoSup(getTextoSup() + salva);
                     txtSup = true;
                     comando = "";
-                    salva ="";
-                    
+                    salva = "";
                   }
                 }
               
@@ -269,35 +289,40 @@ void PreCompilador::leituraIfs(string nomeArquivo){
     cout <<getTextoSup()<<endl;//teste
   
     if(testeIf > 1){
-      cout << "ERRO: falta #endif "<<endl<< testeIf;
+      cout << "ERRO: falta #endif ->"<<(testeIf - 1)<<endl;
     }
     cout << erro << endl;//teste
     //setCondicao(condicaoIfs.erase(0,1));
     //cout << endl<<condicaoIfs;//teste
-    
+   // cout << "ERRO: falta #endif "<<endl<< testeIf;
 }
 
-void PreCompilador::trataIf(char c, string*txt, bool*arq, bool*ts, bool*arqelse, string*salve, bool*op){
+void PreCompilador::trataIf(char c, string*txt, bool*arq, bool*ts, bool*arqelse, string*salve, bool*op, bool*gu){
     char c2 = c;
+    bool txSup = false;
     
       if(c2 == '\n'){ //chegou ao fim da condição
         
-      *ts = verificaCondicao(*txt);
-      cout<<endl<<*txt+" "<<*ts<<endl;//....................................................
+      txSup = verificaCondicao(*txt);
+     // cout<<endl<<*txt+" "<<*ts<<endl;//....................................................
       if(getCondicional() == "#ifndef"){
         
-        if(!*ts){
+        if(!txSup){
            *op = true;//pegar definicao
         }else{
           *op = false;
+          *gu = true;//#endif
         }
         *arq = false;//sai do tratamento
         *txt = "";
         
       }else if(getCondicional() == "#ifdef"){
-        
+        *gu = true;
+        *arq = false;//sai do tratamento
+        *txt = "";
        
       }else{//é um #if
+        *ts = txSup;//ts é igual txtSup
         *arq = false;//sai do tratamento
         *arqelse = !*ts;
         *txt = "";
@@ -320,7 +345,7 @@ void PreCompilador::trataDefinicao(char c2, string* txt, bool* destrava, int* in
         setaDefinicao(*txt);//seta a definição
         setaAtribuicao(" ");//seta a definição
         *ind = 1;
-        cout<<*txt+"->variavel definida<-";//..............................................
+        //cout<<*txt+"->variavel definida<-";//..............................................
         *txt = "";//apaga a variavel para pegar a definição
       }else if(*ind == 1){
             setaAtribuicao(*txt);//seta a definição

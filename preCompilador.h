@@ -27,7 +27,7 @@ class PreCompilador{
     void escritaIfs();//escreve o arquivo apos a verificação dos #if,#else e #endif
     void trataInclude(char, string*, bool*, bool*, string*);
     bool verificaLista(string);
-    void trataIf(char, string*, bool*, bool*, bool*, string*, bool*);
+    void trataIf(char, string*, bool*, bool*, bool*, string*, bool*, bool*);
     void trataDefinicao(char, string*, bool*, int*, string*);
     string getInclusao();
     void  setInclusao();

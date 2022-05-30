@@ -258,10 +258,10 @@ public:
 
 	list<string> ler(string nome) {
 		entrada = lerArquivo(nome);
-		cout << "ENTRADA:\n" << entrada << endl;
+		//cout << "ENTRADA:\n" << entrada << endl;
 
 		string textoSemComentario = escandimento(entrada);
-		cout << "ESCANDIMENTO:\n" << textoSemComentario << endl;
+		//cout << "ESCANDIMENTO:\n" << textoSemComentario << endl;
 
 		quebrarEmLexemas(textoSemComentario);
 		return saida;

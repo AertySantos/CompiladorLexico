@@ -184,7 +184,7 @@
  * equivalent to MSVCR60.DLL, which seems reasonably well aligned with
  * the feature set of the earliest MSVCRT.DLL version we support.
  */
-#define __MSVCRT_VERSION__  __MSVCR60_DLL
+# define __MSVCRT_VERSION__  __MSVCR60_DLL
 #endif
 
 /* This is an exception to the normal rule, that all mingwrt system
@@ -198,9 +198,9 @@
  */
 #endif
 
- /* !_MSVCRTVER_H: $RCSfile: msvcrtver.h,v $: end of file */
+#endif /* !_MSVCRTVER_H: $RCSfile: msvcrtver.h,v $: end of file */
  
-
+#endif
 
 /* A better inference than __MSVCRT_VERSION__, of the capabilities
  * supported by the operating system default MSVCRT.DLL, is provided
@@ -433,39 +433,41 @@
  * be inferred.
  */
 #if defined WINVER && ! defined _WIN32_WINNT
-#define _WIN32_WINNT WINVER
+# define _WIN32_WINNT WINVER
 
 /* Additionally, legacy code intended for deployment on the Win9x
  * series operating systems may have specified _WIN32_WINDOWS, as
  * an alternative to, or in addition to, _WIN32_WINNT.
  */
 #elif defined _WIN32_WINDOWS && ! defined _WIN32_WINNT
-#define _WIN32_WINNT _WIN32_WINDOWS
+# define _WIN32_WINNT _WIN32_WINDOWS
 #endif
 
 /* Stipulate defaults; check consistency of any user specified overrides.
  */
 #ifdef NTDDI_VERSION
-#ifdef _WIN32_WINNT
-#if _WIN32_WINNT != WINNTVER(NTDDI_VERSION)
+# ifdef _WIN32_WINNT
+#  if _WIN32_WINNT != WINNTVER(NTDDI_VERSION)
 #   error "_WIN32_WINNT setting conflicts with specified NTDDI_VERSION"
 #  endif
+# else
 #  define _WIN32_WINNT WINNTVER(NTDDI_VERSION)
-#ifndef WINVER
-#define WINVER _WIN32_WINNT
+#  ifndef WINVER
+#   define WINVER _WIN32_WINNT
 #  endif
-
-
+# endif
+#endif
 
 #ifndef _WIN32_WINNT
-#ifdef WINVER
+# ifdef WINVER
 #  define _WIN32_WINNT WINVER
-#ifdef _WARN_DEFAULTS
+# else
+#  ifdef _WARN_DEFAULTS
 #   warning "Assuming default setting of _WIN32_WINNT_WIN2K for _WIN32_WINNT"
 #  endif
 #  define _WIN32_WINNT _WIN32_WINNT_WIN2K
-
-
+# endif
+#endif
 
 #ifndef WINVER
 # define WINVER _WIN32_WINNT
@@ -476,22 +478,22 @@
 #endif
 
 #ifndef NTDDI_VERSION
-#ifdef _WARN_DEFAULTS
+# ifdef _WARN_DEFAULTS
 #  warning "Assuming default NTDDI_VERSION setting to match _WIN32_WINNT"
 # endif
 # define NTDDI_VERSION NTDDI_VERSION_FROM_WIN32_WINNT(_WIN32_WINNT)
-
+#endif
 
 #ifndef _WIN32_IE
 /* https://msdn.microsoft.com/en-us/library/windows/desktop/bb776779%28v=vs.85%29.aspx
  * specifies that the user should define _WIN32_IE, but in the absence of
  * any such definition, a default equivalent to IE-5.0 may be assumed.
  */
-#ifdef _WARN_DEFAULTS
+# ifdef _WARN_DEFAULTS
 #  warning "Assuming default _WIN32_IE setting to match _WIN32_IE_IE50"
 # endif
 # define _WIN32_IE _WIN32_IE_IE50
-
+#endif
 
 /* Map GCC architecture identification macros to their MSVC equivalents.
  * This mapping was previously specified in <winnt.h>, and duplicated in
@@ -505,18 +507,19 @@
   * for the X86 processor family, in addition to any one of the other three
   * macros, which may be used to identify a particular processor version.
   */
-#define _M_IX86		600
+# if defined(__i686__)
+#  define _M_IX86		600
 
 # elif defined(__i586__)
-#define _M_IX86		500
+#  define _M_IX86		500
 
 # elif defined(__i486__)
-#define _M_IX86		400
+#  define _M_IX86		400
 
 # elif defined(__i386__)
-#define _M_IX86		300
+#  define _M_IX86		300
 # endif
-
+#endif
 
 /* The preceding logic may have established the host type as X86, or it
  * may have done nothing at all; we must check further.
@@ -525,34 +528,34 @@
  /* We've established that we ARE compiling for an X86 host; any MinGW32
   * compiler SHOULD have set this for us already...
   */
-#ifndef _X86_
+# ifndef _X86_
   /* ...but cross-check it anyway, in case the user may have some unusual
    * compiler configuration in place.
    */
-#define _X86_ 		1
+#  define _X86_ 		1
 # endif
 
-#ifndef _M_IX86_FP
+# ifndef _M_IX86_FP
   /* MSVC defines this, to provide additional information about particular
    * capabilties of the X86 host environment; specifically...
    */
-#ifdef __SSE2__
+#  ifdef __SSE2__
    /* ...this indicates that the SSE2 instruction set (or better) may be
     * assumed to be supported...
     */
-#define _M_IX86_FP		2
+#   define _M_IX86_FP		2
 
 #  elif defined(__SSE__)
    /* ...whereas, this promises only basic SSE instruction set support...
     */
-#define _M_IX86_FP		1
+#   define _M_IX86_FP		1
 
-
+#  else
    /* ...and this disallows its use, entirely.
     */
-#define _M_IX86_FP		0
+#   define _M_IX86_FP		0
 #  endif
-
+# endif
 
 /* When not compiling for an X86 host; check mapping from other possible
  * GCC architecture identifiers, to their MSVC equivalents.
@@ -561,27 +564,27 @@
  /* This represents an Intel X86-64, or (compatible) AMD-64 processor;
   * MSVC defines...
   */
-#ifndef _M_X64
+# ifndef _M_X64
   /* ...this to represent the former, together with...
    */
-#define _M_X64		1
+#  define _M_X64		1
 # endif
-#ifndef _M_AMD64
+# ifndef _M_AMD64
   /* ...this alias, to represent the latter.
    */
-#define _M_AMD64		1
+#  define _M_AMD64		1
 # endif
 
 #elif defined(__ia64__)
  /* This represents an Intel Itanium processor, which MSVC designates
   * by defining this feature test macro.
   */
-#ifndef _M_IA64
-#define _M_IA64		1
+# ifndef _M_IA64
+#  define _M_IA64		1
 # endif
-	/* !_M_IX86 */
+#endif	/* !_M_IX86 */
 
- /* _SDKDDKVER_H: $RCSfile: sdkddkver.h,v $: end of file */
+#endif /* _SDKDDKVER_H: $RCSfile: sdkddkver.h,v $: end of file */
  
 
 /* The following defines are for documentation purposes.  Although not used
@@ -673,7 +676,7 @@
  /* ...by appending a "W" suffix to the generic function name...
   */
 # define __AW_SUFFIXED__(__NAME__)  __NAME__##W
-
+#else
  /* ...or by appending an "A" suffix, to select an ANSI variant with
   * char encoding of string arguments, when UNICODE is not defined.
   */
@@ -713,7 +716,7 @@
 # define _BEGIN_C_DECLS  extern "C" {
 # define _END_C_DECLS    }
 
-
+#else
 /* ...while remaining transparent, when compiling C code.
  */
 # define _EXTERN_C       extern
@@ -721,7 +724,7 @@
 # define _END_C_DECLS
 #endif
 
- /* ! _W32API_H: $RCSfile: w32api.h.in,v $: end of file */
+#endif /* ! _W32API_H: $RCSfile: w32api.h.in,v $: end of file */
  
 
 /* The following are defined by the user (or by the compiler), to specify how
@@ -890,7 +893,7 @@ _MINGW_FEATURES_HEADER#else
 
 #endif	/* !__MINGW_FEATURES__: $RCSfile$: end of file */
  
-
+#endif
 
 #ifndef __MINGW_FEATURES__
 /* Regardless of how the preceding features configuration header was
@@ -926,124 +929,126 @@ _MINGW_FEATURES_HEADER#else
  */
 #undef __attribute__
 
+#if defined (__PCC__)
 #  undef __DECLSPEC_SUPPORTED
-#ifndef __MINGW_IMPORT
-#define __MINGW_IMPORT extern
+# ifndef __MINGW_IMPORT
+#  define __MINGW_IMPORT extern
 # endif
-#ifndef _CRTIMP
-#define _CRTIMP
+# ifndef _CRTIMP
+#  define _CRTIMP
 # endif
-#ifndef __cdecl
-#define __cdecl  _Pragma("cdecl")
+# ifndef __cdecl
+#  define __cdecl  _Pragma("cdecl")
 # endif
-#ifndef __stdcall
-#define __stdcall _Pragma("stdcall")
+# ifndef __stdcall
+#  define __stdcall _Pragma("stdcall")
 # endif
-#ifndef __int64
-#define __int64 long long
+# ifndef __int64
+#  define __int64 long long
 # endif
-#ifndef __int32
-#define __int32 long
+# ifndef __int32
+#  define __int32 long
 # endif
-#ifndef __int16
-#define __int16 short
+# ifndef __int16
+#  define __int16 short
 # endif
-#ifndef __int8
-#define __int8 char
+# ifndef __int8
+#  define __int8 char
 # endif
-#ifndef __small
-#define __small char
+# ifndef __small
+#  define __small char
 # endif
-#ifndef __hyper
-#define __hyper long long
+# ifndef __hyper
+#  define __hyper long long
 # endif
-#ifndef __volatile__
-#define __volatile__ volatile
+# ifndef __volatile__
+#  define __volatile__ volatile
 # endif
-#ifndef __restrict__
-#define __restrict__ restrict
+# ifndef __restrict__
+#  define __restrict__ restrict
 # endif
 # define NONAMELESSUNION
 #elif defined(__GNUC__)
-#ifdef __declspec
-#ifndef __MINGW_IMPORT
+# ifdef __declspec
+#  ifndef __MINGW_IMPORT
    /* Note the extern. This is needed to work around GCC's
       limitations in handling dllimport attribute.  */
 #   define __MINGW_IMPORT  extern __attribute__((__dllimport__))
 #  endif
-#ifndef _CRTIMP
-#ifdef __USE_CRTIMP
+#  ifndef _CRTIMP
+#   ifdef __USE_CRTIMP
 #    define _CRTIMP  __attribute__((dllimport))
-
+#   else
 #    define _CRTIMP
 #   endif
-
+#  endif
 #  define __DECLSPEC_SUPPORTED
- /* __declspec */
+# else /* __declspec */
 #  undef __DECLSPEC_SUPPORTED
 #  undef __MINGW_IMPORT
-#ifndef _CRTIMP
+#  ifndef _CRTIMP
 #   define _CRTIMP
 #  endif
- /* __declspec */
+# endif /* __declspec */
 /*
  * The next two defines can cause problems if user code adds the
  * __cdecl attribute like so:
  * void __attribute__ ((__cdecl)) foo(void);
  */
-#ifndef __cdecl
+# ifndef __cdecl
 #  define __cdecl  __attribute__((__cdecl__))
 # endif
-#ifndef __stdcall
+# ifndef __stdcall
 #  define __stdcall __attribute__((__stdcall__))
 # endif
-#ifndef __int64
+# ifndef __int64
 #  define __int64 long long
 # endif
-#ifndef __int32
+# ifndef __int32
 #  define __int32 long
 # endif
-#ifndef __int16
+# ifndef __int16
 #  define __int16 short
 # endif
-#ifndef __int8
+# ifndef __int8
 #  define __int8 char
 # endif
-#ifndef __small
+# ifndef __small
 #  define __small char
 # endif
-#ifndef __hyper
+# ifndef __hyper
 #  define __hyper long long
 # endif
- /* ! __GNUC__ && ! __PCC__ */
-#ifndef __MINGW_IMPORT
+#else /* ! __GNUC__ && ! __PCC__ */
+# ifndef __MINGW_IMPORT
 #  define __MINGW_IMPORT  __declspec(dllimport)
 # endif
-#ifndef _CRTIMP
+# ifndef _CRTIMP
 #  define _CRTIMP  __declspec(dllimport)
 # endif
 # define __DECLSPEC_SUPPORTED
 # define __attribute__(x) /* nothing */
-
+#endif
 
 #if defined (__GNUC__) && defined (__GNUC_MINOR__)
 #define __MINGW_GNUC_PREREQ(major, minor) \
   (__GNUC__ > (major) \
    || (__GNUC__ == (major) && __GNUC_MINOR__ >= (minor)))
-
+#else
 #define __MINGW_GNUC_PREREQ(major, minor)  0
 #endif
 
 #ifdef __cplusplus
 # define __CRT_INLINE    inline
-
+#else
+# if __GNUC_STDC_INLINE__
 #  define __CRT_INLINE   extern inline __attribute__((__gnu_inline__))
-
+# else
 #  define __CRT_INLINE   extern __inline__
 # endif
+#endif
 
-
-#ifdef __GNUC__
+# ifdef __GNUC__
   /* A special form of __CRT_INLINE is provided; it will ALWAYS request
    * inlining when possible.  Originally specified as _CRTALIAS, this is
    * now deprecated in favour of __CRT_ALIAS, for syntactic consistency
@@ -1051,7 +1056,7 @@ _MINGW_FEATURES_HEADER#else
    */
 #  define  _CRTALIAS   __CRT_INLINE __attribute__((__always_inline__))
 #  define __CRT_ALIAS  __CRT_INLINE __attribute__((__always_inline__))
-
+# else
 #  define  _CRTALIAS   __CRT_INLINE	/* deprecated form */
 #  define __CRT_ALIAS  __CRT_INLINE	/* preferred form */
 # endif
@@ -1069,46 +1074,50 @@ _MINGW_FEATURES_HEADER#else
 
 #ifdef __cplusplus
 # define __UNUSED_PARAM(x)
-
-#ifdef __GNUC__
+#else
+# ifdef __GNUC__
 #  define __UNUSED_PARAM(x) x __attribute__((__unused__))
-
+# else
 #  define __UNUSED_PARAM(x) x
 # endif
-
+#endif
 
 #ifdef __GNUC__
 #define __MINGW_ATTRIB_NORETURN __attribute__((__noreturn__))
 #define __MINGW_ATTRIB_CONST __attribute__((__const__))
-
+#else
 #define __MINGW_ATTRIB_NORETURN
 #define __MINGW_ATTRIB_CONST
 #endif
 
+#if __MINGW_GNUC_PREREQ (3, 0)
 #define __MINGW_ATTRIB_MALLOC __attribute__((__malloc__))
 #define __MINGW_ATTRIB_PURE __attribute__((__pure__))
-
+#else
 #define __MINGW_ATTRIB_MALLOC
 #define __MINGW_ATTRIB_PURE
-
+#endif
 
 /* Attribute `nonnull' was valid as of gcc 3.3.  We don't use GCC's
    variadiac macro facility, because variadic macros cause syntax
    errors with  --traditional-cpp.  */
+#if  __MINGW_GNUC_PREREQ (3, 3)
 #define __MINGW_ATTRIB_NONNULL(arg) __attribute__((__nonnull__(arg)))
-
+#else
 #define __MINGW_ATTRIB_NONNULL(arg)
- /* GNUC >= 3.3 */
+#endif /* GNUC >= 3.3 */
 
+#if  __MINGW_GNUC_PREREQ (3, 1)
 #define __MINGW_ATTRIB_DEPRECATED __attribute__((__deprecated__))
-
+#else
 #define __MINGW_ATTRIB_DEPRECATED
- /* GNUC >= 3.1 */
+#endif /* GNUC >= 3.1 */
 
+#if  __MINGW_GNUC_PREREQ (3, 3)
 #define __MINGW_NOTHROW __attribute__((__nothrow__))
-
+#else
 #define __MINGW_NOTHROW
- /* GNUC >= 3.3 */
+#endif /* GNUC >= 3.3 */
 
 
 /* TODO: Mark (almost) all CRT functions as __MINGW_NOTHROW.  This will
@@ -1125,19 +1134,27 @@ allow GCC to optimize away some EH unwind code, at least in DW2 case.  */
 # warning "Direct definition of __USE_MINGW_ANSI_STDIO is deprecated."
 # pragma message "See <_mingw.h> for preferred feature activation methods."
 
-	/* ! defined __USE_MINGW_ANSI_STDIO */
+#else	/* ! defined __USE_MINGW_ANSI_STDIO */
 /* We must check this BEFORE we specifiy any implicit _POSIX_C_SOURCE,
  * otherwise we would always implicitly choose __USE_MINGW_ANSI_STDIO,
  * even if none of these selectors are specified explicitly...
  */
-#if  defined __STRICT_ANSI__  ||  defined _SVID_SOURCE            \
+# if  defined __STRICT_ANSI__  ||  defined _SVID_SOURCE            \
+  ||  defined _ISOC99_SOURCE   ||  defined _ISOC11_SOURCE          \
+  ||  defined _POSIX_SOURCE    ||  defined _POSIX_C_SOURCE         \
+  ||  defined _XOPEN_SOURCE    ||  defined _XOPEN_SOURCE_EXTENDED  \
+  ||  defined _GNU_SOURCE      ||  defined _BSD_SOURCE
+  /*
+   * but where any of these source code qualifiers are specified,
+   * then assume ANSI I/O standards are preferred over Microsoft's...
+   */
 #  define __USE_MINGW_ANSI_STDIO   __MINGW_ANSI_STDIO__
-
+# else
   /* otherwise use whatever __MINGW_FEATURES__ specifies...
    */
 #  define __USE_MINGW_ANSI_STDIO  (__MINGW_FEATURES__ & __MINGW_ANSI_STDIO__)
 # endif
-
+#endif
 
 /* Some applications may define _XOPEN_SOURCE, without assigning any
  * value to it.  Such usage may have been permitted in early SUS, but
@@ -1150,6 +1167,9 @@ allow GCC to optimize away some EH unwind code, at least in DW2 case.  */
 #define __valueless(token)  ((token - 0) == 0) && (__paste(token,10) == 10)
 
 #if defined _XOPEN_SOURCE && __valueless(_XOPEN_SOURCE)
+/* _XOPEN_SOURCE appears to have been defined without its mandatory
+ * value; diagnose this brain-damaged obsolete usage (verbosely)...
+ */
 #warning "_XOPEN_SOURCE seems to have been improperly defined."
 #warning "Mandatory _XOPEN_SOURCE value assignment appears to be missing."
 #warning "Redefining _XOPEN_SOURCE to mitigate obsolete misuse."
@@ -1167,17 +1187,24 @@ allow GCC to optimize away some EH unwind code, at least in DW2 case.  */
   * features which are supported by MinGW; (notice that this offers no
   * guarantee that any particular POSIX feature will be supported).
   */
-#if _XOPEN_SOURCE < 500
-#define _POSIX_C_SOURCE  1L		/* POSIX.1-1990 / SUSv1 */
+# if defined _XOPEN_SOURCE
+  /* Specifying this is the preferred method for setting _POSIX_C_SOURCE;
+   * (POSIX defines an explicit relationship to _XOPEN_SOURCE).  Note that
+   * any such explicit setting will augment the set of features which are
+   * available to any compilation unit, even if it seeks to be strictly
+   * ANSI-C compliant.
+   */
+#  if _XOPEN_SOURCE < 500
+#   define _POSIX_C_SOURCE  1L		/* POSIX.1-1990 / SUSv1 */
 
 #  elif _XOPEN_SOURCE < 600
-#define _POSIX_C_SOURCE  199506L	/* POSIX.1-1996 / SUSv2 */
+#   define _POSIX_C_SOURCE  199506L	/* POSIX.1-1996 / SUSv2 */
 
 #  elif _XOPEN_SOURCE < 700
-#define _POSIX_C_SOURCE  200112L	/* POSIX.1-2001 / SUSv3 */
+#   define _POSIX_C_SOURCE  200112L	/* POSIX.1-2001 / SUSv3 */
 
-
-#define _POSIX_C_SOURCE  200809L	/* POSIX.1-2008 / SUSv4 */
+#  else
+#   define _POSIX_C_SOURCE  200809L	/* POSIX.1-2008 / SUSv4 */
 #  endif
 
 # elif defined _GNU_SOURCE || defined _BSD_SOURCE || ! defined __STRICT_ANSI__
@@ -1189,7 +1216,11 @@ allow GCC to optimize away some EH unwind code, at least in DW2 case.  */
    */
 #  define _POSIX_C_SOURCE  200809L
 
-#if ! defined _EMULATE_GLIBC && ! defined _POSIX_SOURCE
+#  if ! defined _EMULATE_GLIBC && ! defined _POSIX_SOURCE
+   /* For this default case, unless it has already been specified
+    * otherwise, we enable some GNU glibc extensions, which may be
+    * considered as violations of strict POSIX.1 conformance.
+    */
 #   define _EMULATE_GLIBC  1
 #  endif
 
@@ -1199,12 +1230,16 @@ allow GCC to optimize away some EH unwind code, at least in DW2 case.  */
    * limited feature set enabled for strict ANSI-C conformity.
    */
 #  define _POSIX_C_SOURCE  1L
-
-
+# endif
+#endif
 
 #if _POSIX_C_SOURCE >= 199506L
+/* Conformance with POSIX.1-1996 has been requested; ensure that any
+ * interfaces which have been marked as "obsolescent", from this POSIX
+ * version onwards, will be reported as "deprecated", at point of use.
+ */
 # define __POSIX_1996_DEPRECATED  __MINGW_ATTRIB_DEPRECATED
-
+#else
 /* POSIX.1-1996 conformance is NOT required; do not object to use of
  * interfaces which became "obsolescent" in this POSIX version, but
  * were still fully supported in earlier versions.
@@ -1213,8 +1248,12 @@ allow GCC to optimize away some EH unwind code, at least in DW2 case.  */
 #endif
 
 #if _POSIX_C_SOURCE >= 200112L
+/* Conformance with POSIX.1-2001 has been requested; ensure that any
+ * interfaces which have been marked as "obsolescent", from this POSIX
+ * version onwards, will be reported as "deprecated", at point of use.
+ */
 # define __POSIX_2001_DEPRECATED  __MINGW_ATTRIB_DEPRECATED
-
+#else
 /* POSIX.1-2001 conformance is NOT required; do not object to use of
  * interfaces which became "obsolescent" in this POSIX version, but
  * were still fully supported in earlier versions.
@@ -1223,8 +1262,12 @@ allow GCC to optimize away some EH unwind code, at least in DW2 case.  */
 #endif
 
 #if _POSIX_C_SOURCE >= 200809L
+/* Conformance with POSIX.1-2008 has been requested; ensure that any
+ * interfaces which have been marked as "obsolescent", from this POSIX
+ * version onwards, will be reported as "deprecated", at point of use.
+ */
 # define __POSIX_2008_DEPRECATED  __MINGW_ATTRIB_DEPRECATED
-
+#else
 /* POSIX.1-2008 conformance is NOT required; do not object to use of
  * interfaces which became "obsolescent" in this POSIX version, but
  * were still fully supported in earlier versions.
@@ -1247,19 +1290,19 @@ allow GCC to optimize away some EH unwind code, at least in DW2 case.  */
   * to ensure that we can identify the reason for implicit declaration,
   * (in the event that we may need to discriminate).
   */
-#ifdef _ISOC11_SOURCE
+# ifdef _ISOC11_SOURCE
   /* The user has explicitly selected ISO-C11 compliance; regardless of
    * requested C11 compliance level, implicitly enable C99 compliance to
    * the maximum level supported.
    */
-#define _ISOC99_SOURCE  0x0F
+#  define _ISOC99_SOURCE  0x0F
 
 # elif __STDC_VERSION__ >= 199901L
   /* This represents a compiler supporting ISO-C99; enable all potential
    * use of ISO-C99 features, (to the maximum extent supportable), which
    * presumably also covers all C++11 and POSIX.1 usage.
    */
-#define _ISOC99_SOURCE  0x07
+#  define _ISOC99_SOURCE  0x07
 
 # elif __cplusplus >= 201103L
   /* C++11 also incorporates many (if not all) of the ISO-C99 features,
@@ -1267,16 +1310,16 @@ allow GCC to optimize away some EH unwind code, at least in DW2 case.  */
    * the required extent, (which is likely also sufficient to support
    * any POSIX.1 dependencies).
    */
-#define _ISOC99_SOURCE  0x03
+#  define _ISOC99_SOURCE  0x03
 
 # elif _POSIX_C_SOURCE >= 200112L
   /* This represents the minimum level of ISO-C99 support, which may be
    * required by POSIX.1, (and which may be no less than full support).
    */
-#define _ISOC99_SOURCE  0x01
+#  define _ISOC99_SOURCE  0x01
 # endif
 
-
+#else
  /* The the user has explicitly declared a source level dependency on
   * ISO-C99 features; regardless of how it was declared, redefine it to
   * ensure that any plausible dependency is covered.
@@ -1284,18 +1327,26 @@ allow GCC to optimize away some EH unwind code, at least in DW2 case.  */
 # undef _ISOC99_SOURCE
 # define _ISOC99_SOURCE  0x0F
 
-	/* _ISOC99_SOURCE */
+#endif	/* _ISOC99_SOURCE */
 
 #if _ISOC99_SOURCE && __cplusplus >= 201103L && __GNUC__ < 6
+ /* Due to a configuration defect in GCC versions prior to GCC-6, when
+  * compiling C++11 code, the ISO-C99 functions may not be incorporated
+  * into the appropriate namespace(s); we may be able to mitigate this,
+  * by ensuring that these GCC configuration macros are defined.
+  */
 # define _GLIBCXX_USE_C99	1
 # define _GLIBCXX_HAVE_WCSTOF	1
 #endif
 
 #if ! defined _MINGW32_SOURCE_EXTENDED && ! defined __STRICT_ANSI__
+ /* Enable mingw32 extensions by default, except when __STRICT_ANSI__
+  * conformity mode has been enabled.
+  */
 # define _MINGW32_SOURCE_EXTENDED  1
 #endif
 
- /* __MINGW_H: $RCSfile: _mingw.h.in,v $: end of file */
+#endif /* __MINGW_H: $RCSfile: _mingw.h.in,v $: end of file */
  
 
 #ifndef RC_INVOKED
@@ -1336,7 +1387,17 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
  * ISO C Standard:  7.17  Common definitions  <stddef.h>
  */
 #if (!defined(_STDDEF_H) && !defined(_STDDEF_H_) && !defined(_ANSI_STDDEF_H) \
+     && !defined(__STDDEF_H__)) \
+    || defined(__need_wchar_t) || defined(__need_size_t) \
+    || defined(__need_ptrdiff_t) || defined(__need_NULL) \
+    || defined(__need_wint_t)
+
+/* Any one of these symbols __need_* means that GNU libc
+   wants us just to define one data type.  So don't define
+   the symbols that indicate this file's entire job has been done.  */
 #if (!defined(__need_wchar_t) && !defined(__need_size_t)	\
+     && !defined(__need_ptrdiff_t) && !defined(__need_NULL)	\
+     && !defined(__need_wint_t))
 #define _STDDEF_H
 #define _STDDEF_H_
 /* snaroff@next.com says the NeXT needs this.  */
@@ -1347,10 +1408,17 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 /* This avoids lossage on SunOS but only if stdtypes.h comes first.
    There's no way to win with the other order!  Sun lossage.  */
 
+#if defined(__NetBSD__)
+
+
 #endif
 
+#if defined (__FreeBSD__)
 
 
+#endif
+
+#if defined(__NetBSD__)
 #if !defined(_SIZE_T_) && !defined(_BSD_SIZE_T_)
 #define _SIZE_T
 #endif
@@ -1363,7 +1431,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 #ifndef _BSD_WCHAR_T_
 #define _WCHAR_T
 #endif
-
+#endif
 /* Undef _FOO_T_ if we are supposed to define foo_t.  */
 #if defined (__need_ptrdiff_t) || defined (_STDDEF_H_)
 #undef _PTRDIFF_T_
@@ -1377,7 +1445,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 #undef _WCHAR_T_
 #undef _BSD_WCHAR_T_
 #endif
- /* defined(__NetBSD__) */
+#endif /* defined(__NetBSD__) */
 
 /* Sequent's header files use _PTRDIFF_T_ in some conflicting way.
    Just ignore it.  */
@@ -1392,12 +1460,15 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
    If we find that the macros are still defined at this point, we must
    invoke them so that the type is defined as expected.  */
 #if defined (_TYPE_ptrdiff_t) && (defined (__need_ptrdiff_t) || defined (_STDDEF_H_))
+_TYPE_ptrdiff_t;
 #undef _TYPE_ptrdiff_t
 #endif
 #if defined (_TYPE_size_t) && (defined (__need_size_t) || defined (_STDDEF_H_))
+_TYPE_size_t;
 #undef _TYPE_size_t
 #endif
 #if defined (_TYPE_wchar_t) && (defined (__need_wchar_t) || defined (_STDDEF_H_))
+_TYPE_wchar_t;
 #undef _TYPE_wchar_t
 #endif
 
@@ -1434,20 +1505,20 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 #define __PTRDIFF_TYPE__ long int
 #endif
 typedef __PTRDIFF_TYPE__ ptrdiff_t;
- /* _PTRDIFF_T_DECLARED */
- /* _GCC_PTRDIFF_T */
- /* ___int_ptrdiff_t_h */
- /* _BSD_PTRDIFF_T_ */
- /* _PTRDIFF_T_ */
- /* __PTRDIFF_T */
- /* _T_PTRDIFF */
- /* _T_PTRDIFF_ */
- /* _PTRDIFF_T */
+#endif /* _PTRDIFF_T_DECLARED */
+#endif /* _GCC_PTRDIFF_T */
+#endif /* ___int_ptrdiff_t_h */
+#endif /* _BSD_PTRDIFF_T_ */
+#endif /* _PTRDIFF_T_ */
+#endif /* __PTRDIFF_T */
+#endif /* _T_PTRDIFF */
+#endif /* _T_PTRDIFF_ */
+#endif /* _PTRDIFF_T */
 
 /* If this symbol has done its job, get rid of it.  */
 #undef	__need_ptrdiff_t
 
- /* _STDDEF_H or __need_ptrdiff_t.  */
+#endif /* _STDDEF_H or __need_ptrdiff_t.  */
 
 /* Unsigned type of `sizeof' something.  */
 
@@ -1488,36 +1559,41 @@ typedef __PTRDIFF_TYPE__ ptrdiff_t;
 #define _GCC_SIZE_T
 #define _SIZET_
 #if defined (__FreeBSD__) \
-
+  || defined(__DragonFly__) \
+  || defined(__FreeBSD_kernel__) \
+  || defined(__VMS__)
+/* __size_t is a typedef, must not trash it.  */
+#else
 #define __size_t
 #endif
 #ifndef __SIZE_TYPE__
 #define __SIZE_TYPE__ long unsigned int
 #endif
 #if !(defined (__GNUG__) && defined (size_t))
+typedef __SIZE_TYPE__ size_t;
 #ifdef __BEOS__
 typedef long ssize_t;
 #endif /* __BEOS__ */
- /* !(defined (__GNUG__) && defined (size_t)) */
- /* __size_t */
- /* _SIZET_ */
- /* _GCC_SIZE_T */
- /* ___int_size_t_h */
- /* _SIZE_T_DECLARED */
- /* _BSD_SIZE_T_DEFINED_ */
- /* _SIZE_T_DEFINED */
- /* _SIZE_T_DEFINED_ */
- /* _BSD_SIZE_T_ */
- /* _SIZE_T_ */
- /* __SIZE_T */
- /* _T_SIZE */
- /* _T_SIZE_ */
- /* _SYS_SIZE_T_H */
- /* _SIZE_T */
- /* __SIZE_T__ */
- /* __size_t__ */
+#endif /* !(defined (__GNUG__) && defined (size_t)) */
+#endif /* __size_t */
+#endif /* _SIZET_ */
+#endif /* _GCC_SIZE_T */
+#endif /* ___int_size_t_h */
+#endif /* _SIZE_T_DECLARED */
+#endif /* _BSD_SIZE_T_DEFINED_ */
+#endif /* _SIZE_T_DEFINED */
+#endif /* _SIZE_T_DEFINED_ */
+#endif /* _BSD_SIZE_T_ */
+#endif /* _SIZE_T_ */
+#endif /* __SIZE_T */
+#endif /* _T_SIZE */
+#endif /* _T_SIZE_ */
+#endif /* _SYS_SIZE_T_H */
+#endif /* _SIZE_T */
+#endif /* __SIZE_T__ */
+#endif /* __size_t__ */
 #undef	__need_size_t
- /* _STDDEF_H or __need_size_t.  */
+#endif /* _STDDEF_H or __need_size_t.  */
 
 
 /* Wide character type.
@@ -1575,14 +1651,19 @@ typedef long ssize_t;
 #undef _BSD_WCHAR_T_
 #ifdef _BSD_RUNE_T_
 #if !defined (_ANSI_SOURCE) && !defined (_POSIX_SOURCE)
+typedef _BSD_RUNE_T_ rune_t;
 #define _BSD_WCHAR_T_DEFINED_
 #define _BSD_RUNE_T_DEFINED_	/* Darwin */
 #if defined (__FreeBSD__) && (__FreeBSD__ < 5)
+/* Why is this file so hard to maintain properly?  In contrast to
+   the comment above regarding BSD/386 1.1, on FreeBSD for as long
+   as the symbol has existed, _BSD_RUNE_T_ must not stay defined or
+   redundant typedefs will occur when stdlib.h is included after this file. */
 #undef _BSD_RUNE_T_
 #endif
-
-
-
+#endif
+#endif
+#endif
 /* FreeBSD 5 can't be handled well using "traditional" logic above
    since it no longer defines _BSD_RUNE_T_ yet still desires to export
    rune_t in some cases... */
@@ -1593,9 +1674,9 @@ typedef long ssize_t;
 typedef __rune_t        rune_t;
 #define _RUNE_T_DECLARED
 #endif
-
-
-
+#endif
+#endif
+#endif
 
 #ifndef __WCHAR_TYPE__
 #define __WCHAR_TYPE__ int
@@ -1603,26 +1684,27 @@ typedef __rune_t        rune_t;
 #ifndef __cplusplus
 typedef __WCHAR_TYPE__ wchar_t;
 #endif
-
-
-
-
-
-
- /* _WCHAR_T_DECLARED */
- /* _BSD_RUNE_T_DEFINED_ */
-
-
-
-
-
-
-
- /* __WCHAR_T__ */
- /* __wchar_t__ */
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif /* _WCHAR_T_DECLARED */
+#endif /* _BSD_RUNE_T_DEFINED_ */
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif /* __WCHAR_T__ */
+#endif /* __wchar_t__ */
 #undef	__need_wchar_t
- /* _STDDEF_H or __need_wchar_t.  */
+#endif /* _STDDEF_H or __need_wchar_t.  */
 
+#if defined (__need_wint_t)
 #ifndef _WINT_T
 #define _WINT_T
 
@@ -1630,10 +1712,13 @@ typedef __WCHAR_TYPE__ wchar_t;
 #define __WINT_TYPE__ unsigned int
 #endif
 typedef __WINT_TYPE__ wint_t;
-
+#endif
 #undef __need_wint_t
+#endif
 
-
+#if defined(__NetBSD__)
+/*  The references to _GCC_PTRDIFF_T_, _GCC_SIZE_T_, and _GCC_WCHAR_T_
+    are probably typos and should be removed before 2.8 is released.  */
 #ifdef _GCC_PTRDIFF_T_
 #undef _PTRDIFF_T_
 #undef _BSD_PTRDIFF_T_
@@ -1659,9 +1744,9 @@ typedef __WINT_TYPE__ wint_t;
 #undef _WCHAR_T_
 #undef _BSD_WCHAR_T_
 #endif
- /* __NetBSD__ */
+#endif /* __NetBSD__ */
 
- /* __sys_stdtypes_h */
+#endif /* __sys_stdtypes_h */
 
 /* A null pointer constant.  */
 
@@ -1669,14 +1754,14 @@ typedef __WINT_TYPE__ wint_t;
 #undef NULL		/* in case <stdio.h> has defined it. */
 #ifdef __GNUG__
 #define NULL __null
-   /* G++ */
+#else   /* G++ */
 #ifndef __cplusplus
 #define NULL ((void *)0)
-   /* C++ */
+#else   /* C++ */
 #define NULL 0
 #endif  /* C++ */
-  /* G++ */
-	/* NULL not defined and <stddef.h> or need NULL.  */
+#endif  /* G++ */
+#endif	/* NULL not defined and <stddef.h> or need NULL.  */
 #undef	__need_NULL
 
 #ifdef _STDDEF_H
@@ -1685,6 +1770,7 @@ typedef __WINT_TYPE__ wint_t;
 #define offsetof(TYPE, MEMBER) __builtin_offsetof (TYPE, MEMBER)
 
 #if (defined (__STDC_VERSION__) && __STDC_VERSION__ >= 201112L) \
+  || (defined(__cplusplus) && __cplusplus >= 201103L)
 #ifndef _GCC_MAX_ALIGN_T
 #define _GCC_MAX_ALIGN_T
 /* Type whose alignment is supported in every context and is at least
@@ -1702,23 +1788,26 @@ typedef struct {
   __float128 __max_align_f128 __attribute__((__aligned__(__alignof(__float128))));
 #endif
 } max_align_t;
-
- /* C11 or C++11.  */
+#endif
+#endif /* C11 or C++11.  */
 
 #if defined(__cplusplus) && __cplusplus >= 201103L
 #ifndef _GXX_NULLPTR_T
 #define _GXX_NULLPTR_T
   typedef decltype(nullptr) nullptr_t;
 #endif
- /* C++11.  */
+#endif /* C++11.  */
 
- /* _STDDEF_H was defined this time */
+#endif /* _STDDEF_H was defined this time */
 
- /* !_STDDEF_H && !_STDDEF_H_ && !_ANSI_STDDEF_H && !__STDDEF_H__
+#endif /* !_STDDEF_H && !_STDDEF_H_ && !_ANSI_STDDEF_H && !__STDDEF_H__
 	  || __need_XXX was not defined before */
  
 
 #if _POSIX_C_SOURCE >= 200809L
+ /* Similarly, for types defined in <sys/types.h>, (which are explicitly
+  * dependent on the POSIX.1-2008 feature test)...
+  */
 # define __need_off_t
 # define __need_ssize_t
 #endif
@@ -1731,7 +1820,7 @@ typedef struct {
  /* ...an explicitly 64-bit file offset type, for MSVCRT.DLL users...
   */
 # define __need___off64_t
-
+#else
  /* ...or a 32-bit equivalent, for pre-MSVCRT.DLL users.
   */
 # define __need___off32_t
@@ -1778,6 +1867,11 @@ typedef struct {
 /* All the headers include this file.
  */
 #if ! defined __need_off_t && ! defined __need___off64_t \
+ && ! defined __need_ssize_t && ! defined __need_time_t
+ /*
+  * ...and define the multiple inclusion guard macro for this
+  * header, ONLY IF no such selector macro is defined.
+  */
 #define _SYS_TYPES_H
 #endif
 
@@ -1785,15 +1879,43 @@ typedef struct {
 /* First handle those typedefs which POSIX requires us to be able
  * to expose selectively, via other system headers.
  */
-#if _POSIX_C_SOURCE || ! defined _NO_OLDNAMES
+#if ! defined __have_typedef_off_t \
+ && ( defined _SYS_TYPES_H || defined __need_off_t )
+ /* We base this on an implementation specific private typedef,
+  * analogous to our __off64_t (defined below)...
+  */
+  typedef __int32  __off32_t;
+
+ /* The POSIX off_t typedef is uglified, by Microsoft, as _off_t;
+  * ensure that we provide support for the Microsoft form...
+  */
+  typedef __off32_t  _off_t;
+
+# if _POSIX_C_SOURCE || ! defined _NO_OLDNAMES
+  /* ...but note that this form should ALWAYS be preferred when
+   * compiling POSIX compatible source code, and should also be
+   * made generally available unless Microsoft's old names have
+   * been suppressed, (by defining _NO_OLDNAMES).
+   */
+  typedef _off_t  off_t;
 # endif
-#if __GNUC__ < 4
+# if __GNUC__ < 4
+  /* Some compilers, including GCC prior to v4, may get upset
+   * if we try to specify these typedefs more than once.
+   */
 #  define __have_typedef_off_t
 # endif
-
+#endif
 #undef __need_off_t
 
-#ifndef __STRICT_ANSI__
+#if ! defined __have_typedef___off64_t \
+ && ( defined _SYS_TYPES_H || defined __need___off64_t )
+ /* This is neither an ISO-C standard type, nor even a POSIX
+  * standard type; keep it runtime implementation specific.
+  */
+  typedef __int64  __off64_t;
+
+# ifndef __STRICT_ANSI__
   /* GCC itself, (specifically libgfortran.a), gratuitously
    * assumes that non-standard type off64_t is defined; make
    * it so, pending upstream correction.
@@ -1801,30 +1923,68 @@ typedef struct {
   typedef __off64_t  off64_t;
 # endif
 
-#if __GNUC__ < 4
+# if __GNUC__ < 4
+  /* Some compilers, including GCC prior to v4, may get upset
+   * if we try to specify these typedefs more than once.
+   */
 #  define __have_typedef___off64_t
 # endif
-
+#endif
 #undef __need___off64_t
 
-#if _POSIX_C_SOURCE || ! defined _NO_OLDNAMES
+#if ! defined __have_typedef_ssize_t \
+ && ( defined _SYS_TYPES_H || defined __need_ssize_t )
+ /* POSIX ssize_t typedef, uglified by Microsoft as _ssize_t; ensure
+  * that we support the Microsoft form...
+  */
+  typedef int  _ssize_t;
+
+# if _POSIX_C_SOURCE || ! defined _NO_OLDNAMES
+  /* ...but note that this form should ALWAYS be preferred when
+   * compiling POSIX compatible source code, and should also be
+   * made generally available unless Microsoft's old names have
+   * been suppressed, (by defining _NO_OLDNAMES).
+   */
+  typedef _ssize_t  ssize_t;
 # endif
-#if __GNUC__ < 4
+# if __GNUC__ < 4
+  /* Some compilers, including GCC prior to v4, may get upset
+   * if we try to specify these typedefs more than once.
+   */
 #  define __have_typedef_ssize_t
 # endif
-
+#endif
 #undef __need_ssize_t
 
-#if __MSVCRT_VERSION__ < __MSVCR80_DLL || defined _USE_32BIT_TIME_T
+#if ! defined __have_typedef_time_t \
+ && ( defined _SYS_TYPES_H || defined __need_time_t )
+ /* Current versions of MSVC define time_t ambiguously, in terms of
+  * one of the following unambiguous internal types:
+  */
+  typedef __int32 __time32_t;	/* unambiguous 32-bit time_t */
+  typedef __int64 __time64_t;	/* unambiguous 64-bit time_t */
 
+# if __MSVCRT_VERSION__ < __MSVCR80_DLL || defined _USE_32BIT_TIME_T
+  /* From MSVCR80.DLL onwards, Microsoft have royally messed up the
+   * definition of time_t; maintain POSIX consistency, (as MSVCRT.DLL
+   * itself does), unless the user is explicitly using one of these
+   * brain damaged DLL variants, and has not elected to retain the
+   * 32-bit time_t representation.
+   */
+   typedef __time32_t time_t;
+
+# else
   /* Microsoft's brain damaged default, from MSVCR80.DLL onwards.
    */
    typedef __time64_t time_t;
 # endif
-#if __GCC__ < 4
+# if __GCC__ < 4
+  /* Assume any compiler which is not GCC-4.x or newer may require
+   * guarding against repeated time_t typedefs.
+   */
 #  define __have_typedef_time_t  1
 # endif
-
+#endif
 #undef __need_time_t
 
 #ifdef _SYS_TYPES_H
@@ -1842,7 +2002,7 @@ typedef struct {
   */
 typedef unsigned int	_dev_t;
 
-
+#else
  /* ...but this alternative, when linking with CRTDLL.DLL
   */
 typedef short		_dev_t;
@@ -1859,26 +2019,36 @@ typedef int		_sigset_t;
 /* Users who value portability should prefer...
  */
 #if _POSIX_C_SOURCE || ! defined _NO_OLDNAMES
+ /* ...the standard POSIX type names, (which are consistent with
+  * earlier Microsoft naming practice, and are also historically
+  * exposed by MinGW, except when _NO_OLDNAMES is defined).
+  */
+typedef _dev_t		 dev_t;
+typedef _ino_t		 ino_t;
+typedef _mode_t 	 mode_t;
+typedef _pid_t		 pid_t;
+typedef _sigset_t	 sigset_t;
 #endif
 
 typedef __int64 	 fpos64_t;
 
+#if _POSIX_C_SOURCE
 /* useconds_t is an obsolete POSIX data type; we continue to define
  * it here, for backward compatibility, but we flag it as deprecated,
  * due to its obsolete status.
  */
 typedef unsigned long useconds_t __MINGW_ATTRIB_DEPRECATED;
+#endif
+#endif  /* _SYS_TYPES_H normal inclusion */
 
-  /* _SYS_TYPES_H normal inclusion */
-
-	/* ! RC_INVOKED */
-	/* !_SYS_TYPES_H: $RCSfile: types.h,v $: end of file */
+#endif	/* ! RC_INVOKED */
+#endif	/* !_SYS_TYPES_H: $RCSfile: types.h,v $: end of file */
  
 #ifndef __VALIST
  /* Also similarly, for the va_list type, defined in "stdarg.h"
   */
-#if defined __GNUC__ && __GNUC__ >= 3
-#define __need___va_list
+# if defined __GNUC__ && __GNUC__ >= 3
+#  define __need___va_list
 /* Copyright (C) 1989-2019 Free Software Foundation, Inc.
 
 This file is part of GCC.
@@ -1929,6 +2099,7 @@ typedef __builtin_va_list __gnuc_va_list;
 #define va_end(v)	__builtin_va_end(v)
 #define va_arg(v,l)	__builtin_va_arg(v,l)
 #if !defined(__STRICT_ANSI__) || __STDC_VERSION__ + 0 >= 199900L \
+    || __cplusplus + 0 >= 201103L
 #define va_copy(d,s)	__builtin_va_copy(d,s)
 #endif
 #define __va_copy(d,s)	__builtin_va_copy(d,s)
@@ -1945,19 +2116,30 @@ typedef __builtin_va_list __gnuc_va_list;
 #endif
 
 #if defined(__svr4__) || (defined(_SCO_DS) && !defined(__VA_LIST))
+/* SVR4.2 uses _VA_LIST for an internal alias for va_list,
+   so we must avoid testing it and setting it here.
+   SVR4 uses _VA_LIST as a flag in stdarg.h, but we should
+   have no conflict with that.  */
 #ifndef _VA_LIST_
 #define _VA_LIST_
 #ifdef __i860__
 #ifndef _VA_LIST
 #define _VA_LIST va_list
 #endif
- /* __i860__ */
+#endif /* __i860__ */
 typedef __gnuc_va_list va_list;
 #ifdef _SCO_DS
 #define __VA_LIST
 #endif
- /* _VA_LIST_ */
+#endif /* _VA_LIST_ */
+#else /* not __svr4__ || _SCO_DS */
+
+/* The macro _VA_LIST_ is the same thing used by this file in Ultrix.
+   But on BSD NET2 we must not test or define or undef it.
+   (Note that the comments in NET 2's ansi.h
+   are incorrect for _VA_LIST_--see stdio.h!)  */
 #if !defined (_VA_LIST_) || defined (__BSD_NET2__) || defined (____386BSD____) || defined (__bsdi__) || defined (__sequent__) || defined (__FreeBSD__) || defined(WINNT)
+/* The macro _VA_LIST_DEFINED is used in Windows NT 3.5  */
 #ifndef _VA_LIST_DEFINED
 /* The macro _VA_LIST is used in SCO Unix 3.2.  */
 #ifndef _VA_LIST
@@ -1967,9 +2149,9 @@ typedef __gnuc_va_list va_list;
 #ifndef __va_list__
 typedef __gnuc_va_list va_list;
 #endif /* not __va_list__ */
- /* not _VA_LIST_T_H */
- /* not _VA_LIST */
- /* not _VA_LIST_DEFINED */
+#endif /* not _VA_LIST_T_H */
+#endif /* not _VA_LIST */
+#endif /* not _VA_LIST_DEFINED */
 #if !(defined (__BSD_NET2__) || defined (____386BSD____) || defined (__bsdi__) || defined (__sequent__) || defined (__FreeBSD__))
 #define _VA_LIST_
 #endif
@@ -1986,19 +2168,20 @@ typedef __gnuc_va_list va_list;
 #define __va_list__
 #endif
 
- /* not _VA_LIST_, except on certain systems */
+#endif /* not _VA_LIST_, except on certain systems */
 
- /* not __svr4__ */
+#endif /* not __svr4__ */
 
- /* _STDARG_H */
+#endif /* _STDARG_H */
 
- /* not _ANSI_STDARG_H_ */
- /* not _STDARG_H */
+#endif /* not _ANSI_STDARG_H_ */
+#endif /* not _STDARG_H */
  #  define __VALIST __builtin_va_list
+# else
 #  define __VALIST char *
-
-
-	/* ! RC_INVOKED */
+# endif
+#endif
+#endif	/* ! RC_INVOKED */
 
 #ifdef _STDIO_H
 /* Flags for the iobuf structure
@@ -2086,10 +2269,32 @@ typedef __gnuc_va_list va_list;
 #define SEEK_CUR	     1
 #define SEEK_END	     2
 
-	/* _STDIO_H */
+#endif	/* _STDIO_H */
 
 #ifndef RC_INVOKED
 #if ! (defined _STDIO_H && defined _WCHAR_H)
+/* The structure underlying the FILE type; this should be defined when
+ * including either <stdio.h> or <wchar.h>.  If both header include guards
+ * are now in place, then we must currently be including <stdio.h> in its
+ * own right, having already processed this block during a prior partial
+ * inclusion by <wchar.h>; there is no need to process it a second time.
+ *
+ * Some believe that nobody in their right mind should make use of the
+ * internals of this structure. Provided by Pedro A. Aranda Gutiirrez
+ * <paag@tid.es>.
+ */
+typedef struct _iobuf
+{
+  char	*_ptr;
+  int	 _cnt;
+  char	*_base;
+  int	 _flag;
+  int	 _file;
+  int	 _charbuf;
+  int	 _bufsiz;
+  char	*_tmpfname;
+} FILE;
+
 #endif  /* ! (_STDIO_H && _WCHAR_H) */
 #ifdef _STDIO_H
 /* Content to be exposed only when including <stdio.h> in its own right;
@@ -2105,6 +2310,10 @@ extern FILE (*_imp___iob)[];	/* A pointer to an array of FILE */
 
 #define _iob (*_imp___iob)	/* An array of FILE */
 
+#else /* __DECLSPEC_SUPPORTED */
+
+__MINGW_IMPORT FILE _iob[];	/* An array of FILE imported from DLL. */
+
 #endif /* __DECLSPEC_SUPPORTED */
 
 #define stdin	(&_iob[STDIN_FILENO])
@@ -2113,7 +2322,7 @@ extern FILE (*_imp___iob)[];	/* A pointer to an array of FILE */
 
 /* Need to close the current _STDIO_H specific block here...
  */
-
+#endif
 /* ...because, we need this regardless of the inclusion mode...
  */
 _BEGIN_C_DECLS
@@ -2145,6 +2354,11 @@ _CRTIMP __cdecl __MINGW_NOTHROW  int   _rmtmp (void);
 _CRTIMP __cdecl __MINGW_NOTHROW  int   _unlink (const char *);
 
 #if __MSVCRT_VERSION__>=__MSVCR80_DLL
+/* The following pair of non-ANSI functions require a non-free version of
+ * the Microsoft runtime; neither is provided by any MSVCRT.DLL variant.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  void  _lock_file(FILE *);
+_CRTIMP __cdecl __MINGW_NOTHROW  void  _unlock_file(FILE *);
 #endif
 
 #ifndef NO_OLDNAMES
@@ -2152,7 +2366,7 @@ _CRTIMP __cdecl __MINGW_NOTHROW  char * tempnam (const char *, const char *);
 _CRTIMP __cdecl __MINGW_NOTHROW  int    rmtmp (void);
 _CRTIMP __cdecl __MINGW_NOTHROW  int    unlink (const char *);
 #endif
- /* __STRICT_ANSI__ */
+#endif /* __STRICT_ANSI__ */
 
 _CRTIMP __cdecl __MINGW_NOTHROW  int    setvbuf (FILE *, char *, int, size_t);
 _CRTIMP __cdecl __MINGW_NOTHROW  void   setbuf (FILE *, char *);
@@ -2167,8 +2381,16 @@ _CRTIMP __cdecl __MINGW_NOTHROW  void   setbuf (FILE *, char *);
 #define __Wformat_mingw_printf(F,A) __attribute__((__format__(__mingw_printf__,F,A)))
 
 #if __GNUC__ >= 6
+/* From GCC-6 onwards, we will provide customized -Wformat
+ * handling, via our own mingw_printf format category...
+ */
 #define __Wformat(F)		__Wformat_##F __mingw_##F
 
+#else	/* __GNUC__ < 6 */
+/* ...whereas, for earlier GCC, we preserve the status quo,
+ * offering no -Wformat checking for those functions which
+ * replace the MSVCRT.DLL versions...
+ */
 #define __Wformat(F)		__mingw_##F
 
 /* ...while degrading to gnu_printf checking for snprintf()
@@ -2230,8 +2452,15 @@ extern int __mingw_stdio_redirect__(vsnprintf)(char*, size_t, const char*, __VAL
 extern unsigned int _mingw_output_format_control( unsigned int, unsigned int );
 
 #if __USE_MINGW_ANSI_STDIO || defined _ISOC99_SOURCE
+/* User has expressed a preference for C99 conformance...
+ */
 # undef __mingw_stdio_redirect__
-#if defined __GNUC__
+# if defined __GNUC__
+/* FIXME: Is there any GCC version prerequisite here?
+ *
+ * We prefer inline implementations for both C and C++, when we can be
+ * confident that the GNU specific __inline__ mechanism is supported.
+ */
 #  define __mingw_stdio_redirect__  static __inline__ __cdecl __MINGW_NOTHROW
 
 # elif defined __cplusplus
@@ -2240,12 +2469,69 @@ extern unsigned int _mingw_output_format_control( unsigned int, unsigned int );
  */
 #  define __mingw_stdio_redirect__  inline __cdecl __MINGW_NOTHROW
 
+# else	/* Neither GCC, nor non-GNU C++ */
+/* Can't use inlines; fall back on module local static stubs.
+ */
 #  define __mingw_stdio_redirect__  static __cdecl __MINGW_NOTHROW
 
 # endif	/* Neither GCC, nor non-GNU C++ */
-	/* __USE_MINGW_ANSI_STDIO || defined _ISOC99_SOURCE */
+#endif	/* __USE_MINGW_ANSI_STDIO || defined _ISOC99_SOURCE */
 
-	/* !__USE_MINGW_ANSI_STDIO */
+#if __USE_MINGW_ANSI_STDIO
+/* The MinGW ISO-C conforming implementations of the printf() family
+ * of functions are to be used, in place of non-conforming Microsoft
+ * implementations; force call redirection, via the following set of
+ * in-line functions.
+ */
+__mingw_stdio_redirect__
+int fprintf (FILE *__stream, const char *__format, ...)
+{
+  register int __retval;
+  __builtin_va_list __local_argv; __builtin_va_start( __local_argv, __format );
+  __retval = __mingw_vfprintf( __stream, __format, __local_argv );
+  __builtin_va_end( __local_argv );
+  return __retval;
+}
+
+__mingw_stdio_redirect__
+int printf (const char *__format, ...)
+{
+  register int __retval;
+  __builtin_va_list __local_argv; __builtin_va_start( __local_argv, __format );
+  __retval = __mingw_vprintf( __format, __local_argv );
+  __builtin_va_end( __local_argv );
+  return __retval;
+}
+
+__mingw_stdio_redirect__
+int sprintf (char *__stream, const char *__format, ...)
+{
+  register int __retval;
+  __builtin_va_list __local_argv; __builtin_va_start( __local_argv, __format );
+  __retval = __mingw_vsprintf( __stream, __format, __local_argv );
+  __builtin_va_end( __local_argv );
+  return __retval;
+}
+
+__mingw_stdio_redirect__
+int vfprintf (FILE *__stream, const char *__format, __VALIST __local_argv)
+{
+  return __mingw_vfprintf( __stream, __format, __local_argv );
+}
+
+__mingw_stdio_redirect__
+int vprintf (const char *__format, __VALIST __local_argv)
+{
+  return __mingw_vprintf( __format, __local_argv );
+}
+
+__mingw_stdio_redirect__
+int vsprintf (char *__stream, const char *__format, __VALIST __local_argv)
+{
+  return __mingw_vsprintf( __stream, __format, __local_argv );
+}
+
+#else	/* !__USE_MINGW_ANSI_STDIO */
 /* Default configuration: simply direct all calls to MSVCRT...
  */
 _CRTIMP __cdecl __MINGW_NOTHROW  int fprintf (FILE *, const char *, ...);
@@ -2255,9 +2541,32 @@ _CRTIMP __cdecl __MINGW_NOTHROW  int vfprintf (FILE *, const char *, __VALIST);
 _CRTIMP __cdecl __MINGW_NOTHROW  int vprintf (const char *, __VALIST);
 _CRTIMP __cdecl __MINGW_NOTHROW  int vsprintf (char *, const char *, __VALIST);
 
-	/* !__USE_MINGW_ANSI_STDIO */
+#endif	/* !__USE_MINGW_ANSI_STDIO */
 
 #if __GNUC__ && defined _ISOC99_SOURCE
+/* Although MinGW implementations of the ISO-C99 snprintf() and
+ * vsnprintf() functions do not conflict with any implementation
+ * in MSVCRT.DLL, (because MSVCRT.DLL does not implement either),
+ * there are -Wformat attribute conflicts with the GCC built-in
+ * prototypes associated with each; by providing the following
+ * in-line function implementations, which will override GCC's
+ * built-in prototypes, we may avoid these conflicts.
+ */
+__mingw_stdio_redirect__
+int snprintf (char *__buf, size_t __len, const char *__format, ...)
+{
+  register int __retval;
+  __builtin_va_list __local_argv; __builtin_va_start( __local_argv, __format );
+  __retval = __mingw_vsnprintf( __buf, __len, __format, __local_argv );
+  __builtin_va_end( __local_argv );
+  return __retval;
+}
+
+__mingw_stdio_redirect__
+int vsnprintf (char *__buf, size_t __len, const char *__format, __VALIST __local_argv)
+{
+  return __mingw_vsnprintf( __buf, __len, __format, __local_argv );
+}
 #endif	/* __GNUC__ && defined _ISOC99_SOURCE */
 
 /* Regardless of user preference, always offer these alternative
@@ -2316,9 +2625,24 @@ __cdecl __MINGW_NOTHROW
 int vsscanf (const char * __restrict__, const char * __restrict__, __VALIST);
 
 #endif  /* _ISOC99_SOURCE */
-	/* <stdio.h> included in its own right */
+#endif	/* <stdio.h> included in its own right */
 
 #if __MSVCRT_VERSION__ >= __MSVCR80_DLL || _WIN32_WINNT >= _WIN32_WINNT_VISTA
+/* In MSVCR80.DLL, (and its descendants), Microsoft introduced variants
+ * of the printf() functions, with names qualified by an underscore prefix
+ * and "_p" or "_p_l" suffixes; implemented in Microsoft's typically crass,
+ * non-standard, and non-portable fashion, these provide support for access
+ * to printf() arguments in random order, as was standardised by POSIX as a
+ * feature of the optional Extended Systems Interface (XSI) specification,
+ * and is now required for conformity with the POSIX.1-2008 base standard.
+ * Although these additional Microsoft functions were subsequently added
+ * to MSVCRT.DLL, from Windows-Vista onward, and they are prototyped here,
+ * MinGW applications are strenuously encouraged to avoid using them; a
+ * much better alternative is to "#define _XOPEN_SOURCE 700" before any
+ * system header is included, then use POSIX standard printf() functions
+ * instead; this is both portable to many non-Windows platforms, and it
+ * offers better compatibility with earlier Windows versions.
+ */
 #ifndef __have_typedef_locale_t
 /* Note that some of the following require the opaque locale_t data type,
  * which we may obtain, by selective inclusion, from <locale.h>
@@ -2366,6 +2690,23 @@ int vsscanf (const char * __restrict__, const char * __restrict__, __VALIST);
  * ensure that we define it, (if we haven't done so already).
  */
 #if ! defined __have_typedef_locale_t \
+&& (__MSVCRT_VERSION__ >= __MSVCR80_DLL || _WIN32_WINNT >= _WIN32_WINNT_VISTA)
+/*
+ * FIXME: Do these actually have any value for Vista?  Although the Vista
+ * release of MSVCRT.DLL exports several functions which require locale_t
+ * parameters, it appears to lack any mechanism whereby an object of that
+ * type might be created, or otherwise, a reference to such an object may
+ * be acquired.
+ */
+typedef struct __mingw_opaque_locale_t  *_locale_t;
+typedef struct __mingw_opaque_locale_t  * locale_t;
+
+/* Set a (private) pre-processor flag, to indicate that these data types
+ * have been defined; although GCC versions from 4.x onwards may accept
+ * repeated (consistent) definitions, this flag gives us the facility to
+ * avoid the overhead of repeatedly parsing this file, just to satisfy a
+ * __need_locale_t request which has been satisfied already.
+ */
 #define __have_typedef_locale_t  1
 #endif	/* !__have_typedef_locale_t */
 
@@ -2402,7 +2743,7 @@ int vsscanf (const char * __restrict__, const char * __restrict__, __VALIST);
 #define __need_NULL
 #define __need_wchar_t
 #endif	/* ! RC_INVOKED */
-	/* !__WCHAR_H_SOURCED__ */
+#endif	/* !__WCHAR_H_SOURCED__ */
 
 #ifndef RC_INVOKED
 
@@ -2425,6 +2766,14 @@ _CRTIMP __cdecl __MINGW_NOTHROW  struct lconv *localeconv (void);
 _CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wsetlocale (int, const wchar_t *);
 
 #if __MSVCRT_VERSION__ >= __MSVCR80_DLL
+/* The following are available to users of non-free MSVCR80.DLL, and
+ * its later derivatives.  They are REQUIRED to create, or otherwise
+ * acquire a reference to, a locale_t object; they SHOULD also have
+ * been made available in MSVCRT.DLL, from Vista onwards, to support
+ * the use of functions added in that release which require locale_t
+ * parameters, but it seems that Microsoft, exhibiting their usual
+ * ineptitude, have neglected that requirement.
+ */
 #ifdef _LOCALE_H
 /* This triplet of functions are to be declared only when <locale.h>
  * is included directly, and so is parsed in full...
@@ -2439,12 +2788,12 @@ _CRTIMP __cdecl __MINGW_NOTHROW   void     _free_locale (locale_t);
  */
 _CRTIMP __cdecl __MINGW_NOTHROW  _locale_t _wcreate_locale (int, const wchar_t *);
 
-	/* __MSVCRT_VERSION__ >= __MSVCR80_DLL */
+#endif	/* __MSVCRT_VERSION__ >= __MSVCR80_DLL */
 
 _END_C_DECLS
 
-	/* ! RC_INVOKED */
-	/* !__need_locale_t */
+#endif	/* ! RC_INVOKED */
+#endif	/* !__need_locale_t */
 
 /* We've already handled any pending __need_locale_t request; ensure
  * that we cancel it, so that any more comprehensive further request,
@@ -2452,9 +2801,9 @@ _END_C_DECLS
  */
 #undef	__need_locale_t
 
-  /* !_LOCALE_H: $RCSfile: locale.h,v $: end of file */
+#endif  /* !_LOCALE_H: $RCSfile: locale.h,v $: end of file */
  
-
+#endif
 
 #ifdef _STDIO_H
 /* The following are to be declared only when <stdio.h> is explicitly
@@ -2504,16 +2853,65 @@ _CRTIMP __cdecl __MINGW_NOTHROW
 int _vsprintf_p_l (char *, size_t, const char *, locale_t, __VALIST);
 
 #endif	/* <stdio.h> included in its own right */
-	/* MSVCR80.DLL and descendants, or MSVCRT.DLL since Vista */
+#endif	/* MSVCR80.DLL and descendants, or MSVCRT.DLL since Vista */
 
 #if ! (defined _STDIO_H && defined _WCHAR_H)
 #if __MSVCRT_VERSION__ >= __MSVCR80_DLL || _WIN32_WINNT >= _WIN32_WINNT_VISTA
+/* Wide character variants of the foregoing "positional parameter" printf()
+ * functions; MSDN says that these should be declared when either <stdio.h>, or
+ * <wchar.h> is included, so we make them selectively available to <wchar.h>,
+ * but, just as in the foregoing, we advise against their use.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _wprintf_p (const wchar_t *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _fwprintf_p (FILE *, const wchar_t *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _swprintf_p (wchar_t *, size_t, const wchar_t *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _vwprintf_p (const wchar_t *, __VALIST);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _vfwprintf_p (FILE *, const wchar_t *, __VALIST);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _vswprintf_p (wchar_t *, size_t, const wchar_t *, __VALIST);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _wprintf_p_l (const wchar_t *, locale_t, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _fwprintf_p_l (FILE *, const wchar_t *, locale_t, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _swprintf_p_l (wchar_t *, size_t, const wchar_t *, locale_t, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _vwprintf_p_l (const wchar_t *, locale_t, __VALIST);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _vfwprintf_p_l (FILE *, const wchar_t *, locale_t, __VALIST);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _vswprintf_p_l (wchar_t *, size_t, const wchar_t *, locale_t, __VALIST);
+
 #endif	/* MSVCR80.DLL and descendants, or MSVCRT.DLL since Vista */
-	/* ! (defined _STDIO_H && defined _WCHAR_H) */
+#endif	/* ! (defined _STDIO_H && defined _WCHAR_H) */
 #ifdef _STDIO_H
 /* Once again, back to <stdio.h> specific declarations.
  */
 #if _POSIX_C_SOURCE >= 200809L
+/* POSIX standard IEEE 1003.1-2008 added getdelim() and getline()
+ */
+__cdecl __MINGW_NOTHROW ssize_t
+getdelim (char ** __restrict__, size_t * __restrict__, int, FILE * __restrict__);
+
+__cdecl __MINGW_NOTHROW ssize_t
+getline (char ** __restrict__, size_t * __restrict__, FILE * __restrict__);
+
 #ifndef __NO_INLINE__
 /* getline() is a trivial specialization of getdelim(), which may
  * be readily expressed by inline expansion.
@@ -2524,7 +2922,7 @@ __cdecl __MINGW_NOTHROW ssize_t getline
 { return getdelim( __l, __n, '\n', __s ); }
 
 #endif  /* !__NO_INLINE__ */
-  /* POSIX.1-2008 */
+#endif  /* POSIX.1-2008 */
 
 /* Formatted Input
  */
@@ -2552,14 +2950,47 @@ _CRTIMP __cdecl __MINGW_NOTHROW  int    ungetc (int, FILE *);
 _CRTIMP __cdecl __MINGW_NOTHROW  int   _filbuf (FILE *);
 _CRTIMP __cdecl __MINGW_NOTHROW  int   _flsbuf (int, FILE *);
 
-  /* Use library functions.  */
+#if !defined _MT
+
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int getc (FILE *);
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int getc (FILE * __F)
+{
+  return (--__F->_cnt >= 0)
+    ?  (int) (unsigned char) *__F->_ptr++
+    : _filbuf (__F);
+}
+
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int putc (int, FILE *);
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int putc (int __c, FILE * __F)
+{
+  return (--__F->_cnt >= 0)
+    ?  (int) (unsigned char) (*__F->_ptr++ = (char)__c)
+    :  _flsbuf (__c, __F);
+}
+
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int getchar (void);
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int getchar (void)
+{
+  return (--stdin->_cnt >= 0)
+    ?  (int) (unsigned char) *stdin->_ptr++
+    : _filbuf (stdin);
+}
+
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int putchar(int);
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int putchar(int __c)
+{
+  return (--stdout->_cnt >= 0)
+    ?  (int) (unsigned char) (*stdout->_ptr++ = (char)__c)
+    :  _flsbuf (__c, stdout);}
+
+#else  /* Use library functions.  */
 
 _CRTIMP __cdecl __MINGW_NOTHROW  int    getc (FILE *);
 _CRTIMP __cdecl __MINGW_NOTHROW  int    putc (int, FILE *);
 _CRTIMP __cdecl __MINGW_NOTHROW  int    getchar (void);
 _CRTIMP __cdecl __MINGW_NOTHROW  int    putchar (int);
 
-
+#endif
 
 /* Direct Input and Output Functions
  */
@@ -2618,7 +3049,7 @@ __CRT_ALIAS size_t fwrite( const void *__buf, size_t __len, size_t __cnt, FILE *
  */
 #ifdef __MSVCRT__
 typedef union { __int64 __value; __off64_t __offset; } fpos_t;
-
+#else
 typedef union { __int32 __value; __off32_t __offset; } fpos_t;
 #endif
 
@@ -2626,10 +3057,26 @@ _CRTIMP __cdecl __MINGW_NOTHROW  int fgetpos (FILE *, fpos_t *);
 _CRTIMP __cdecl __MINGW_NOTHROW  int fsetpos (FILE *, const fpos_t *);
 
 #if _WIN32_WINNT >= _WIN32_WINNT_VISTA || __MSVCRT_VERSION__ >= __MSVCR80_DLL
+ /* Microsoft introduced a number of variations on fseek() and ftell(),
+  * beginning with MSVCR80.DLL; the bare _fseeki64() and _ftelli64() were
+  * subsequently integrated into MSVCRT.DLL, from Vista onward...
+  */
+_CRTIMP __cdecl __MINGW_NOTHROW  int    _fseeki64 (FILE *, __int64, int);
+_CRTIMP __cdecl __MINGW_NOTHROW __int64 _ftelli64 (FILE *);
+
 #if __MSVCRT_VERSION__ >= __MSVCR80_DLL
+ /* ...while the "nolock" variants remain exclusive to MSVCR80.DLL, and
+  * its later MSVC specific derivatives.
+  */
+_CRTIMP __cdecl __MINGW_NOTHROW  int    _fseek_nolock (FILE *, long, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  long   _ftell_nolock (FILE *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  int    _fseeki64_nolock (FILE *, __int64, int);
+_CRTIMP __cdecl __MINGW_NOTHROW __int64 _ftelli64_nolock (FILE *);
+
 #endif  /* MSVCR80.DLL and later derivatives ONLY */
 
-	/* pre-MSVCR80.DLL or MSVCRT.DLL pre-Vista */
+#else	/* pre-MSVCR80.DLL or MSVCRT.DLL pre-Vista */
 /* The Microsoft DLLs don't provide either _fseeki64() or _ftelli64(), but
  * they DO provide fgetpos(), fsetpos(), and _lseeki64(), which may be used
  * to emulate the two missing functions.  (Note that we choose to provide
@@ -2651,7 +3098,7 @@ __int64 __cdecl __MINGW_NOTHROW __mingw_ftelli64 (FILE *);
 __CRT_ALIAS __cdecl  __int64 __MINGW_NOTHROW _ftelli64 (FILE *__file )
 { return __mingw_ftelli64 (__file); }
 
-	/* pre-MSVCR80.DLL or MSVCRT.DLL pre-Vista */
+#endif	/* pre-MSVCR80.DLL or MSVCRT.DLL pre-Vista */
 
 /* Error Functions
  */
@@ -2661,7 +3108,7 @@ _CRTIMP __cdecl __MINGW_NOTHROW  int ferror (FILE *);
 #ifdef __cplusplus
 inline __cdecl __MINGW_NOTHROW  int feof (FILE * __F){ return __F->_flag & _IOEOF; }
 inline __cdecl __MINGW_NOTHROW  int ferror (FILE * __F){ return __F->_flag & _IOERR; }
-
+#else
 #define feof(__F)     ((__F)->_flag & _IOEOF)
 #define ferror(__F)   ((__F)->_flag & _IOERR)
 #endif
@@ -2729,7 +3176,16 @@ int __cdecl __mingw_get_printf_count_output (void);
 int __cdecl __mingw_set_printf_count_output (int);
 
 #if __MSVCRT_VERSION__ >= __MSVCR80_DLL
+/* When the user declares that MSVCR80.DLL features are supported,
+ * we simply expose the corresponding APIs...
+ */
+_CRTIMP unsigned int __cdecl __MINGW_NOTHROW _get_output_format (void);
+_CRTIMP unsigned int __cdecl __MINGW_NOTHROW _set_output_format (unsigned int);
 
+_CRTIMP __cdecl __MINGW_NOTHROW  int _get_printf_count_output (void);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _set_printf_count_output (int);
+
+#else
 /* ...otherwise, we emulate the APIs, in a DLL version agnostic
  * manner, using our own implementation wrappers.
  */
@@ -2747,8 +3203,12 @@ __CRT_ALIAS unsigned int __cdecl _set_output_format (unsigned int __style)
  * the state of "%n" formatting as DISABLED if they are not.
  */
 #if __USE_MINGW_ANSI_STDIO
+/* Note that __USE_MINGW_ANSI_STDIO is not guaranteed to resolve to any
+ * symbol which will represent a compilable logic state; map it to this
+ * alternative which will, for the true state...
+ */
 # define __USE_MINGW_PRINTF  1
-
+#else
 /* ...and for the false.
  */
 # define __USE_MINGW_PRINTF  0
@@ -2759,7 +3219,7 @@ __CRT_ALIAS int __cdecl _get_printf_count_output (void)
 
 __CRT_ALIAS int __cdecl _set_printf_count_output (int __mode)
 { return __USE_MINGW_PRINTF ? 1 : __mingw_set_printf_count_output (__mode); }
-
+#endif
 
 #ifndef _NO_OLDNAMES
 _CRTIMP __cdecl __MINGW_NOTHROW  int    fgetchar (void);
@@ -2774,6 +3234,13 @@ _CRTIMP __cdecl __MINGW_NOTHROW  int    fileno (FILE *);
 #endif
 
 #if defined (__MSVCRT__) && ! defined (__NO_MINGW_LFS)
+__CRT_ALIAS FILE * __cdecl __MINGW_NOTHROW  fopen64 (const char *, const char *);
+__CRT_ALIAS __JMPSTUB__(( FUNCTION = fopen64, REMAPPED = fopen ))
+FILE * __cdecl __MINGW_NOTHROW  fopen64 (const char * filename, const char * mode)
+{ return fopen (filename, mode); }
+
+int __cdecl __MINGW_NOTHROW  fseeko64 (FILE *, __off64_t, int);
+
 #ifdef __USE_MINGW_FSEEK
 /* When this option is selected, we need to redirect calls to _fseeki64()
  * and fseeko64() through a MinGW specific wrapper.  Since the two functions
@@ -2790,11 +3257,31 @@ __CRT_ALIAS int fseeko64( FILE *__fp, __off64_t __offset, int __whence )
 
 __off64_t __cdecl __MINGW_NOTHROW ftello64 (FILE *);
 
-	/* __MSVCRT__ && !__NO_MINGW_LFS */
-	/* !__STRICT_ANSI__ */
-	/* _STDIO_H */
+#endif	/* __MSVCRT__ && !__NO_MINGW_LFS */
+#endif	/* !__STRICT_ANSI__ */
+#endif	/* _STDIO_H */
 
 #if ! (defined _STDIO_H && defined _WCHAR_H)
+/* The following are declared when including either <stdio.h> or <wchar.h>.
+ * If both header include guards are now in place, then we must currently be
+ * including <stdio.h> in its own right, having already processed this block
+ * during prior partial inclusion by <wchar.h>; there is no need to process
+ * it a second time.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int     fwprintf (FILE *, const wchar_t *, ...);
+_CRTIMP __cdecl __MINGW_NOTHROW  int     wprintf (const wchar_t *, ...);
+_CRTIMP __cdecl __MINGW_NOTHROW  int     vfwprintf (FILE *, const wchar_t *, __VALIST);
+_CRTIMP __cdecl __MINGW_NOTHROW  int     vwprintf (const wchar_t *, __VALIST);
+_CRTIMP __cdecl __MINGW_NOTHROW  int    _snwprintf (wchar_t *, size_t, const wchar_t *, ...);
+_CRTIMP __cdecl __MINGW_NOTHROW  int    _vscwprintf (const wchar_t *, __VALIST);
+_CRTIMP __cdecl __MINGW_NOTHROW  int    _vsnwprintf (wchar_t *, size_t, const wchar_t *, __VALIST);
+_CRTIMP __cdecl __MINGW_NOTHROW  int     fwscanf (FILE *, const wchar_t *, ...);
+_CRTIMP __cdecl __MINGW_NOTHROW  int     wscanf (const wchar_t *, ...);
+_CRTIMP __cdecl __MINGW_NOTHROW  int     swscanf (const wchar_t *, const wchar_t *, ...);
+_CRTIMP __cdecl __MINGW_NOTHROW  wint_t  fgetwc (FILE *);
+_CRTIMP __cdecl __MINGW_NOTHROW  wint_t  fputwc (wchar_t, FILE *);
+_CRTIMP __cdecl __MINGW_NOTHROW  wint_t  ungetwc (wchar_t, FILE *);
+
 #ifndef __STRICT_ANSI__
 /* These differ from the ISO C prototypes, which have a maxlen parameter (like snprintf).
  */
@@ -2825,7 +3312,7 @@ _CRTIMP __cdecl __MINGW_NOTHROW  void      _wperror (const wchar_t *);
 _CRTIMP __cdecl __MINGW_NOTHROW  FILE    * _wpopen (const wchar_t *, const wchar_t *);
 
 #endif  /* !__STRICT_ANSI__ */
-	/* __MSVCRT__ */
+#endif	/* __MSVCRT__ */
 
 #ifdef _ISOC99_SOURCE
 __JMPSTUB__(( FUNCTION = snwprintf, DLLENTRY = _snwprintf ))
@@ -2845,11 +3332,12 @@ int  vfwscanf (FILE *__restrict__, const wchar_t *__restrict__, __VALIST);
 __cdecl __MINGW_NOTHROW
 int  vswscanf (const wchar_t *__restrict__, const wchar_t * __restrict__, __VALIST);
 
-  /* _ISOC99_SOURCE */
-  /* ! (_STDIO_H && _WCHAR_H) */
+#endif  /* _ISOC99_SOURCE */
+#endif  /* ! (_STDIO_H && _WCHAR_H) */
 
 #if defined _STDIO_H && ! defined __STRICT_ANSI__
 #if defined __MSVCRT__ && ! defined _NO_OLDNAMES
+_CRTIMP __cdecl __MINGW_NOTHROW  FILE * wpopen (const wchar_t *, const wchar_t *);
 #endif
 
 /* Other non-ANSI wide character functions...
@@ -2868,12 +3356,12 @@ _CRTIMP __cdecl __MINGW_NOTHROW  int     getw (FILE *);
 _CRTIMP __cdecl __MINGW_NOTHROW  int     putw (int, FILE *);
 
 #endif  /* !_NO_OLDNAMES */
-  /* !__STRICT_ANSI__ */
+#endif  /* !__STRICT_ANSI__ */
 
 _END_C_DECLS
 
-	/* ! RC_INVOKED */
-  /* !_STDIO_H: $RCSfile: stdio.h,v $: end of file */
+#endif	/* ! RC_INVOKED */
+#endif  /* !_STDIO_H: $RCSfile: stdio.h,v $: end of file */
  
 
 #ifndef __WCHAR_H_SOURCED__
@@ -2892,18 +3380,25 @@ _END_C_DECLS
 
 #if __GNUC__ >= 3 && ! defined __PCC__
 #pragma GCC system_header
-
+#else
 printf("cade o else\n");
 #endif
 
 int main(void) {
   
-      printf("Hello World\n");
+  #if __USE_XOPEN
+    printf("Hello World\n");
     return 0;
-  
-  
+  #else
+    printf("Hello new World\n");
+    return 22;
+  #endif
+  #if !__USE_UNIX98
+    printf("Hello World2\n");
+    return 0;
+  #else
     printf("Hello new World2\n");
     return 0;
-  
+  #endif
 
-}                
+}               

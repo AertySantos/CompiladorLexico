@@ -12,6 +12,7 @@ class PreCompilador{
     string arquivoInc;//arquivo a ser incluido
     string condicional;//guarda a condicional
     string condicao;//guarda a condicao
+    string ifInvalido;
     char varAnterior;//guarda a variavel lida anteriormente 
     bool aspas;//para verificação de aspas
     list<string>lista;//lista onde serão incluidos os includeres
@@ -27,7 +28,7 @@ class PreCompilador{
     void escritaIfs();//escreve o arquivo apos a verificação dos #if,#else e #endif
     void trataInclude(char, string*, bool*, bool*, string*);
     bool verificaLista(string);
-    void trataIf(char, string*, bool*, bool*, bool*, string*, bool*, bool*);
+    void trataIf(char, string*, bool*, bool*, bool*, string*, bool*, bool*, bool*);
     void trataDefinicao(char, string*, bool*, int*, string*);
     string getInclusao();
     void  setInclusao();
@@ -44,6 +45,8 @@ class PreCompilador{
     void setVarAnterior(char);
     string getCondicional();
     void setCondicional(string);
+    string getIfInvalido();
+    void setIfInvalido(string);
     void limpar();
 };
 #endif

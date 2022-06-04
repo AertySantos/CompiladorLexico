@@ -1138,10 +1138,6 @@ _END_C_DECLS
 
  
 
-
-printf("cade o else\n");
-
-
 int main(void) {
   
       printf("Hello World\n");

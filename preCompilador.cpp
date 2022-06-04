@@ -24,7 +24,7 @@ void PreCompilador::iniciar(){
   while(op){//verifica os includes
     op = leituraInclude(arquivo);
     escritaInclude();
-    arquivo = "codigoInc.c";
+    arquivo = "codInclude.c";
     
   }
   
@@ -491,7 +491,7 @@ void PreCompilador::escritaInclude(){
   //remove("codigoPre.c");
   //cout<<getTextoSup();
   ofstream escritor;
-  escritor.open("codigoInc.c", ios::out | ios::trunc);
+  escritor.open("codInclude.c", ios::out | ios::trunc);
   escritor << getTextoSup();
   
   if(getArquivoInc()[getArquivoInc().size() -1]!='h'){

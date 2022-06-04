@@ -16,12 +16,6 @@
 
 #endif 
 
-#if __GNUC__ >= 3 && ! defined __PCC__
-#pragma GCC system_header
-#else
-printf("cade o else\n");
-#endif
-
 int main(void) {
   
   #if __USE_XOPEN

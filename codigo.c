@@ -11,7 +11,9 @@
  /* ...which is exclusive to <wchar.h>, do we assert the multiple
   * inclusion guard for <stdio.h> itself.
   */
-#define __USE_XOPEN
+
+#define __USE_XOPEN1
+
 #endif 
 
 #if __GNUC__ >= 3 && ! defined __PCC__
@@ -36,5 +38,5 @@ int main(void) {
     printf("Hello new World2\n");
     return 0;
   #endif
-
+  
 }

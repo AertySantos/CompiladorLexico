@@ -29,7 +29,7 @@ void PreCompilador::iniciar(){
   }
   
   limpar();
-  leituraIfs("codigoInc.c");//verifica os #if,#else,#endif
+  leituraIfs(arquivo);//verifica os #if,#else,#endif
   escritaIfs();
   
   cout << endl << "Pre Compilador executado!" << endl;
@@ -45,6 +45,7 @@ bool PreCompilador::leituraInclude(string nomeArquivo){//verificação dos inclu
     bool txtSup = true;//texto superior
     bool txtInf = false;//texto inferior
     bool retorno = false;//acabou?
+  
     limpar();//limpa as variaveis privadas da classe
   
     ifstream leitor;
@@ -60,15 +61,14 @@ bool PreCompilador::leituraInclude(string nomeArquivo){//verificação dos inclu
           
                 c = ' ';//limpa c, para nao repetir o ultimo caractere
                 leitor.get(c);//lê caracter a caracter
-               // cout << c;
-          
+
                 if((c == '#')&&(anterior == '\n')){//se tem # no codigo fz verificação
                   trata = true;
                   txtSup = false;
                   //i2++;
                   //cout << i2;
                 }
-
+          
                 anterior = c;//para nao pegar include em comentario
           
                 if(txtSup){
@@ -132,7 +132,7 @@ void PreCompilador::leituraIfs(string nomeArquivo){
     string txtElse = "#else";
     string txtEndif = "#endif";
     string txtDef = "#define";
-    string erro = "";
+    string erro = "Normal";
     bool tratamento = false;
     bool tratamentoDef = false;
     bool arqElse = false;
@@ -198,17 +198,17 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                   if(c != ' '){
                      comando += c; 
                   }
-                  
+                
                   if(comando.size() >= 3 && comando.size()<= 8){
                       
-                    if(((comando == txtIf)&&(c == ' '))||((comando == txtIfndef)||(comando == txtIfdef))){//identifica um #if                
+                    if(((comando == txtIf)&&(c == ' '))||((comando == txtIfndef)||(comando == txtIfdef))){                                   //identifica #if,#ifdef,#ifndef
                       setCondicional(comando);
                       setIfInvalido(txtIf+' ');//seto o texto #if
                       tratamento = true;
                       trata = false;
                       testeIf++;
                       
-                      if(comando == txtIfndef){
+                      /*if(comando == txtIfndef){//habilitar caso queira guardar estes trechos 
                     
                         setTextoSup(getTextoSup() + txtIfndef);//pegar o texto #define
                         txtSup = true;//continua gravando o texto
@@ -216,18 +216,17 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                    
                         setTextoSup(getTextoSup() + txtIfdef);//pegar o texto #define
                         txtSup = true;
-                      }
+                      }*/
                        
                       comando = "";
-                     
-                      
+                
                     }else if(comando == txtDef){
                               if(operacao){//esta dentro de um #endif
                                  trata = false;
                                  comando = "";
                                  tratamentoDef = true;
-                                 txtSup = true;//deixa pegar o texto
-                                 setTextoSup(getTextoSup() + txtDef);//pegar o texto #define
+                                 //txtSup = true;//deixa pegar o texto
+                                 //setTextoSup(getTextoSup() + txtDef);//pegar o texto #define
                                 
                               }else if(testeIf == 1){
                                  trata = false;
@@ -237,12 +236,16 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                                  setTextoSup(getTextoSup() + txtDef);//pegar o texto #define
                                  //salva = txtDef;
                               }
-                     
+                      
+                                trata = false;//para nao pegar #define dentro #ifdef 
+                                comando = "";//para nao pegar #define dentro #ifdef 
+                              
                     }else if((comando == txtElse)/*&&(guardaIf)*/){//identifica um #else
                       
                       trata = false;
                       comando = "";
                       salva = "";
+                      
                       if(arqElse){//saber se copia ou nao o trecho do else
                         txtSup = true;
                       }else{
@@ -278,9 +281,10 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                       } 
                       */
                       
-                      if(guardaIf||guarda||operacao){//corrigir
+                      if(guardaIf||guarda||operacao){//habilitar caso queira colocar #endif
                         if(guardaIf){
                           guardaIf = false;
+                         
                         }
                         if(guarda){
                           guarda = false;
@@ -288,7 +292,7 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                         if(operacao){
                           operacao = false;
                         }
-                        setTextoSup(getTextoSup() + salva);//seta o texto que sera escrito
+                       // setTextoSup(getTextoSup() + salva);//seta o texto que sera escrito
                       } 
                       
                       salva = "";//limpa a variavel de texto
@@ -296,12 +300,13 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                     
                   }
                   
-                  if(comando.size() > 8){//se for maior que sete caracters guardo o comando
+                  if((comando.size() > 8)&&(c=='\n')){//se for maior que sete caracters guardo o comando
                     trata = false;
-                    setTextoSup(getTextoSup() + salva);
+                   // setTextoSup(getTextoSup() + salva);
                     txtSup = true;
                     comando = "";
                     salva = "";
+                    
                   }
                 }
               
@@ -311,9 +316,9 @@ void PreCompilador::leituraIfs(string nomeArquivo){
     }
     
     if(testeIf > 1){
-      cout << "ERRO: falta #endif ->"<<(testeIf - 1)<<endl;
+      cout << "ERRO: falta #endif -> "<<(testeIf - 1)<<endl;
     }
-    cout << erro << endl;
+    cout << erro << " -> "<<testeIf<<endl;
     
 }
 
@@ -337,6 +342,7 @@ void PreCompilador::trataIf(char c, string*txt, bool*arq, bool*ts, bool*arqelse,
         *txt = "";
         
       }else if(getCondicional() == "#ifdef"){//esta dentro de uma condicional #ifdef
+        *ts = false;
         *gu = true;
         *arq = false;//sai do tratamento
         *txt = "";
@@ -348,7 +354,7 @@ void PreCompilador::trataIf(char c, string*txt, bool*arq, bool*ts, bool*arqelse,
           *arq = false;//sai do tratamento
           *txt = "";
           //*gf = false;
-          setTextoSup(getTextoSup() + getIfInvalido()+'\n');
+         // setTextoSup(getTextoSup() + getIfInvalido()+'\n');
         }else{
           *ts = txSup;//ts é igual txtSup
           *arq = false;//sai do tratamento

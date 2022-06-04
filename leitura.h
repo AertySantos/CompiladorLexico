@@ -9,7 +9,7 @@ using namespace std;
 
 string palavrasReservadas[18] = { "break","char","const","continue","default","do","double","else","float","for","if","int","long","return","string","struct","void","while" };
 char espacosBranco[4] = { ' ','\n','\t','\b' };
-char delimitadores[20] = { ';',',','.','(',')','{','}','=','+','-','/','*','&','!','|','\'','[',']','<','>' };
+char delimitadores[21] = { ';',',','.','(',')','{','}','=','+','-','%','/','*','&','!','|','\'','[',']','<','>' };
 
 string lerArquivo(std::string nomeDoArquivo) {
 	string saida;
@@ -45,12 +45,41 @@ int pegarValorInteiro(int a) { // Pegar valor em vez da referência
 	return b;
 }
 
+class Token {
+private:
+	string nome_token;
+	string valor_token;
+public:
+	Token() {
+		nome_token = "";
+		valor_token = "";
+	}
+
+	Token(string nome, string valor) {
+		nome_token = nome;
+		valor_token = valor;
+	}
+
+	void set(string nome, string valor) {
+		nome_token = nome;
+		valor_token = valor;
+	}
+
+	string getNome() {
+		return nome_token;
+	}
+
+	string getValor() {
+		return valor_token;
+	}
+};
+
 class Leitor {
 private:
-	string entrada;			//	entrada: texto de entrada
-	list<string> saida;		//  saida: lista de lexemas
-	int i;					//  iterador: iterar dentro da lista
-	string buffer;			//  buffer: salvar palavras
+	string entrada;			// entrada: texto de entrada
+	list<Token> tokens;		// tokens: lista de tokens
+	int i;					// iterador: iterar dentro da lista
+	string buffer;			// buffer: salvar palavras
 
 public:
 	Leitor() {
@@ -187,6 +216,7 @@ public:
 		char c = 'c';
 		buffer = "";
 		i = 0;
+		Token token;
 		while (!fimLeitura()) {
 			c = lerProxCaracter();
 			if (isalpha(c)) {		// Caso 1: caractere do alfabeto
@@ -213,11 +243,31 @@ public:
 							delimitador = c;
 						}
 					}
-					saida.push_back(maiorPalavraReservada);		// saída recebe maior palavra reservada encontrada
+	
+					token.set("r", maiorPalavraReservada);	// saída recebe maior palavra reservada encontrada
+					tokens.push_back(token);
+					
 					if (buffer3 != "") {						// se ha algo depois da palavra reservada
-						saida.push_back(buffer3);
+
+						bool checarSeIdentificador = false;
+						for (char b : buffer3) {
+							if (isalpha(b)) {
+								checarSeIdentificador = true;
+							}
+						}
+						if (checarSeIdentificador) {
+							token.set(string("i"), buffer3);
+							tokens.push_back(token);
+						}
+						else {
+							token.set(string("n"), buffer3);
+							tokens.push_back(token);
+						}
+						
 					}
-					saida.push_back(string(1, delimitador));
+					token.set("s",string(1, delimitador));
+					tokens.push_back(token);
+
 					limparBuffer();
 				}
 			}
@@ -225,15 +275,19 @@ public:
 				buffer.push_back(c);
 			}
 			else if (c == '\"') {	// Caso 3: texto entre aspas duplas
-
 				string bufferTexto = "";
-				saida.push_back(string(1, c));	// pega primeira aspas duplas
+				token.set("s",string(1, c)); // pega primeira aspas duplas
+				tokens.push_back(token);
+
 				int iPosAnterior = pegarValorInteiro(i);		// pega valor de i para retorno caso não houver mais aspas duplas
 				while (!fimLeitura()) {
 					c = lerProxCaracter();
 					if (c == '\"') {
-						saida.push_back(bufferTexto);
-						saida.push_back(string(1, c)); // pega ultima aspas duplas
+						token.set("l", bufferTexto);
+						tokens.push_back(token);
+
+						token.set("s",string(1, c));
+						tokens.push_back(token);
 						break;
 					}
 					else {
@@ -241,22 +295,38 @@ public:
 					}
 				}
 				if (fimLeitura()) {
-					saida.push_back(string(1, '/"'));
+					token.set("s", string(1, '/"'));
+					tokens.push_back(token);
+
 					i = pegarValorInteiro(iPosAnterior); // Retorna iterador para posicao anterior	
 				}
-
 			}
 			else {					// Caso 4: caractere é um símbolo
 				if (!buffer.empty()) {
-					saida.push_back(buffer);
+					
+					bool checarSeIdentificador = false;
+					for(char b:buffer) {
+						if (isalpha(b)) {
+							checarSeIdentificador = true;
+						}
+					}
+					if (checarSeIdentificador) {
+						token.set(string("i"), buffer);
+						tokens.push_back(token);
+					}
+					else {
+						token.set(string("n"), buffer);
+						tokens.push_back(token);
+					}
 				}
 				limparBuffer();
-				saida.push_back(string(1, c));
+				token.set("s", string(1, c));
+				tokens.push_back(token);
 			}
 		}
 	}
 
-	list<string> ler(string nome) {
+	list<Token> ler(string nome) {
 		entrada = lerArquivo(nome);
 		//cout << "ENTRADA:\n" << entrada << endl;
 
@@ -264,7 +334,7 @@ public:
 		//cout << "ESCANDIMENTO:\n" << textoSemComentario << endl;
 
 		quebrarEmLexemas(textoSemComentario);
-		return saida;
+		return tokens;
 	}
 };
 #endif

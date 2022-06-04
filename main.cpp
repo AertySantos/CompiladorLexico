@@ -7,11 +7,11 @@ using namespace std;
 
 int main() {
   
-  //PreCompilador pc;
-  //pc.iniciar();
+  PreCompilador pc;
+  pc.iniciar();
   
   Leitor l;
-  list<string> lista = l.ler("exemplos/exemplo2.c");
+  list<string> lista = l.ler("codigoPre.c");
   cout << "SAIDA:"<<endl;
   for(string s: lista) {
     cout<< "<" << s << "> ";

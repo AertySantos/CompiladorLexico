@@ -11,10 +11,10 @@ int main() {
   pc.iniciar();
   
   Leitor l;
-	list<Token> lista = l.ler("codigoPre.c");
-	cout << "SAIDA:\n";
-	for (Token t : lista) {
-		cout << "<" << t.getNome() << "," << t.getValor() << ">\n";
-	}
-
+  list<Token> lista = l.ler("codigoPre.c");
+  cout << "SAIDA:\n";
+  for (Token t : lista) {
+    cout << "<" << t.getNome() << "," << t.getValor() << ">\n";
+  }
+	
 }

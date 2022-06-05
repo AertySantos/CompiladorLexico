@@ -22,7 +22,7 @@ class PreCompilador{
 
   public:
     PreCompilador();//construtor
-    void iniciar();//loop precompilação
+    void iniciar(string);//loop precompilação com arquivo de codigo a ser lido
     bool leituraInclude(string);//leitura e adiçao de includes
     void leituraIfs(string);//leitura e verificação de #if,#else,#endif
     void escritaInclude();//escreve um novo arquivo apos o codigo inicial ser pre-compilado

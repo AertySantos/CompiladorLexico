@@ -15,10 +15,10 @@ PreCompilador::PreCompilador(){
   aspas = false;//verificação de aspas
 }
 
-void PreCompilador::iniciar(){
+void PreCompilador::iniciar(string arq){
   
   bool op = true;//variavel que aguarda o fim dos includes
-  string arquivo = "codigo.c";//primeiro arquivo a ser lido
+  string arquivo = arq;//primeiro arquivo a ser lido
   cout << endl << "Iniciando execução...\n" << endl;//notificação de inicio
   
   while(op){//verifica os includes

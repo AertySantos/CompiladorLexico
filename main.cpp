@@ -8,10 +8,10 @@ using namespace std;
 int main() {
   
   PreCompilador pc;
-  pc.iniciar();
+  pc.iniciar("codigo.c");
   
   Leitor l;
-  list<Token> lista = l.ler("codigoPre.c");
+  list<Token> lista = l.ler("codPrecompilado.c");
   cout << "SAIDA:\n";
   for (Token t : lista) {
     cout << "<" << t.getNome() << "," << t.getValor() << ">\n";

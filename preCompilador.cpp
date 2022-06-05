@@ -21,14 +21,14 @@ void PreCompilador::iniciar(){
   string arquivo = "codigo.c";//primeiro arquivo a ser lido
   cout << endl << "Iniciando execução...\n" << endl;//notificação de inicio
   
- /* while(op){//verifica os includes
+  while(op){//verifica os includes
     op = leituraInclude(arquivo);
     escritaInclude();
     arquivo = "codInclude.c";
     
   }
   
-  limpar();*/
+  limpar();
   leituraIfs(arquivo);//verifica os #if,#else,#endif
   escritaIfs();
   
@@ -174,7 +174,7 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                   semCom = true;
                 }
           
-                if(txtSup){
+                if(((txtSup)&&(verificaContif()))||((txtSup)&&(contif.size() == 1))){//escreve ou não escreve
                   setTextoSup(getTextoSup() + c);
                 }
 
@@ -206,22 +206,21 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                       comando = "";
                 
                     }else if(comando == txtDef){
+                      
                               if(operacao){//esta dentro de um #endif
-                                 trata = false;
-                                 comando = "";
                                  tratamentoDef = true;
                                 
                               }else if(testeIf == 1){
-                                 trata = false;
-                                 comando = "";
+                                 //trata = false;
+                                 //comando = "";
                                  tratamentoDef = true;
-                                 txtSup = true;//deixa pegar o texto
-                                 setTextoSup(getTextoSup() + txtDef);//pegar o texto #define
+                                 //txtSup = true;//deixa pegar o texto
+                                 //setTextoSup(getTextoSup() + txtDef);//pegar o texto #define
                                  //salva = txtDef;
                               }
                       
-                                trata = false;//para nao pegar #define dentro #ifdef 
-                                comando = "";//para nao pegar #define dentro #ifdef 
+                                //trata = false;//para nao pegar #define dentro #ifdef 
+                               // comando = "";//para nao pegar #define dentro #ifdef 
                               
                     }else if(comando == txtElse){//identifica um #else
                       
@@ -239,7 +238,7 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                       trata = false;
                       txtSup = true;
                       comando = "";
-                      //verificação de ifs encareados
+                      contif.pop_front();//tira um verificador da lista if
                       testeIf--;
                       
                       if(testeIf == 0){
@@ -301,6 +300,7 @@ void PreCompilador::trataIf(char c, string*txt, bool*arq, bool*ts, bool*arqelse,
         if(!txSup){//se não estiver definido será definido
           *op = true;//pegar definicao
           setContif(true);
+          *ts = true;
         }else{
           *op = false;
           *gu = true;//#endif
@@ -327,7 +327,7 @@ void PreCompilador::trataIf(char c, string*txt, bool*arq, bool*ts, bool*arqelse,
           *arqelse = !*ts;//ve se vai pegar a parte do else ou a parte do if
           *txt = "";//limpa o texto condicional
           *salve = "";//limpa o texto da variavel 
-          setContif(true);
+          setContif(txSup);
        }
         
       }

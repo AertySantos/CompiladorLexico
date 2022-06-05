@@ -191,10 +191,10 @@ public:
 				if (isalnum(c) || checarSeDelimitador(c)) {
 					buffer.push_back(c);
 				}
-				else {
+				/*else {
 					cout << "Erro de caractere invalido: " << c << endl;
 					exit(EXIT_FAILURE);
-				}
+				}*/
 
 			}
 		}

@@ -15,9 +15,10 @@ class PreCompilador{
     string ifInvalido;
     char varAnterior;//guarda a variavel lida anteriormente 
     bool aspas;//para verificação de aspas
-    list<string>lista;//lista onde serão incluidos os includeres
+    list<string>lista;//lista onde serão incluidos os includeres(evitar repetição)
     list<string>definicao;//guarda as variaveis definidas
     list<string>atribuicao;//guarda as atribuições das variaveis definidas se houver
+    list<bool>contif;//para verificação de encadeamentos
 
   public:
     PreCompilador();//construtor
@@ -47,6 +48,8 @@ class PreCompilador{
     void setCondicional(string);
     string getIfInvalido();
     void setIfInvalido(string);
+    void setContif(bool);
+    bool verificaContif();
     void limpar();
 };
 #endif

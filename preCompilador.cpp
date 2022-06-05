@@ -21,14 +21,14 @@ void PreCompilador::iniciar(){
   string arquivo = "codigo.c";//primeiro arquivo a ser lido
   cout << endl << "Iniciando execução...\n" << endl;//notificação de inicio
   
-  while(op){//verifica os includes
+ /* while(op){//verifica os includes
     op = leituraInclude(arquivo);
     escritaInclude();
     arquivo = "codInclude.c";
     
   }
   
-  limpar();
+  limpar();*/
   leituraIfs(arquivo);//verifica os #if,#else,#endif
   escritaIfs();
   
@@ -55,8 +55,7 @@ bool PreCompilador::leituraInclude(string nomeArquivo){//verificação dos inclu
     if(leitor.is_open()){//verifica se o arquivo esta aberto
       char c, anterior = '\n';
       bool trata = false;
-      //int i2 = 0;
-      
+    
         while (!leitor.eof()) {//enquanto nao chegar ao fim do arquivo
           
                 c = ' ';//limpa c, para nao repetir o ultimo caractere
@@ -65,8 +64,6 @@ bool PreCompilador::leituraInclude(string nomeArquivo){//verificação dos inclu
                 if((c == '#')&&(anterior == '\n')){//se tem # no codigo fz verificação
                   trata = true;
                   txtSup = false;
-                  //i2++;
-                  //cout << i2;
                 }
           
                 anterior = c;//para nao pegar include em comentario
@@ -90,10 +87,9 @@ bool PreCompilador::leituraInclude(string nomeArquivo){//verificação dos inclu
                     if(c!=' '){
                       comando += c;
                     }
-                   // cout << comando;
+                  
                     if(comando.size() >= 3 && comando.size()<= 8){
                       if(comando == txtInclude){//identifica um #include
-                        //cout << comando;
                         arquivoInc = true;
                         localInc = "";
                         retorno = true;
@@ -144,6 +140,7 @@ void PreCompilador::leituraIfs(string nomeArquivo){
     bool guarda = false;
     bool guardaIf = false;
     int testeIf = 1;
+ 
     int ind = 0;
     
     ifstream leitor;
@@ -177,14 +174,12 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                   semCom = true;
                 }
           
-                //setVarAnterior(c);//variavel anterior
-          
                 if(txtSup){
                   setTextoSup(getTextoSup() + c);
                 }
 
                 if(tratamento){//faz tratamento do #if,#else e #endif
-                  //salva += c;
+                  
                   trataIf(c, &condicao, &tratamento, &txtSup, &arqElse, &salva, &operacao, &guarda, &guardaIf);
                   
                 }else if(tratamentoDef){//faz tratamento da #definicao
@@ -207,17 +202,7 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                       tratamento = true;
                       trata = false;
                       testeIf++;
-                      
-                      /*if(comando == txtIfndef){//habilitar caso queira guardar estes trechos 
-                    
-                        setTextoSup(getTextoSup() + txtIfndef);//pegar o texto #define
-                        txtSup = true;//continua gravando o texto
-                      }else if(comando == txtIfdef){
-                   
-                        setTextoSup(getTextoSup() + txtIfdef);//pegar o texto #define
-                        txtSup = true;
-                      }*/
-                       
+                      //contador if verificação de ifs encadeados 
                       comando = "";
                 
                     }else if(comando == txtDef){
@@ -225,8 +210,6 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                                  trata = false;
                                  comando = "";
                                  tratamentoDef = true;
-                                 //txtSup = true;//deixa pegar o texto
-                                 //setTextoSup(getTextoSup() + txtDef);//pegar o texto #define
                                 
                               }else if(testeIf == 1){
                                  trata = false;
@@ -240,7 +223,7 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                                 trata = false;//para nao pegar #define dentro #ifdef 
                                 comando = "";//para nao pegar #define dentro #ifdef 
                               
-                    }else if((comando == txtElse)/*&&(guardaIf)*/){//identifica um #else
+                    }else if(comando == txtElse){//identifica um #else
                       
                       trata = false;
                       comando = "";
@@ -256,7 +239,7 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                       trata = false;
                       txtSup = true;
                       comando = "";
-                      
+                      //verificação de ifs encareados
                       testeIf--;
                       
                       if(testeIf == 0){
@@ -264,22 +247,6 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                         erro = "ERRO: falta #if\n";//caso tenha mais #endif que #if
                         
                       }
-                      /*
-                      if(operacao){//#ifndef
-                        operacao = false;
-                        //setTextoSup(getTextoSup() + salva);
-                      }
-                      
-                      if(guarda){//#ifdef ja defini
-                        guarda = false;
-                        //setTextoSup(getTextoSup() + salva);
-                      }
-                      
-                      if(guardaIf){//#if caso caia nas condições com >,<,=,&&
-                        guardaIf = false;
-                       // setTextoSup(getTextoSup() + salva);//seta o texto que sera escrito
-                      } 
-                      */
                       
                       if(guardaIf||guarda||operacao){//habilitar caso queira colocar #endif
                         if(guardaIf){
@@ -292,7 +259,7 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                         if(operacao){
                           operacao = false;
                         }
-                       // setTextoSup(getTextoSup() + salva);//seta o texto que sera escrito
+                      
                       } 
                       
                       salva = "";//limpa a variavel de texto
@@ -302,7 +269,6 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                   
                   if((comando.size() > 8)&&(c=='\n')){//se for maior que sete caracters guardo o comando
                     trata = false;
-                   // setTextoSup(getTextoSup() + salva);
                     txtSup = true;
                     comando = "";
                     salva = "";
@@ -332,11 +298,13 @@ void PreCompilador::trataIf(char c, string*txt, bool*arq, bool*ts, bool*arqelse,
     
       if(getCondicional() == "#ifndef"){//esta dentro de uma condicional #ifndef
         
-        if(!txSup){
-           *op = true;//pegar definicao
+        if(!txSup){//se não estiver definido será definido
+          *op = true;//pegar definicao
+          setContif(true);
         }else{
           *op = false;
           *gu = true;//#endif
+          setContif(false);
         }
         *arq = false;//sai do tratamento
         *txt = "";
@@ -346,25 +314,25 @@ void PreCompilador::trataIf(char c, string*txt, bool*arq, bool*ts, bool*arqelse,
         *gu = true;
         *arq = false;//sai do tratamento
         *txt = "";
-       
+        setContif(false);
       }else{//é um #if
         
         if(*gf){//caso a condição #if esteja fora dos padrões definidos no trabalho
-          //*ts = txSup;//ts é igual txtSup
           *arq = false;//sai do tratamento
           *txt = "";
-          //*gf = false;
-         // setTextoSup(getTextoSup() + getIfInvalido()+'\n');
+          setContif(false);
         }else{
           *ts = txSup;//ts é igual txtSup
           *arq = false;//sai do tratamento
           *arqelse = !*ts;//ve se vai pegar a parte do else ou a parte do if
           *txt = "";//limpa o texto condicional
           *salve = "";//limpa o texto da variavel 
+          setContif(true);
        }
         
       }
       setIfInvalido("");
+
     }else{//pega a condição if  
       if(c2 != ' '){
         *txt += c2;
@@ -385,6 +353,16 @@ void PreCompilador::trataIf(char c, string*txt, bool*arq, bool*ts, bool*arqelse,
     }
 }
 
+bool PreCompilador::verificaContif(){
+  
+  for (bool b : contif) {
+    if(!b){
+      return b;
+    }
+  }
+  return true;
+}
+
 void PreCompilador::trataDefinicao(char c2, string* txt, bool* destrava, int* ind, string* salve){
     char c = c2;
     
@@ -394,11 +372,9 @@ void PreCompilador::trataDefinicao(char c2, string* txt, bool* destrava, int* in
         setaDefinicao(*txt);//seta a definição
         setaAtribuicao(" ");//seta a definição
         *ind = 1;
-        //cout<<*txt+"->variavel definida<-";//..............................................
         *txt = "";//apaga a variavel para pegar a definição
       }else if(*ind == 1){
             setaAtribuicao(*txt);//seta a definição
-           // cout<<*txt+"foiiiiiiii";
       }
       
       *destrava = false;//sai do tratamento
@@ -411,17 +387,15 @@ void PreCompilador::trataDefinicao(char c2, string* txt, bool* destrava, int* in
         
       }else{
         if(*txt!=""){//se nao estiver vazio
-        //cout<<"teste";
-          
+        
           if(*ind == 0){
             setaDefinicao(*txt);//seta a definição
              *ind = 1;
-          //   cout<<*txt;
+       
             *txt = "";//apaga a variavel para pegar a definição
             
           }else if(*ind == 1){
             setaAtribuicao(*txt);//seta a definição
-            //cout<<*txt+"sdssss";
             *txt = "";//apaga a variavel para pegar a definição
             *ind = 2;
           }
@@ -448,6 +422,20 @@ bool PreCompilador::verificaCondicao(string def){
   }
   return false;
 }
+
+void PreCompilador::setContif(bool cif){
+  contif.insert(contif.begin(),1,cif);
+}
+
+/*bool PreCompilador::verificaCondicao(string def){
+  
+   for (string str : definicao) {
+    if(str == def){
+      return true;
+    }
+  }
+  return false;
+}*/
 
 void PreCompilador::escritaIfs(){
   ofstream escritor;

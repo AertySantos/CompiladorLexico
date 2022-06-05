@@ -12,13 +12,13 @@ class PreCompilador{
     string arquivoInc;//arquivo a ser incluido
     string condicional;//guarda a condicional
     string condicao;//guarda a condicao
-    string ifInvalido;
+    string ifInvalido;//quando #if entra em condições não tratadas
     char varAnterior;//guarda a variavel lida anteriormente 
     bool aspas;//para verificação de aspas
     list<string>lista;//lista onde serão incluidos os includeres(evitar repetição)
     list<string>definicao;//guarda as variaveis definidas
     list<string>atribuicao;//guarda as atribuições das variaveis definidas se houver
-    list<bool>contif;//para verificação de encadeamentos
+    list<bool>contif;//para verificação de encadeamentos de #if,#ifndef...
 
   public:
     PreCompilador();//construtor
@@ -27,10 +27,10 @@ class PreCompilador{
     void leituraIfs(string);//leitura e verificação de #if,#else,#endif
     void escritaInclude();//escreve um novo arquivo apos o codigo inicial ser pre-compilado
     void escritaIfs();//escreve o arquivo apos a verificação dos #if,#else e #endif
-    void trataInclude(char, string*, bool*, bool*, string*);
-    bool verificaLista(string);
-    void trataIf(char, string*, bool*, bool*, bool*, string*, bool*, bool*, bool*);
-    void trataDefinicao(char, string*, bool*, int*, string*);
+    void trataInclude(char, string*, bool*, bool*, string*);//faz o tratamento dos includes
+    bool verificaLista(string);//verifica se uma condição string esta presente na lista
+    void trataIf(char, string*, bool*, bool*, bool*, string*, bool*, bool*, bool*);//faz o trato dos #if,#ifndef...
+    void trataDefinicao(char, string*, bool*, int*, string*);//trata o #define
     string getInclusao();
     void  setInclusao();
     string getTextoSup();
@@ -49,7 +49,7 @@ class PreCompilador{
     string getIfInvalido();
     void setIfInvalido(string);
     void setContif(bool);
-    bool verificaContif();
-    void limpar();
+    bool verificaContif();//verifica o encadeamento de #if,#ifndef...
+    void limpar();//limpa as variaveis entre a inclusao e verificação dos #ifs
 };
 #endif

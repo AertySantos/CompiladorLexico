@@ -30,9 +30,9 @@ void PreCompilador::iniciar(){
   
   limpar();
   leituraIfs(arquivo);//verifica os #if,#else,#endif
-  escritaIfs();
+  escritaIfs();//faz a escrita do arquivo apos ser verificado os #if,#ifndef,#ifdef,#else,#endif
   
-  cout << endl << "Pre Compilador executado!" << endl;
+  cout << endl << "Pre Compilador executado!" << endl;//termino da execução do preecompilador
 
 }
 
@@ -196,7 +196,7 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                 
                   if(comando.size() >= 3 && comando.size()<= 8){
                       
-                    if(((comando == txtIf)&&(c == ' '))||((comando == txtIfndef)||(comando == txtIfdef))){                                   //identifica #if,#ifdef,#ifndef
+                    if(((comando == txtIf)&&(c == ' '))||((comando == txtIfndef)||(comando == txtIfdef))){                                        //identifica #if,#ifdef,#ifndef
                       setCondicional(comando);
                       setIfInvalido(txtIf+' ');//seto o texto #if
                       tratamento = true;
@@ -211,17 +211,9 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                                  tratamentoDef = true;
                                 
                               }else if(testeIf == 1){
-                                 //trata = false;
-                                 //comando = "";
                                  tratamentoDef = true;
-                                 //txtSup = true;//deixa pegar o texto
-                                 //setTextoSup(getTextoSup() + txtDef);//pegar o texto #define
-                                 //salva = txtDef;
                               }
-                      
-                                //trata = false;//para nao pegar #define dentro #ifdef 
-                               // comando = "";//para nao pegar #define dentro #ifdef 
-                              
+                          
                     }else if(comando == txtElse){//identifica um #else
                       
                       trata = false;
@@ -238,13 +230,18 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                       trata = false;
                       txtSup = true;
                       comando = "";
-                      contif.pop_front();//tira um verificador da lista if
+                      
+                      if(contif.size() > 0){
+                        contif.pop_front();//tira um verificador da lista if
+                      }
+                      
                       testeIf--;
                       
                       if(testeIf == 0){
                         testeIf++;
-                        erro = "ERRO: falta #if\n";//caso tenha mais #endif que #if
-                        
+                        erro = "ERRO! : falta #if";//caso tenha mais #endif que #if
+                        cout << erro << " -> "<<testeIf<<endl;
+                        return;
                       }
                       
                       if(guardaIf||guarda||operacao){//habilitar caso queira colocar #endif
@@ -280,10 +277,9 @@ void PreCompilador::leituraIfs(string nomeArquivo){
       
     }
     
-    if(testeIf > 1){
-      cout << "ERRO: falta #endif -> "<<(testeIf - 1)<<endl;
+    if(testeIf > 1){//possiveis erros nas aberturas e fechamentos de #if,#ifndef,#ifdef
+      cout << "ERRO! : falta #endif -> "<<(testeIf - 1)<<endl;
     }
-    cout << erro << " -> "<<testeIf<<endl;
     
 }
 
@@ -427,19 +423,9 @@ void PreCompilador::setContif(bool cif){
   contif.insert(contif.begin(),1,cif);
 }
 
-/*bool PreCompilador::verificaCondicao(string def){
-  
-   for (string str : definicao) {
-    if(str == def){
-      return true;
-    }
-  }
-  return false;
-}*/
-
 void PreCompilador::escritaIfs(){
   ofstream escritor;
-  escritor.open("codigoPre.c", ios::out | ios::trunc);
+  escritor.open("codPrecompilado.c", ios::out | ios::trunc);
   escritor << getTextoSup();
   escritor.close();
   limpar();
@@ -458,7 +444,7 @@ void PreCompilador::trataInclude(char c, string*txtInc, bool*arqinc, bool *txinf
         *txtsal = "";
         *txtInc = "";
       }
-     // cout << *txtInc << endl;//------------------------------------------------------
+
     }else if(c2 != '<' && c2 != '>'){//pega o que esta dentro do include <include>
       if((c2!=' ')&&(c2!='"')){//retira espacos e aspas
         *txtInc += c2;
@@ -487,12 +473,10 @@ void PreCompilador::escritaInclude(){
   }else{
     setInclusao();//inclui o texto do arquivo a ser incluido
   }
-  //cout <<getInclusao();
   escritor << getInclusao();
   escritor << getTextoInf();
   escritor.close();
- // cout<< getInclusao();
- 
+
 }
 
 string PreCompilador::getInclusao(){  
@@ -532,12 +516,9 @@ void PreCompilador::setInclusao(){//inclui novo arquivo de texto
         if(getArquivoInc() != ""){
           cout << "Incluindo arquivo "+ getArquivoInc() << endl;
         }
-       // cout << inclusao;
       }else{
          cout << "Não possui o arquivo " << getArquivoInc() << endl;
          inclusao += '\n';
-         //inclusao = " #include <"+getArquivoInc()+">";//coloco um espaco para ele nao identificar como include
-        //cout << inclusao;
       }
    
   }

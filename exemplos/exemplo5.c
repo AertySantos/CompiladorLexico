@@ -22,7 +22,7 @@ int main() {
          }
       }
    }
-
+_ooooooops!
    printf("\nIn the lexicographical order: \n");
    for (int i = 0; i < 5; ++i) {
       fputs(str[i], stdout);

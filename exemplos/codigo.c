@@ -1,6 +1,8 @@
 #include <stdio.h>
 
+#define _GCC_MAX_ALIGN_
 #define __USE_XOPEN
+
 int main(void) {
   
   if(b == 10){
@@ -24,7 +26,7 @@ int main(void) {
     printf("Hello World 3\n");
     i = 3;
   #else
-    printf("Hello World \n");
+    printf("Hello World 4\n");
     i = 4;
   #endif
   

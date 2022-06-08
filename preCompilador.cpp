@@ -13,6 +13,7 @@ PreCompilador::PreCompilador(){
   ifInvalido = "";//pega a string da condicional
   varAnterior = '0';//pega a variavel anterior
   aspas = false;//verificação de aspas
+  txtDefine = false;
 }
 
 void PreCompilador::iniciar(string arq){
@@ -128,6 +129,8 @@ void PreCompilador::leituraIfs(string nomeArquivo){
     string txtElse = "#else";
     string txtEndif = "#endif";
     string txtDef = "#define";
+    string txtBegin ="_BEGIN_C_DECLS";
+    string txtEnd ="_END_C_DECLS";
     string erro = "Normal";
     bool tratamento = false;
     bool tratamentoDef = false;
@@ -155,8 +158,8 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                 c = ' ';//limpa c, para nao repetir o ultimo caractere
                 leitor.get(c);//lê caracter a caracter
                
-                if((c == '#')&&(semCom)){//se tem # no codigo fz verificação
-                  
+                if((c == '#')&&(semCom)||(c == '_')&&(semCom)){//se tem # no codigo fz verificação
+                                                                //se começa com _
                     trata = true;
                     txtSup = false;
                     salva ="";//apaga o salva
@@ -175,7 +178,7 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                 }
           
                 if(((txtSup)&&(verificaContif()))||((txtSup)&&(contif.size() == 1))){//escreve ou não escreve
-                  setTextoSup(getTextoSup() + c);
+                  setTextoSup(getTextoSup() + c);                                    //entra no #else
                 }
 
                 if(tratamento){//faz tratamento do #if,#else e #endif
@@ -257,7 +260,7 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                         }
                       
                       } 
-                      
+                      setTxtDefine(false);//para começar a gravar apos sair de #ifndef
                       salva = "";//limpa a variavel de texto
                     }
                     
@@ -265,7 +268,9 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                   
                   if((comando.size() > 8)&&(c=='\n')){//se for maior que sete caracters guardo o comando
                     trata = false;
-                    txtSup = true;
+                    if(!getTxtDefine()){//nao pega texto no define
+                      txtSup = true;
+                    }
                     comando = "";
                     salva = "";
                     
@@ -295,8 +300,9 @@ void PreCompilador::trataIf(char c, string*txt, bool*arq, bool*ts, bool*arqelse,
         
         if(!txSup){//se não estiver definido será definido
           *op = true;//pegar definicao
+          *ts = true;//caso queira gravar o que esta dentro do #ifndef
           setContif(true);
-          *ts = true;
+          setTxtDefine(true);//.......................................................................
         }else{
           *op = false;
           *gu = true;//#endif
@@ -376,6 +382,8 @@ void PreCompilador::trataDefinicao(char c2, string* txt, bool* destrava, int* in
       *destrava = false;//sai do tratamento
       *txt = "";//limpa a variavel acumuladora de texto
       *ind = 0;
+      //*salve = "";//------------------------------------------->
+     // *txDef = true;//tttttttttttttttttttttttttttttttttttttttttttttt
       
     }else{//pega a condição if  
       if(c != ' '){
@@ -570,6 +578,14 @@ string PreCompilador::getIfInvalido(){
 
 void PreCompilador::setIfInvalido(string ifnv){//inclui novo arquivo de texto
   ifInvalido = ifnv;
+}
+
+bool PreCompilador::getTxtDefine(){
+  return txtDefine;
+}
+
+void PreCompilador::setTxtDefine(bool txdef){
+  txtDefine = txdef;
 }
 
 void PreCompilador::limpar(){

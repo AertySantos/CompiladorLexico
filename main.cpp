@@ -12,9 +12,11 @@ int main() {
   
   Leitor l;
   list<Token> lista = l.ler("codPrecompilado.c");
+  cout << "LEGENDA:\n";
+  cout << "\tr:reservada\n\ti:identificador\n\tl:literal\n\tn:numero\n\ts:simbolo\n";
   cout << "SAIDA:\n";
   for (Token t : lista) {
-    cout << "<" << t.getNome() << "," << t.getValor() << ">\n";
+    cout << "\t<"<< t.getNome() << "," << t.getValor() << ">\n";
   }
 	
 }

@@ -1,9 +1,10 @@
-#ifndef LEITOR
-#define LEITOR
+#ifndef __LEITOR
+#define __LEITOR
 
 #include <fstream>
 #include <list>
 #include <string>
+#include "token.h"
 
 using namespace std;
 
@@ -44,35 +45,6 @@ int pegarValorInteiro(int a) { // Pegar valor em vez da referência
 	int b = stoi(iterador);
 	return b;
 }
-
-class Token {
-private:
-	string nome_token;
-	string valor_token;
-public:
-	Token() {
-		nome_token = "";
-		valor_token = "";
-	}
-
-	Token(string nome, string valor) {
-		nome_token = nome;
-		valor_token = valor;
-	}
-
-	void set(string nome, string valor) {
-		nome_token = nome;
-		valor_token = valor;
-	}
-
-	string getNome() {
-		return nome_token;
-	}
-
-	string getValor() {
-		return valor_token;
-	}
-};
 
 class Leitor {
 private:
@@ -175,7 +147,7 @@ public:
 					}
 				}
 				if (fimLeitura()) {  // uma aspas duplas somente
-					buffer.push_back('/"');
+					buffer.push_back('\"');
 					i = pegarValorInteiro(iPosAnterior); // retorna iterador para posicao anterior	
 				}
 			}
@@ -244,7 +216,7 @@ public:
 						}
 					}
 	
-					token.set("r", maiorPalavraReservada);	// saída recebe maior palavra reservada encontrada
+					token.set('r', maiorPalavraReservada);	// saída recebe maior palavra reservada encontrada
 					tokens.push_back(token);
 					
 					if (buffer3 != "") {						// se ha algo depois da palavra reservada
@@ -256,16 +228,16 @@ public:
 							}
 						}
 						if (checarSeIdentificador) {
-							token.set(string("i"), buffer3);
+							token.set('i', buffer3);
 							tokens.push_back(token);
 						}
 						else {
-							token.set(string("n"), buffer3);
+							token.set('n', buffer3);
 							tokens.push_back(token);
 						}
 						
 					}
-					token.set("s",string(1, delimitador));
+					token.set('s',string(1, delimitador));
 					tokens.push_back(token);
 
 					limparBuffer();
@@ -276,17 +248,17 @@ public:
 			}
 			else if (c == '\"') {	// Caso 3: texto entre aspas duplas
 				string bufferTexto = "";
-				token.set("s",string(1, c)); // pega primeira aspas duplas
+				token.set('s',string(1, c)); // pega primeira aspas duplas
 				tokens.push_back(token);
 
 				int iPosAnterior = pegarValorInteiro(i);		// pega valor de i para retorno caso não houver mais aspas duplas
 				while (!fimLeitura()) {
 					c = lerProxCaracter();
 					if (c == '\"') {
-						token.set("l", bufferTexto);
+						token.set('l', bufferTexto);
 						tokens.push_back(token);
 
-						token.set("s",string(1, c));
+						token.set('s',string(1, c));
 						tokens.push_back(token);
 						break;
 					}
@@ -295,7 +267,7 @@ public:
 					}
 				}
 				if (fimLeitura()) {
-					token.set("s", string(1, '/"'));
+					token.set('s', string(1, '\"'));
 					tokens.push_back(token);
 
 					i = pegarValorInteiro(iPosAnterior); // Retorna iterador para posicao anterior	
@@ -311,16 +283,16 @@ public:
 						}
 					}
 					if (checarSeIdentificador) {
-						token.set(string("i"), buffer);
+						token.set('i', buffer);
 						tokens.push_back(token);
 					}
 					else {
-						token.set(string("n"), buffer);
+						token.set('n', buffer);
 						tokens.push_back(token);
 					}
 				}
 				limparBuffer();
-				token.set("s", string(1, c));
+				token.set('s', string(1, c));
 				tokens.push_back(token);
 			}
 		}

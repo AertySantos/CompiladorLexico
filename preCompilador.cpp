@@ -33,7 +33,7 @@ void PreCompilador::iniciar(string arq){
   leituraIfs(arquivo);//verifica os #if,#else,#endif
   escritaIfs();//faz a escrita do arquivo apos ser verificado os #if,#ifndef,#ifdef,#else,#endif
   
-  cout << endl << "Pre Compilador executado!" << endl;//termino da execução do preecompilador
+  cout << endl << "Pre Compilador executado!\n" << endl;//termino da execução do preecompilador
 
 }
 
@@ -45,7 +45,7 @@ bool PreCompilador::leituraInclude(string nomeArquivo){//verificação dos inclu
     bool arquivoInc = false, IncVez = true;
     bool txtSup = true;//texto superior
     bool txtInf = false;//texto inferior
-    bool retorno = false;//acabou?
+    bool retorno = false;//acabou jessica?
   
     limpar();//limpa as variaveis privadas da classe
   
@@ -129,8 +129,6 @@ void PreCompilador::leituraIfs(string nomeArquivo){
     string txtElse = "#else";
     string txtEndif = "#endif";
     string txtDef = "#define";
-    string txtBegin ="_BEGIN_C_DECLS";
-    string txtEnd ="_END_C_DECLS";
     string erro = "Normal";
     bool tratamento = false;
     bool tratamentoDef = false;
@@ -157,8 +155,8 @@ void PreCompilador::leituraIfs(string nomeArquivo){
           
                 c = ' ';//limpa c, para nao repetir o ultimo caractere
                 leitor.get(c);//lê caracter a caracter
-               
-                if((c == '#')&&(semCom)||(c == '_')&&(semCom)){//se tem # no codigo fz verificação
+                
+                if((c == '#')&&(semCom)||(c == '_')&&(semCom)){//se  tem # no codigo fz verificação
                                                                 //se começa com _
                     trata = true;
                     txtSup = false;
@@ -178,7 +176,10 @@ void PreCompilador::leituraIfs(string nomeArquivo){
                 }
           
                 if(((txtSup)&&(verificaContif()))||((txtSup)&&(contif.size() == 1))){//escreve ou não escreve
-                  setTextoSup(getTextoSup() + c);                                    //entra no #else
+                                                    //entra no #else                  
+                  if(!getTxtDefine()){//nao pega texto no define
+                      setTextoSup(getTextoSup() + c);  
+                    }
                 }
 
                 if(tratamento){//faz tratamento do #if,#else e #endif
@@ -302,7 +303,7 @@ void PreCompilador::trataIf(char c, string*txt, bool*arq, bool*ts, bool*arqelse,
           *op = true;//pegar definicao
           *ts = true;//caso queira gravar o que esta dentro do #ifndef
           setContif(true);
-          setTxtDefine(true);//.......................................................................
+          setTxtDefine(true);//para pegar a definição e evitar grava-la no novo arquivo
         }else{
           *op = false;
           *gu = true;//#endif

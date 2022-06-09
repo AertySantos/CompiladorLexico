@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iterator>
 #include "preCompilador.h"
 #include "leitura.h"
 //#include "GeradorToken.h"
@@ -12,11 +13,29 @@ int main() {
   
   Leitor l;
   list<Token> lista = l.ler("codPrecompilado.c");
-  cout << "LEGENDA:\n";
-  cout << "\tr:reservada\n\ti:identificador\n\tl:literal\n\tn:numero\n\ts:simbolo\n";
-  cout << "SAIDA:\n";
-  for (Token t : lista) {
-    cout << "\t<"<< t.getNome() << "," << t.getValor() << ">\n";
-  }
+	
+  //SAIDA
+  cout << "LEGENDA:\n\tr:reservada\n\ti:identificador\n\tl:literal\n\tn:numero\n\ts:simbolo\nSAIDA:\n";
+  cout << "TODOS OS IDENTIFICADORES\n";
+  for(Token t : lista) {
+  	if (t.getNome() == 'i') {
+            cout << "\t<" << t.getValor() << "> \n";
+        }
+    }
+
+    cout << "IDENTIFICADORES COM VALOR\n \t<apelido,valor>\n";
+    list<Token>::iterator it;
+    string apelido_ident;
+    string valor_ident;
+    for (it = lista.begin(); it != lista.end(); it++) {
+        if (it-> getNome()== 'i') {
+            apelido_ident = it->getValor();
+        }
+        if (it->getValor()._Equal("=")) {
+            it++;
+            valor_ident = it->getValor();
+            cout << "\t<" << apelido_ident << "," << valor_ident << "> \n";
+        }
+    }
 	
 }

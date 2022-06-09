@@ -23,7 +23,7 @@ int main() {
         }
     }
 
-    cout << "IDENTIFICADORES COM VALOR\n \t<apelido,valor>\n";
+    cout << "IDENTIFICADORES COM VALOR <apelido,valor>\n";
     list<Token>::iterator it;
     string apelido_ident;
     string valor_ident;
@@ -31,10 +31,12 @@ int main() {
         if (it-> getNome()== 'i') {
             apelido_ident = it->getValor();
         }
-        if (it->getValor()._Equal("=")) {
+        if (it->getValor().compare("=") == 0) {
             it++;
-            valor_ident = it->getValor();
-            cout << "\t<" << apelido_ident << "," << valor_ident << "> \n";
+            if (it->getValor().compare("=") != 0) { //Checa se não tem dois iguais(comparação)
+                valor_ident = it->getValor();
+                cout << "\t<" << apelido_ident << "," << valor_ident << "> \n";
+            }
         }
     }
 	

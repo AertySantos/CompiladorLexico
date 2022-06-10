@@ -15,6 +15,7 @@ class PreCompilador{
     string ifInvalido;//quando #if entra em condições não tratadas
     char varAnterior;//guarda a variavel lida anteriormente 
     bool aspas;//para verificação de aspas
+    bool txtDefine;
     list<string>lista;//lista onde serão incluidos os includeres(evitar repetição)
     list<string>definicao;//guarda as variaveis definidas
     list<string>atribuicao;//guarda as atribuições das variaveis definidas se houver
@@ -44,6 +45,8 @@ class PreCompilador{
     void setaAtribuicao(string);//seta lista de atribuição
     char getVarAnterior();
     void setVarAnterior(char);
+    bool getTxtDefine();
+    void setTxtDefine(bool);
     string getCondicional();
     void setCondicional(string);
     string getIfInvalido();

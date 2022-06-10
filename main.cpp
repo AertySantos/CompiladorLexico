@@ -2,7 +2,7 @@
 #include <iterator>
 #include "preCompilador.h"
 #include "leitura.h"
-//#include "GeradorToken.h"
+#include "GeradorTabela.h"
 
 using namespace std;
 
@@ -23,6 +23,7 @@ int main() {
         }
     }
 
+    /*
     cout << "IDENTIFICADORES COM VALOR <apelido,valor>\n";
     list<Token>::iterator it;
     string apelido_ident;
@@ -38,6 +39,19 @@ int main() {
                 cout << "\t<" << apelido_ident << "," << valor_ident << "> \n";
             }
         }
-    }
+    }*/
+    GeradorTabela geradorTabela;
+    int tokenListSize = lista.size();
+
+    //Mostra quantidade dos tokens gerado no arquivo
+    cout<<"Quantidade de Tokens no arquivo"<<endl;
+    cout<<"Foram registrados "<<tokenListSize<<" Tokens\n"<<endl;
+    geradorTabela.mostrarTokenLidos(lista);
+
+    //Gerar Tabela de simbolos    
+    geradorTabela.GerarTabela(lista);
+    //Mostrar Tabela 
+    cout<<"Mostrando Tabela de Símbolos\n"<<endl;
+    geradorTabela.hashTable.mostrarTabela();
 	
 }

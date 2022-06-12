@@ -11,13 +11,13 @@ class HashTable
 {
 private:
     static const int hashGroups = 10;
-    list<pair<int, string>> tabela[hashGroups]; // list 1, indice 0, list 2, indice 1...
+    list<pair<string, string>> tabela[hashGroups]; // list 1, indice 0, list 2, indice 1...
 public:
     bool estaVazia() const;
-    int funcaoHash(int chave);
-    void inserirItem(int chave, string valor);
-    void removerItem(int chave);
-    string pesquisarTabela(int chave);
+    int funcaoHash(string chave);
+    void inserirItem(string chave, string valor);
+    void removerItem(string chave);
+    string pesquisarTabela(string chave);
     void mostrarTabela();    
 };
 
@@ -34,11 +34,11 @@ bool HashTable::estaVazia() const
         return false;
     }
 
-    int HashTable::funcaoHash(int chave){
-        return chave % hashGroups; //id
+    int HashTable::funcaoHash(string chave){
+        return chave.size() % hashGroups; //id
     }
 
-    void HashTable::inserirItem(int chave, string valor){
+    void HashTable::inserirItem(string chave, string valor){
         int valorHash = funcaoHash(chave);
         auto& celula = tabela[valorHash];
         auto bItr = begin(celula);
@@ -47,7 +47,7 @@ bool HashTable::estaVazia() const
             if(bItr->first == chave){
                 existChave = true;
                 bItr->second = valor;
-                cout<<"Atenção, valor existente. Valor substituido"<<endl;
+                //cout<<"Atenção, valor existente. Valor substituido"<<endl;
                 break;
             }
         }
@@ -57,7 +57,7 @@ bool HashTable::estaVazia() const
         return;
     }
 
-    void HashTable::removerItem(int chave){
+    void HashTable::removerItem(string chave){
         int valorHash = funcaoHash(chave);
         auto& celula = tabela[valorHash];
         auto bItr = begin(celula);
@@ -80,7 +80,7 @@ bool HashTable::estaVazia() const
 
             auto bItr = tabela[i].begin();
             for(;bItr != tabela[i].end(); bItr++){
-                cout<<"Posição: "<<bItr->first<<"\t Identificador: "<<bItr->second<<endl;
+                cout<<"Posição: "<<bItr->second<<"\t Identificador: "<<bItr->first<<endl;
             }
             
         }

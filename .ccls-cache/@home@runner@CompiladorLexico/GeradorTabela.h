@@ -28,7 +28,7 @@ class GeradorTabela{
             {
                 char tkNome = tokenList.front().getNome();
                 string tkValor = tokenList.front().getValor();
-                hashTable.inserirItem(i, tkValor);
+                hashTable.inserirItem(tkValor, to_string(i) );
                 //cout<<i<<":"<<"\t"<<tkNome<<tkValor<<endl;
             }
             tokenList.pop_front();

@@ -23,23 +23,6 @@ int main() {
         }
     }
 
-    /*
-    cout << "IDENTIFICADORES COM VALOR <apelido,valor>\n";
-    list<Token>::iterator it;
-    string apelido_ident;
-    string valor_ident;
-    for (it = lista.begin(); it != lista.end(); it++) {
-        if (it-> getNome()== 'i') {
-            apelido_ident = it->getValor();
-        }
-        if (it->getValor().compare("=") == 0) {
-            it++;
-            if (it->getValor().compare("=") != 0) { //Checa se não tem dois iguais(comparação)
-                valor_ident = it->getValor();
-                cout << "\t<" << apelido_ident << "," << valor_ident << "> \n";
-            }
-        }
-    }*/
     GeradorTabela geradorTabela;
     int tokenListSize = lista.size();
 

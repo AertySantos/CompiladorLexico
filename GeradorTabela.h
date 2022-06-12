@@ -26,7 +26,7 @@ class GeradorTabela{
     }
     public:
     void GerarTabela(list<Token> tokenList){
-      int i = 1;
+      int i = 0;
       
         for (Token tk : tokenList)
             {

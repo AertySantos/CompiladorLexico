@@ -70,6 +70,7 @@ PreCompilador::PreCompilador()
   ifInvalido = "";   // pega a string da condicional
   varAnterior = '0'; // pega a variavel anterior
   aspas = false;     // verificação de aspas
+  txtDefine = false;
 }
 
 void PreCompilador::iniciar(string arq)
@@ -77,7 +78,8 @@ void PreCompilador::iniciar(string arq)
 
   bool op = true;       // variavel que aguarda o fim dos includes
   string arquivo = arq; // primeiro arquivo a ser lido
-  cout << "Iniciando execução...\n"
+  cout << endl
+       << "Iniciando execução...\n"
        << endl; // notificação de inicio
 
   while (op)
@@ -92,7 +94,8 @@ void PreCompilador::iniciar(string arq)
   escritaIfs();        // faz a escrita do arquivo apos ser verificado os #if,#ifndef,#ifdef,#else,#endif
 
   cout << endl
-       << "Pre Compilador executado!" << endl; // termino da execução do preecompilador
+       << "Pre Compilador executado!\n"
+       << endl; // termino da execução do preecompilador
 }
 
 bool PreCompilador::leituraInclude(string nomeArquivo)
@@ -104,7 +107,7 @@ bool PreCompilador::leituraInclude(string nomeArquivo)
   bool arquivoInc = false, IncVez = true;
   bool txtSup = true;   // texto superior
   bool txtInf = false;  // texto inferior
-  bool retorno = false; // acabou?
+  bool retorno = false; // acabou jessica?
 
   limpar(); // limpa as variaveis privadas da classe
 
@@ -229,9 +232,9 @@ void PreCompilador::leituraIfs(string nomeArquivo)
       c = ' ';       // limpa c, para nao repetir o ultimo caractere
       leitor.get(c); // lê caracter a caracter
 
-      if ((c == '#') && (semCom))
-      { // se tem # no codigo fz verificação
-
+      if ((c == '#') && (semCom) || (c == '_') && (semCom))
+      { // se  tem # no codigo fz verificação
+        // se começa com _
         trata = true;
         txtSup = false;
         salva = ""; // apaga o salva
@@ -253,7 +256,11 @@ void PreCompilador::leituraIfs(string nomeArquivo)
 
       if (((txtSup) && (verificaContif())) || ((txtSup) && (contif.size() == 1)))
       { // escreve ou não escreve
-        setTextoSup(getTextoSup() + c);
+        // entra no #else
+        if (!getTxtDefine())
+        { // nao pega texto no define
+          setTextoSup(getTextoSup() + c);
+        }
       }
 
       if (tratamento)
@@ -352,15 +359,18 @@ void PreCompilador::leituraIfs(string nomeArquivo)
                 operacao = false;
               }
             }
-
-            salva = ""; // limpa a variavel de texto
+            setTxtDefine(false); // para começar a gravar apos sair de #ifndef
+            salva = "";          // limpa a variavel de texto
           }
         }
 
         if ((comando.size() > 8) && (c == '\n'))
         { // se for maior que sete caracters guardo o comando
           trata = false;
-          txtSup = true;
+          if (!getTxtDefine())
+          { // nao pega texto no define
+            txtSup = true;
+          }
           comando = "";
           salva = "";
         }
@@ -391,8 +401,9 @@ void PreCompilador::trataIf(char c, string *txt, bool *arq, bool *ts, bool *arqe
       if (!txSup)
       {             // se não estiver definido será definido
         *op = true; // pegar definicao
+        *ts = true; // caso queira gravar o que esta dentro do #ifndef
         setContif(true);
-        *ts = true;
+        setTxtDefine(true); // para pegar a definição e evitar grava-la no novo arquivo
       }
       else
       {
@@ -498,6 +509,8 @@ void PreCompilador::trataDefinicao(char c2, string *txt, bool *destrava, int *in
     *destrava = false; // sai do tratamento
     *txt = "";         // limpa a variavel acumuladora de texto
     *ind = 0;
+    //*salve = "";//------------------------------------------->
+    // *txDef = true;//tttttttttttttttttttttttttttttttttttttttttttttt
   }
   else
   { // pega a condição if
@@ -738,6 +751,16 @@ string PreCompilador::getIfInvalido()
 void PreCompilador::setIfInvalido(string ifnv)
 { // inclui novo arquivo de texto
   ifInvalido = ifnv;
+}
+
+bool PreCompilador::getTxtDefine()
+{
+  return txtDefine;
+}
+
+void PreCompilador::setTxtDefine(bool txdef)
+{
+  txtDefine = txdef;
 }
 
 void PreCompilador::limpar()

@@ -9,7 +9,7 @@ using namespace std;
 int main() {
   
   PreCompilador pc;
-  pc.iniciar("exemplos/codigo.c");
+  pc.iniciar("exemplos/exemplo5.c");
   
   Leitor l;
   list<Token> lista = l.ler("codPrecompilado.c");

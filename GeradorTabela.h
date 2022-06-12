@@ -14,25 +14,29 @@ class GeradorTabela{
     public:
     void mostrarTokenLidos(list<Token> tokenList){
 
-        for (int i{}; i < tokenList.size(); i++){
-            char tkNome = tokenList.front().getNome();
-            string tkValor = tokenList.front().getValor();
-            cout << i << ":"<< "\t" << tkValor << endl;
-            tokenList.pop_front();
-        }
+        int i = 0;
+      
+        for (Token tk : tokenList)
+            {
+              char tkNome = tk.getNome();
+              string tkValor = tk.getValor();
+              cout << i << ":"<< "\t" << tkValor << endl;
+              i++;
+            }
     }
     public:
     void GerarTabela(list<Token> tokenList){
-        for (int i{}; i < tokenList.size(); i++){
-            if (tokenList.front().getNome() == 'i')
+      int i = 1;
+      
+        for (Token tk : tokenList)
             {
-                char tkNome = tokenList.front().getNome();
-                string tkValor = tokenList.front().getValor();
+              if(tk.getNome() == 'i'){
+                char tkNome = tk.getNome();
+                string tkValor = tk.getValor(); 
                 hashTable.inserirItem(tkValor, to_string(i) );
-                //cout<<i<<":"<<"\t"<<tkNome<<tkValor<<endl;
+              }
+              i++;
             }
-            tokenList.pop_front();
-        }
     }
 };
 #endif

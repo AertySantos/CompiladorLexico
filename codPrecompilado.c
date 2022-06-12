@@ -522,29 +522,511 @@ allow GCC to optimize away some EH unwind code, at least in DW2 case.  */
 	/* ! RC_INVOKED */
   /* !_STDIO_H: $RCSfile: stdio.h,v $: end of file */
  
+/*
+ * string.h
+ *
+ * ISO-C standard header, with MSVC compatible extensions.
+ *
+ * $Id: string.h,v 9214845bad91 2017/12/18 11:45:49 keith $
+ *
+ * Written by Colin Peters <colin@bird.fu.is.saga-u.ac.jp>
+ * Copyright (C) 1997-2000, 2002-2004, 2007, 2009, 2015-2017,
+ *  MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
 
 
 
-int main(void) {
-  
-  if(b == 10){
-    printf "33";
-  }
 
-  int x = 0;
-  
-  printf("Hello World 0\n");
-  i = 0;
-  
-      printf("__USE_XOPEN 1\n");
-    i = 1;
-  
-  
-  
-    printf("!_GCC_MAX_ALIGN_ 4\n");
-    i = 4;
-  
-  
-  
-    
-}                
+
+/* Prototypes for the ISO-C Standard library string functions.
+ */
+
+
+
+
+
+
+ /* ! _UWIN */
+ /* ! _NO_OLDNAMES */
+
+/* MSVC also expects <string.h> to declare duplicates of the wchar_t
+ * string functions which are nominally declared in <wchar.h>, (which
+ * is where ISO-C specifies that they should be declared).  For the
+ * convenience of applications which rely on this Microsoft anomaly,
+ * inclusion of <wchar.h>, within the current __STRING_H_SOURCED__
+ * scope, will selectively expose the required function prototypes;
+ * however, strictly ISO-C conforming applications should include
+ * <wchar.h> directly; they should not rely on this MSVC specific
+ * anomalous behaviour.  (We use the quoted form of inclusion here,
+ * to ensure that we get our own "wchar.h", and not any predecessor
+ * which may have been insinuated into the system include path, and
+ * so could interfere with our mechanism for partial inclusion of
+ * shared header content).
+ */
+/*
+ * wchar.h
+ *
+ * Declarations relating to support for wide characters; many are simply
+ * inherited by (sub-optimal) inclusion of other header files.
+ *
+ * $Id: wchar.h,v 3346bd5e5239 2020/07/04 21:06:58 keith $
+ *
+ * Unattributed original source.
+ * Adapted by Rob Savoye <rob@cygnus.com>
+ * Copyright (C) 1997, 1999-2009, 2011, 2015, 2016, 2018-2020,
+ *   MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+
+
+/* The following flags are used to tell iswctype() and _isctype() what
+ * character classes are to be matched; (note that _BLANK will match for
+ * SP and non-ASCII horizontal space chars -- e.g. for "no-break space",
+ * 0xA0, in CP1250 -- but NOT for HT).
+ *
+ * These are defined such that they will be made visible by inclusion
+ * of either <wctype.h> (this file), or <ctype.h>:
+ */
+
+	/* !(_WCTYPE_H && _CTYPE_H) */
+
+	/* _WCTYPE_H */
+	/* ! RC_INVOKED */
+	/* !_WCTYPE_H: $RCSfile: wctype.h,v $: end of file */
+ 
+
+ /* This is also necessary, to support the non-ANSI wchar.h declarations
+  * which MSDN identifies as being provided here.
+  */
+	/* !__STRICT_ANSI__ */
+
+
+
+	/* !__WCHAR_H_SOURCED__ */
+
+	/* _STDLIB_H only */
+	/* _STDLIB_H || _WCHAR_H */
+
+	/* _STDLIB_H */
+
+
+	/* ! RC_INVOKED */
+	/* ! _STDLIB_H: $RCSfile: stdlib.h,v $: end of file */
+ /* ...we obtain prototypes for universally supported functions:
+ *
+ *  long wcstol (const wchar_t *, wchar_t **, int);
+ *  unsigned long wcstoul (const wchar_t *, wchar_t **, int);
+ *  double wcstod (const wchar_t *, wchar_t **);
+ *
+ * The following are Microsoft specific, and require MSCVRT.DLL,
+ * or any of its non-free derivatives; they are not available to
+ * applications which use CRTDLL.DLL:
+ *
+ *  wchar_t *_wgetenv (const wchar_t *);
+ *  int _wputenv (const wchar_t *);
+ *  void _wsearchenv (const wchar_t *, const wchar_t *, wchar_t *);
+ *  int _wsystem (const wchar_t *);
+ *  void _wmakepath (wchar_t *, const wchar_t *, const wchar_t *,
+ *          const wchar_t *, const wchar_t *
+ *        );
+ *  void _wsplitpath (const wchar_t *, wchar_t *, wchar_t *,
+ *          wchar_t *, wchar_t *
+ *        );
+ *  wchar_t *_wfullpath (wchar_t *, const wchar_t *, size_t);
+ *
+ * ...with this pair requiring either WinXP (or later), or one of
+ * the non-free MSVC runtimes from MSVCR70.DLL onwards:
+ *
+ *  __int64 _wcstoi64 (const wchar_t *, wchar_t **, int);
+ *  unsigned __int64 _wcstoui64 (const wchar_t *, wchar_t **, int);
+ *
+ *  ...and this pair requiring Win-Vista (or later), or a non-free
+ *  MSVC runtime from MSVCR80.DLL onwards:
+ *
+ *  __int64 _wcstoi64_l (const wchar_t *, wchar_t **, int, _locale_t);
+ *  unsigned __int64 _wcstoui64_l (const wchar_t *, wchar_t **,
+ *          int, _locale_t);
+ *        );
+ *
+ * ...while this pair are ISO-C99 standards, which are available
+ * in libmingwex.a, but not in any version of MSVCRT.DLL, (nor in
+ * any of its non-free derivatives prior to MSVCR120.DLL), nor in
+ * CRTDLL.DLL:
+ *
+ *  float wcstof (const wchar_t *restrict, wchar_t **restrict);
+ *  long double wcstold (const wchar_t *restrict, wchar_t **restrict);
+ *
+ *
+ * while...
+ */
+	/* !__WCHAR_H_SOURCED__ */
+
+	/* _DIRECT_H */
+
+/* The following group of function prototypes are to be declared
+ * either when including <dirent.h> in its own right, or when it
+ * is included selectively by <wchar.h>; however...
+ */
+	/* __MSVCRT__ && ! (defined _DIRENT_H && defined _WCHAR_H) */
+
+
+	/* ! RC_INVOKED */
+  /* !_DIRECT_H: $RCSfile: direct.h,v $: end of file */
+ /* ...we obtain prototypes for each of the following functions,
+ * (none of which are available when using CRTDLL.DLL):
+ *
+ *  int _wchdir (const wchar_t *);
+ *  wchar_t *_wgetcwd (wchar_t *, int);
+ *  wchar_t *_wgetdcwd (int, wchar_t *, int);
+ *  int _wmkdir (const wchar_t *);
+ *  int _wrmdir (const wchar_t *);
+ *
+ *
+ * while from...
+ */
+/*
+ * stat.h
+ *
+ * Symbolic constants for opening and creating files, also stat, fstat and
+ * chmod functions.
+ *
+ * $Id: stat.h,v aae5e4b880b9 2016/07/14 17:59:07 keithmarshall $
+ *
+ * Written by Colin Peters <colin@bird.fu.is.saga-u.ac.jp>
+ * Copyright (C) 1997-2001, 2003-2005, 2007, 2016, MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+	/* !__WCHAR_H_SOURCED__ */
+
+	/* !_NO_OLDNAMES */
+
+	/* __MSVCRT__ */
+
+/* From here on, it is sufficient to leave __struct_stat_defined as
+ * a macro which expands to nothing.
+ */
+
+ /* !__struct_stat_defined */
+
+
+	/* _SYS_STAT_H */
+
+	/* __MSVCRT__ && !(_SYS_STAT_H && _WCHAR_H) */
+
+
+	/* ! RC_INVOKED */
+	/* !_SYS_STAT__H: $RCSfile: stat.h,v $: end of file */
+ /* ...we obtain function prototypes, and all associated data type
+ * definitions for this pair of actual functions, in all versions of
+ * MSVCRT.DLL, and its non-free derivatives preceding MSVCR80.DLL, (or
+ * inline replacement implementations for MSVCR80.DLL and later):
+ *
+ *  int _wstat (const wchar_t *, struct _stat *);
+ *  int _wstati64 (const wchar_t *, struct _stati64 *);
+ *
+ * ...this additional actual function, available in MSVCRT.DLL from
+ * Win2K onwards, or in non-free MSVCR61.DLL and again requiring an
+ * inline replacement from MSVCR80.DLL onwards:
+ *
+ *  int _wstat64 (const wchar_t *, struct __stat64 *);
+ *
+ * ...and these actual functions, which are available only in non-free
+ * MSVCR80.DLL, and its later derivatives:
+ *
+ *  int _wstat32 (const wchar_t *, struct __stat32 *);
+ *  int _wstat32i64 (const wchar_t *, struct _stat32i64 *);
+ *  int _wstat64i32 (const wchar_t *, struct _stat64i32 *);
+ *
+ *
+ * from...
+ */
+/*
+ * conio.h
+ *
+ * Low level console I/O functions.  Pretty please try to use the ANSI
+ * standard ones if you are writing new code.
+ *
+ * $Id: conio.h,v 7f0aa41f8caf 2018/10/21 15:39:35 keith $
+ *
+ * Written by Colin Peters <colin@bird.fu.is.saga-u.ac.jp>
+ * Copyright (C) 1997, 1999-2001, 2003, 2004, 2007, 2018, MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+	/* !__WCHAR_H_SOURCED__ */
+
+	/* _CONIO_H */
+
+	/* ! (_CONIO_H && _WCHAR_H) */
+
+
+	/* ! RC_INVOKED */
+	/* !_CONIO_H: $RCSfile: conio.h,v $: end of file */
+ /* ...we obtain, depending on active MSVCRT.DLL version conformity,
+ * or non-free run-time version selection, an appropriate subset of:
+ *
+ *   wint_t _getwch (void);
+ *   wint_t _getwche (void);
+ *   wint_t _ungetwch (wint_t);
+ *
+ * ...and for non-free run-times from MSVCR80.DLL onwards only:
+ *
+ *   wint_t _getwch_nolock (void);
+ *   wint_t _getwche_nolock (void);
+ *   wint_t _ungetwch_nolock (wint_t);
+ *
+ *
+ * and from...
+ */
+	/* !__STRICT_ANSI__ */
+
+/* From...
+ */
+/*
+ * time.h
+ *
+ * Type definitions and function declarations relating to date and time.
+ *
+ * $Id: time.h,v c10027655651 2018/10/18 08:50:58 keith $
+ *
+ * Written by Colin Peters <colin@bird.fu.is.saga-u.ac.jp>
+ * Copyright (C) 1997-2007, 2011, 2015-2018, MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+ /* !_TIME_H: $RCSfile: time.h,v $: end of file */
+ /* ...we always obtain an opaque forward declaration of:
+ *
+ *  struct tm
+ *
+ * ...and prototype declarations for the following ISO-C99 function,
+ * (which is always provided):
+ *
+ *  size_t wcsftime (wchar_t *, size_t, const wchar_t *, const struct tm *);
+ *
+ * ...together with the following non-ISO-C functions, (which are
+ * NOT exposed when "__STRICT_ANSI__" checking is enabled):
+ *
+ *  wchar_t *_wctime (const time_t *);
+ *  wchar_t *_wasctime (const struct tm *);
+ *  wchar_t *_wstrdate (wchar_t *);
+ *  wchar_t *_wstrtime (wchar_t *);
+ *
+ * Of the preceding group, we also note that, while it remains in
+ * all versions of MSVCRT.DLL, (using a strictly 32-bit data type
+ * to represent its "time_t" argument), the _wctime() function is
+ * NOT present in MSVCR80.DLL, and later versions of the non-free
+ * MSVC runtime libraries, in which it is replaced by either of:
+ *
+ *  wchar_t *_wctime64 (const __time64_t *);
+ *  wchar_t *_wctime32 (const __time32_t *);
+ *
+ * ...with the actual replacement being chosen at compile time, on
+ * the basis of the user specified "_USE_32BIT_TIME_T" feature test
+ * macro, (a Microsoft specific, brain damaged concept), which maps
+ * _wctime() itself, as an in-line alias for its corresponding
+ * replacement library function.
+ *
+ */
+	/* !__WCHAR_H_SOURCED__ */
+
+/* Mode constants for spawn() functions.
+ */
+
+	/* !_NO_OLDNAMES */
+
+	/* _PROCESS_H */
+
+	/* ! (_PROCESS_H && _WCHAR_H) */
+
+
+	/* ! RC_INVOKED */
+	/* !_PROCESS_H: $RCSfile: process.h,v $: end of file */
+ /* ...we obtain function prototypes for:
+ *
+ *  intptr_t _wexecl (const wchar_t *, const wchar_t *, ...);
+ *  intptr_t _wexecle (const wchar_t *, const wchar_t *, ...);
+ *  intptr_t _wexeclp (const wchar_t *, const wchar_t *, ...);
+ *  intptr_t _wexeclpe (const wchar_t *, const wchar_t *, ...);
+ *
+ *  intptr_t _wexecv (const wchar_t *, const wchar_t * const *);
+ *  intptr_t _wexecve (
+ *    const wchar_t *, const wchar_t * const *, const wchar_t * const *
+ *   );
+ *  intptr_t _wexecvp (const wchar_t *, const wchar_t * const *);
+ *  intptr_t _wexecvpe (
+ *    const wchar_t *, const wchar_t * const *, const wchar_t * const *
+ *   );
+ *
+ *  intptr_t _wspawnl (int, const wchar_t *, const wchar_t *, ...);
+ *  intptr_t _wspawnle (int, const wchar_t *, const wchar_t *, ...);
+ *  intptr_t _wspawnlp (int, const wchar_t *, const wchar_t *, ...);
+ *  intptr_t _wspawnlpe (int, const wchar_t *, const wchar_t *, ...);
+ *
+ *  intptr_t _wspawnv (int, const wchar_t *, const wchar_t * const *);
+ *  intptr_t _wspawnve (
+ *    int, const wchar_t *, const wchar_t * const *, const wchar_t * const *
+ *   );
+ *  intptr_t _wspawnvp (int, const wchar_t *, const wchar_t * const *);
+ *  intptr_t _wspawnvpe (
+ *    int, const wchar_t *, const wchar_t * const *, const wchar_t * const *
+ *   );
+ *
+ */
+	/* !__STRICT_ANSI__ */
+
+
+/* Wide character string functions must be specified here, as required
+ * by the ISO-C Standard; however, MSVC contravenes this standard by also
+ * requiring them to appear in <string.h>.  We declare them here, where
+ * they rightfully belong, but we also arrange for them to be available
+ * for selective inclusion by <string.h>; to facilitate this, we must
+ * change the declarative condition...
+ */
+	/* ! RC_INVOKED */
+	/* !__STRING_H_SOURCED__ */
+	/* ! RC_INVOKED */
+
+	/* _WCHAR_H && ! RC_INVOKED */
+	/* !_WCHAR_H: $RCSfile: wchar.h,v $: end of file */
+ 
+ /* ! __STRICT_ANSI__ */
+
+	/* _POSIX_C_SOURCE >= 200809L */
+
+	/* SUSv2 */
+
+
+
+
+
+	/* ! RC_INVOKED */
+	/* !_STRING_H: $RCSfile: string.h,v $: end of file */
+ 
+
+int main() {
+   char str[5][50], temp[50];
+   printf("Enter 5 words: ");
+
+   // Getting strings input
+   for (int i = 0; i < 5; ++i) {
+      fgets(str[i], sizeof(str[i]), stdin);
+   }
+
+   // storing strings in the lexicographical order
+   for (int i = 0; i < 5; ++i) {
+      for (int j = i + 1; j < 5; ++j) {
+
+         // swapping strings if they are not in the lexicographical order
+         if (strcmp(str[i], str[j]) > 0) {
+            strcpy(temp, str[i]);
+            strcpy(str[i], str[j]);
+            strcpy(str[j], temp);
+         }
+      }
+   }
+   printf("\nIn the lexicographical order: \n");
+   for (int i = 0; i < 5; ++i) {
+      fputs(str[i], stdout);
+   }
+   return 0;
+}                                

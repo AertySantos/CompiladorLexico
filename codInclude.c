@@ -3363,38 +3363,4793 @@ _END_C_DECLS
 #endif	/* ! RC_INVOKED */
 #endif  /* !_STDIO_H: $RCSfile: stdio.h,v $: end of file */
  
+/*
+ * string.h
+ *
+ * ISO-C standard header, with MSVC compatible extensions.
+ *
+ * $Id: string.h,v 9214845bad91 2017/12/18 11:45:49 keith $
+ *
+ * Written by Colin Peters <colin@bird.fu.is.saga-u.ac.jp>
+ * Copyright (C) 1997-2000, 2002-2004, 2007, 2009, 2015-2017,
+ *  MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+#ifndef _STRING_H
+#pragma GCC system_header
+#define _STRING_H
 
-#define __USE_XOPEN
+/* All MinGW system headers must include this...
+ */
+#ifndef RC_INVOKED
+/* ISO-C requires this header to expose definitions for NULL and size_t,
+ * retaining compatiblity with their fundamental <stddef.h> definitions.
+ */
+#define __need_NULL
+#define __need_size_t
+#ifndef __STRICT_ANSI__
+ /* MSVC extends this requirement to include a definition of wchar_t,
+  * (which contravenes strict ISO-C standards conformity).
+  */
+# define __need_wchar_t
+#endif
+#include <stddef.h>
 
-#define !_GCC_MAX_ALIGN_
+#if _EMULATE_GLIBC
+/* GNU's glibc declares strcasecmp() and strncasecmp() in <string.h>,
+ * contravening POSIX.1-2008 which requires them to be declared only in
+ * <strings.h>; we may emulate this anomalous glibc behaviour, which is
+ * ostensibly to support BSD usage, (in spite of such usage now being
+ * obsolete in BSD), by simply including our <strings.h> here.
+ */
+/*
+ * strings.h
+ *
+ * API declarations for POSIX.1-2008 string functions supported by MinGW.
+ *
+ * $Id: strings.h,v cd6da3db1be2 2017/01/10 19:43:48 keithmarshall $
+ *
+ * Written by Keith Marshall <keithmarshall@users.sourceforge.net>
+ * Copyright (C) 2015-2017, MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+#ifndef _STRINGS_H
+#pragma GCC system_header
 
-int main(void) {
-  
-  if(b == 10){
-    printf "33";
-  }
+/* In addition to the POSIX strcasecmp() and strncasecmp() functions,
+ * this header declares the prototypes for the MSVC specific stricmp()
+ * and strincmp() functions, which MSVC expects to find in <string.h>;
+ * thus, we support selective partial inclusion by <string.h>, to make
+ * this pair of function prototypes available as MSVC expects...
+ */
+#ifndef __STRING_H_SOURCED__
+/* ...and we define the _STRINGS_H guard macro only when NOT included
+ * in this partial fashion.
+ */
+#define _STRINGS_H
 
-  int x = 0;
-  
-  printf("Hello World 0\n");
-  i = 0;
-  
-  #if __USE_XOPEN
-    printf("__USE_XOPEN 1\n");
-    i = 1;
-  #else
-    printf("!__USE_XOPEN 2\n");
-    i = 2;
-  #endif
-  
-  #if _GCC_MAX_ALIGN_
-    printf("_GCC_MAX_ALIGN_ 3\n");
-    i = 3;
-  #else
-    printf("!_GCC_MAX_ALIGN_ 4\n");
-    i = 4;
-  #endif
-  
-  
-    
-}               
+/* All MinGW system headers must include <_mingw.h>; if we had been
+ * sourced by <string.h>, we could safely assume that it had already
+ * done this, but since that doesn't apply in this case, we must do
+ * it ourselves.
+ */
+#ifndef RC_INVOKED
+/* POSIX.1-2008 requires this header to expose the typedef for size_t; to
+ * ensure consistency, we import this from GCC's own <stddef.h> header.
+ */
+#define __need_size_t
+#endif	/* ! RC_INVOKED */
+#endif	/* !__STRING_H_SOURCED__ */
+
+#if ! (defined __STRICT_ANSI__ && defined __NO_INLINE__)
+/* These are the MSVCRT.DLL equivalents for POSIX.1's strcasecmp() and
+ * strncasecmp() functions, for which we provide in-line implementations
+ * in <strings.h> respectively; MSVC expects to find these prototypes in
+ * <string.h>, but we also need them here, in <strings.h>, to facilitate
+ * the in-line function implementations; we declare them here, and allow
+ * <string.h> to include them selectively.  Note that <string.h> doesn't
+ * need these if __STRICT_ANSI__ is defined, while <strings.h> doesn't
+ * if __NO_INLINE__ is defined; thus we declare them, unless BOTH of
+ * these conditions for not requiring them are satisfied.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _stricmp( const char *, const char * );
+_CRTIMP __cdecl __MINGW_NOTHROW  int _strnicmp( const char *, const char *, size_t );
+#endif	/* !(__STRICT_ANSI__ && __NO_INLINE__) */
+
+#if defined _STRINGS_H && ! defined RC_INVOKED
+#ifndef __NO_INLINE__
+/* Provide in-line implementations for strcasecmp(), and strncasecmp(),
+ * effectively aliasing them to the respective MSVCRT.DLL (non-standard)
+ * equivalents, as prototyped above.
+ */
+__CRT_ALIAS __JMPSTUB__(( FUNCTION = strcasecmp, REMAPPED = _stricmp ))
+  int strcasecmp( const char *__s1, const char *__s2 )
+  { return _stricmp( __s1, __s2 ); }
+
+__CRT_ALIAS __JMPSTUB__(( FUNCTION = strncasecmp, REMAPPED = _strnicmp ))
+  int strncasecmp( const char *__s1, const char *__s2, size_t __n )
+  { return _strnicmp( __s1, __s2, __n ); }
+
+#endif	/* !__NO_INLINE__ */
+
+_END_C_DECLS
+
+#endif	/* _STRINGS_H && ! RC_INVOKED */
+#endif	/* !_STRINGS_H: $RCSfile: strings.h,v $: end of file */
+ 
+#endif
+
+_BEGIN_C_DECLS
+
+#define __STRING_H_SOURCED__
+/* Prototypes for the ISO-C Standard library string functions.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  void *memchr (const void *, int, size_t) __MINGW_ATTRIB_PURE;
+_CRTIMP __cdecl __MINGW_NOTHROW  int memcmp (const void *, const void *, size_t) __MINGW_ATTRIB_PURE;
+_CRTIMP __cdecl __MINGW_NOTHROW  void *memcpy (void *, const void *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  void *memmove (void *, const void *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  void *memset (void *, int, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strcat (char *, const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strchr (const char *, int) __MINGW_ATTRIB_PURE;
+_CRTIMP __cdecl __MINGW_NOTHROW  int strcmp (const char *, const char *) __MINGW_ATTRIB_PURE;
+_CRTIMP __cdecl __MINGW_NOTHROW  int strcoll (const char *, const char *); /* Compare using locale */
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strcpy (char *, const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  size_t strcspn (const char *, const char *) __MINGW_ATTRIB_PURE;
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strerror (int); /* NOTE: NOT an old name wrapper. */
+
+_CRTIMP __cdecl __MINGW_NOTHROW  size_t strlen (const char *) __MINGW_ATTRIB_PURE;
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strncat (char *, const char *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int strncmp (const char *, const char *, size_t) __MINGW_ATTRIB_PURE;
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strncpy (char *, const char *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strpbrk (const char *, const char *) __MINGW_ATTRIB_PURE;
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strrchr (const char *, int) __MINGW_ATTRIB_PURE;
+_CRTIMP __cdecl __MINGW_NOTHROW  size_t strspn (const char *, const char *) __MINGW_ATTRIB_PURE;
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strstr (const char *, const char *) __MINGW_ATTRIB_PURE;
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strtok (char *, const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  size_t strxfrm (char *, const char *, size_t);
+
+#ifndef __STRICT_ANSI__
+/* Extra non-ANSI functions provided by the CRTDLL library
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_strerror (const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  void *_memccpy (void *, const void *, int, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _memicmp (const void *, const void *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_strdup (const char *) __MINGW_ATTRIB_MALLOC;
+_CRTIMP __cdecl __MINGW_NOTHROW  int _strcmpi (const char *, const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _stricoll (const char *, const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_strlwr (char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_strnset (char *, int, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_strrev (char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_strset (char *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_strupr (char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  void _swab (const char *, char *, size_t);
+
+#if !_EMULATE_GLIBC
+/* MSVC's non-ANSI _stricmp() and _strnicmp() functions must also be
+ * prototyped here, but we need to share them with <strings.h>, where
+ * we declare their POSIX strcasecmp() and strncasecmp() equivalents;
+ * get the requisite prototypes by selective <strings.h> inclusion,
+ * (noting that we've already done so, if emulating glibc, but if not,
+ * we use quoted inclusion now, to ensure that we get our "strings.h",
+ * which is equipped to support __STRING_H_SOURCED__ filtering).
+ */
+#endif
+
+# ifdef __MSVCRT__
+ /* These were not present in the CRTDLL prior to the first release of
+  * MSVCRT.DLL, but are available in all versions of that library.
+  */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _strncoll(const char *, const char *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _strnicoll(const char *, const char *, size_t);
+# endif
+
+# ifndef _NO_OLDNAMES
+ /* Non-underscore decorated versions of non-ANSI functions. They live in the
+  * OLDNAMES libraries, whence they provide a little extra portability.
+  */
+_CRTIMP __cdecl __MINGW_NOTHROW  void *memccpy (void *, const void *, int, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int memicmp (const void *, const void *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strdup (const char *) __MINGW_ATTRIB_MALLOC;
+_CRTIMP __cdecl __MINGW_NOTHROW  int strcmpi (const char *, const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int stricmp (const char *, const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int stricoll (const char *, const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strlwr (char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int strnicmp (const char *, const char *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strnset (char *, int, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strrev (char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strset (char *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strupr (char *);
+
+#  ifndef _UWIN
+  /* FIXME: Do we really care that UWin doesn't support this?  We are
+   * under no obligation to support UWin.
+   */
+_CRTIMP __cdecl __MINGW_NOTHROW  void swab (const char *, char *, size_t);
+
+#  endif /* ! _UWIN */
+# endif /* ! _NO_OLDNAMES */
+
+/* MSVC also expects <string.h> to declare duplicates of the wchar_t
+ * string functions which are nominally declared in <wchar.h>, (which
+ * is where ISO-C specifies that they should be declared).  For the
+ * convenience of applications which rely on this Microsoft anomaly,
+ * inclusion of <wchar.h>, within the current __STRING_H_SOURCED__
+ * scope, will selectively expose the required function prototypes;
+ * however, strictly ISO-C conforming applications should include
+ * <wchar.h> directly; they should not rely on this MSVC specific
+ * anomalous behaviour.  (We use the quoted form of inclusion here,
+ * to ensure that we get our own "wchar.h", and not any predecessor
+ * which may have been insinuated into the system include path, and
+ * so could interfere with our mechanism for partial inclusion of
+ * shared header content).
+ */
+/*
+ * wchar.h
+ *
+ * Declarations relating to support for wide characters; many are simply
+ * inherited by (sub-optimal) inclusion of other header files.
+ *
+ * $Id: wchar.h,v 3346bd5e5239 2020/07/04 21:06:58 keith $
+ *
+ * Unattributed original source.
+ * Adapted by Rob Savoye <rob@cygnus.com>
+ * Copyright (C) 1997, 1999-2009, 2011, 2015, 2016, 2018-2020,
+ *   MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+#ifndef _WCHAR_H
+#pragma GCC system_header
+
+/* This header declares prototypes for wchar_t string functions, as are
+ * prescribed by ISO-C, but which MSVC also expects, (in contravention of
+ * ISO-C prescriptions), to find in <string.h>.  To accommodate this MSVC
+ * anomaly, we make provision for <string.h> to include a selected subset
+ * of <wchar.h>; thus, we do not immediately define _WCHAR_T...
+ */
+#ifndef __STRING_H_SOURCED__
+/* ...but defer it until we have confirmed that this is NOT inclusion for
+ * only this subset of <wchar.h> declarations.
+ */
+#define _WCHAR_H
+
+/* All MinGW headers are required to include <_mingw.h>; in the case of
+ * selective inclusion by <string.h>, we expect it to have already done
+ * so, but since that doesn't apply here, we must do it ourselves.
+ */
+#ifndef __STRICT_ANSI__
+ /* MSDN says that isw* char classifications appear in both <wchar.h>,
+  * and in <wctype.h>.  Although these <wctype.h> classifications are as
+  * prescribed by ISO-C, their exposure in <wchar.h> is not; nonetheless,
+  * we replicate them here, for MSDN conformity.
+  */
+/*
+ * wctype.h
+ *
+ * Functions for wide character classification and conversion.
+ *
+ * $Id: wctype.h,v 877c17d729df 2017/01/29 10:09:49 keithmarshall $
+ *
+ * Written by Mumit Khan <khan@xraylith.wisc.edu>
+ * Copyright (C) 1999-2003, 2005-2007, 2016, 2017, MinGW.org Project
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+#ifndef _WCTYPE_H
+#pragma GCC system_header
+
+#ifndef __CTYPE_H_SOURCED__
+/* Perversely, (since they provide <wctype.h> themselves), Microsoft
+ * say that most of the definitions and declarations which follow are
+ * provided by <ctype.h>, rather than here; (this conflicts with both
+ * ISO-C and POSIX).  We prefer to provide them here, for ISO-C/POSIX
+ * conformance, while also exposing them for selective inclusion by
+ * <ctype.h>, to maintain Microsoft compatibility.
+ *
+ * We define the <wctype.h> multiple inclusion guard macro only when
+ * <wctype.h> is included directly, NOT when included via <ctype.h>
+ */
+#define _WCTYPE_H
+
+/* All MinGW headers must include <_mingw.h>; when sourced by <ctype.h>,
+ * we may delegate that responsibility to it, but in the case of direct
+ * inclusion, we must address it ourselves.
+ */
+#endif
+
+/* The following flags are used to tell iswctype() and _isctype() what
+ * character classes are to be matched; (note that _BLANK will match for
+ * SP and non-ASCII horizontal space chars -- e.g. for "no-break space",
+ * 0xA0, in CP1250 -- but NOT for HT).
+ *
+ * These are defined such that they will be made visible by inclusion
+ * of either <wctype.h> (this file), or <ctype.h>:
+ */
+#define _ALPHA		0x0103
+#define _LOWER		0x0002
+#define _UPPER		0x0001
+#define _DIGIT		0x0004
+#define _SPACE		0x0008		/* HT  LF  VT  FF  CR  SP */
+#define _PUNCT		0x0010
+#define _CONTROL	0x0020
+#define _BLANK		0x0040
+#define _HEX		0x0080
+
+#ifndef RC_INVOKED
+
+/* ISO-C and POSIX specify that <wctype.h> must define wint_t, wctype_t,
+ * and the WEOF macro, (which also requires wchar_t), as they are defined
+ * in <wchar.h>; since <wchar.h> gets wint_t, (and wchar_t), from <stddef.h>,
+ * we do likewise here.  Furthermore, to maintain Microsoft compatibility,
+ * we must also do this on behalf of <ctype.h>; however...
+ */
+#if !(defined _WCTYPE_H && defined _CTYPE_H)
+/* ...we need not incur the overhead of doing it twice, when both <ctype.h>
+ * and <wctype.h> have been included.
+ */
+#define __need_wint_t
+#define __need_wchar_t
+#define WEOF	(wchar_t)(0xffff)
+
+_BEGIN_C_DECLS
+
+/* Wide character classification functions.  In typically perverse
+ * fashion, and contrary to both ISO-C and POSIX, Microsoft specify
+ * that these should be declared in <ctype.h>; thus, to accommodate
+ * this persersity, we make them visible here, irrespective of any
+ * selective inclusion filter macro.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int iswalnum (wint_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int iswalpha (wint_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int iswascii (wint_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int iswcntrl (wint_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int iswctype (wint_t, wctype_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int iswdigit (wint_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int iswgraph (wint_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int iswlower (wint_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int iswprint (wint_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int iswpunct (wint_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int iswspace (wint_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int iswupper (wint_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int iswxdigit (wint_t);
+
+__MINGW_ATTRIB_DEPRECATED
+/* This function is exported by all versions of MSVCRT.DLL, (up to and
+ * including that in Windows-7), and in all non-free counterparts up to
+ * and including MSVCR120.DLL, but as of MSVC-2013, Microsoft declare
+ * it to be obsolete.  DO NOT USE IT!  Use iswctype() instead.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int is_wctype (wint_t, wctype_t);
+
+#if _ISOC99_SOURCE
+__cdecl __MINGW_NOTHROW  int iswblank (wint_t);
+#endif
+
+/* Wide character case transliteration functions; the following conform
+ * to the ISO-C and POSIX standard declarations; Microsoft, at one time,
+ * specified both as taking a wchar_t argument, and returning a wchar_t
+ * result, but now take a wint_t argument, and return int.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  wint_t towlower (wint_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  wint_t towupper (wint_t);
+
+#if !(defined __NO_INLINE__ || defined __NO_CTYPE_INLINES)
+/* Provide inline alternatives to the DLL-exported isw*() functions.
+ * Note that POSIX stipulates that these alternatives should be macros;
+ * we prefer __CRT_INLINEs, (which GCC effectively treats as macros),
+ * because they do not interfere with C++ namespace qualification.
+ */
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int iswalnum (wint_t wc)
+{ return (iswctype (wc, _ALPHA | _DIGIT)); }
+
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int iswalpha (wint_t wc)
+{ return (iswctype (wc, _ALPHA )); }
+
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int iswascii (wint_t wc)
+{ return ((wc & ~0x7F) == 0); }
+
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int iswcntrl (wint_t wc)
+{ return (iswctype (wc, _CONTROL)); }
+
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int iswdigit (wint_t wc)
+{ return (iswctype (wc, _DIGIT)); }
+
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int iswgraph (wint_t wc)
+{ return (iswctype (wc, _PUNCT | _ALPHA | _DIGIT)); }
+
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int iswlower (wint_t wc)
+{ return (iswctype (wc, _LOWER)); }
+
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int iswprint (wint_t wc)
+{ return (iswctype (wc, _BLANK | _PUNCT | _ALPHA | _DIGIT)); }
+
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int iswpunct (wint_t wc)
+{ return (iswctype (wc, _PUNCT)); }
+
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int iswspace (wint_t wc)
+{ return (iswctype (wc, _SPACE)); }
+
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int iswupper (wint_t wc)
+{ return (iswctype (wc, _UPPER)); }
+
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int iswxdigit (wint_t wc)
+{ return (iswctype (wc, _HEX)); }
+
+#if _ISOC99_SOURCE
+__CRT_INLINE __cdecl __MINGW_NOTHROW  int iswblank (wint_t wc)
+{ return (iswctype (wc, _BLANK) || wc == L'\t'); }
+#endif
+#endif	/* !__NO_CTYPE_INLINES */
+
+_END_C_DECLS
+
+#endif	/* !(_WCTYPE_H && _CTYPE_H) */
+
+#ifdef _WCTYPE_H
+/* Although Microsoft make most of the content, which ISO-C and POSIX say
+ * should be in <wctype.h>, available through <ctype.h>, the declarations
+ * in this section are exclusive to <wctype.h>
+ */
+typedef wchar_t  wctrans_t;
+
+_BEGIN_C_DECLS
+
+/* These are provided in libmingwex.a.  Note, that they are also exported
+ * by the MS C++ runtime lib (MSVCP60.DLL).  The MSVCP60.DLL implementations
+ * of wctrans and towctrans are not C99 compliant in that wctrans("tolower")
+ * returns 0, while C99 specifies that a non-zero value should be returned
+ * for a valid string descriptor.  If you want the MS behaviour (and you
+ * have MSVCP60.DLL in your path) add -lmsvcp60 to your command line.
+ */
+__cdecl __MINGW_NOTHROW  wint_t towctrans (wint_t, wctrans_t);
+__cdecl __MINGW_NOTHROW  wctrans_t wctrans (const char*);
+__cdecl __MINGW_NOTHROW  wctype_t wctype (const char*);
+
+_END_C_DECLS
+
+#endif	/* _WCTYPE_H */
+#endif	/* ! RC_INVOKED */
+#endif	/* !_WCTYPE_H: $RCSfile: wctype.h,v $: end of file */
+ 
+
+ /* This is also necessary, to support the non-ANSI wchar.h declarations
+  * which MSDN identifies as being provided here.
+  */
+#endif	/* !__STRICT_ANSI__ */
+
+#define WCHAR_MIN	0
+#define WCHAR_MAX	0xffff
+
+#define WEOF		(wchar_t)(0xffff)
+
+#ifndef RC_INVOKED
+#define __WCHAR_H_SOURCED__
+/* ISO-C, POSIX, and Microsoft specify an overlap of content between
+ * <wchar.h> and other system header files; by inclusion of such other
+ * headers within this "__WCHAR_H_SOURCED__" scope, we may selectively
+ * retrieve the overlapping content, without requiring duplication of
+ * that content here; thus, from...
+ */
+/*
+ * stdlib.h
+ *
+ * ANSI/POSIX + Microsoft compatible standard library function prototypes,
+ * associated macros, and manifest constant definitions.
+ *
+ * $Id: stdlib.h,v c5acb0e27565 2020/04/19 12:02:24 keith $
+ *
+ * Written by Colin Peters <colin@bird.fu.is.saga-u.ac.jp>
+ * Copyright (C) 1997-2009, 2011, 2014-2016, 2018, 2020, MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+#ifndef _STDLIB_H
+#pragma GCC system_header
+
+/* Some of the content of this header is made selectively accessible,
+ * when indirectly included via <wchar.h>; only when we have established
+ * that this inclusion is NOT via this selective method...
+ */
+#ifndef __WCHAR_H_SOURCED__
+ /* ...do we define the repeat inclusion guard for <stdlib.h> itself.
+  */
+#define _STDLIB_H
+
+/* All MinGW headers must include <_mingw.h>; if included via <wchar.h>,
+ * we assume that this has been done already, otherwise we must attend to
+ * it for <stdlib.h>.
+ */
+#ifndef RC_INVOKED
+#define __need_size_t
+#define __need_wchar_t
+#define __need_NULL
+#endif /* RC_INVOKED */
+
+/* RAND_MAX is the maximum value that may be returned by rand.
+ * The minimum is zero.
+ */
+#define RAND_MAX	0x7FFF
+
+/* These values may be used as exit status codes.
+ */
+#define EXIT_SUCCESS	0
+#define EXIT_FAILURE	1
+
+/* Definitions for path name functions.
+ * NOTE: All of these values have simply been chosen to be conservatively
+ * high.  Remember that with long file names we can no longer depend on
+ * extensions being short.
+ */
+#ifndef __STRICT_ANSI__
+
+#ifndef MAX_PATH
+#define MAX_PATH	(260)
+#endif
+
+#define _MAX_PATH	MAX_PATH
+#define _MAX_DRIVE	(3)
+#define _MAX_DIR	256
+#define _MAX_FNAME	256
+#define _MAX_EXT	256
+
+#endif	/* !__STRICT_ANSI__ */
+#endif	/* !__WCHAR_H_SOURCED__ */
+
+#ifndef RC_INVOKED
+
+_BEGIN_C_DECLS
+
+#ifdef _STDLIB_H
+#if ! defined __STRICT_ANSI__
+/* This seems like a convenient place to declare these variables, which
+ * give programs using WinMain (or main for that matter) access to main-ish
+ * argc and argv. environ is a pointer to a table of environment variables.
+ * NOTE: Strings in _argv and environ are ANSI strings.
+ */
+extern int     _argc;
+extern char  **_argv;
+
+#ifdef __MSVCRT__
+/* Imports from the runtime DLL, for the above variables.
+ */
+extern __cdecl __MINGW_NOTHROW  int       *__p___argc(void);
+extern __cdecl __MINGW_NOTHROW  char    ***__p___argv(void);
+extern __cdecl __MINGW_NOTHROW  wchar_t ***__p___wargv(void);
+
+#define __argc (*__p___argc())
+#define __argv (*__p___argv())
+#define __wargv (*__p___wargv())
+
+#else  /* ! __MSVCRT__ */
+
+#ifndef __DECLSPEC_SUPPORTED
+
+extern int    *_imp____argc_dll;
+extern char ***_imp____argv_dll;
+
+#define __argc (*_imp____argc_dll)
+#define __argv (*_imp____argv_dll)
+
+#else  /* __DECLSPEC_SUPPORTED */
+
+__MINGW_IMPORT int    __argc_dll;
+__MINGW_IMPORT char **__argv_dll;
+
+#define __argc __argc_dll
+#define __argv __argv_dll
+
+#endif  /* __DECLSPEC_SUPPORTED */
+
+#endif  /* __MSVCRT__ */
+#endif  /* __STRICT_ANSI__ */
+
+#ifndef MB_CUR_MAX
+/* FIXME: also defined in <ctype.h>; should be factored out.
+ */
+#ifdef __DECLSPEC_SUPPORTED
+# ifdef __MSVCRT__
+#  define MB_CUR_MAX __mb_cur_max
+   __MINGW_IMPORT int __mb_cur_max;
+# else  /* ! __MSVCRT__ */
+#  define MB_CUR_MAX __mb_cur_max_dll
+   __MINGW_IMPORT int __mb_cur_max_dll;
+# endif  /* ! __MSVCRT__ */
+
+#else  /* ! __DECLSPEC_SUPPORTED */
+# ifdef __MSVCRT__
+   extern int* _imp____mb_cur_max;
+#  define MB_CUR_MAX (*_imp____mb_cur_max)
+# else  /* ! __MSVCRT__ */
+   extern int*  _imp____mb_cur_max_dll;
+#  define MB_CUR_MAX (*_imp____mb_cur_max_dll)
+# endif  /* ! __MSVCRT__ */
+#endif  /*  __DECLSPEC_SUPPORTED */
+#endif  /* MB_CUR_MAX */
+
+/* In MSVCR80.DLL, Microsoft introduced the following pair of errno
+ * accessor functions; they subsequently became available in MSVCRT.DLL
+ * from Vista onward.  Although they are not required by ISO-C, and they
+ * are more cumbersome to use, than referring to errno directly, the GCC
+ * developers have gratuitously chosen to assume, in GCC-9.x, that they
+ * are always supported on MS-Windows, regardless of Windows version.
+ * Logically, we might expect these to be declared in <errno.h>, but
+ * Microsoft's documentation insists that they are actually declared
+ * here; thus, to satisfy the GCC-9.x requirement, we will declare
+ * them unconditionally here ...
+ */
+__cdecl __MINGW_NOTHROW  int _get_errno(int *);
+__cdecl __MINGW_NOTHROW  int _set_errno(int);
+
+/* ... then provide in-line implementations, (depending on gratuitous
+ * exposure of EINVAL, which strictly belongs in <errno.h> only, while
+ * also requiring declaring the ISO-C errno feature, which Microsoft
+ * documentation calls for both here, and in <errno.h>; we satisfy
+ * both of these requirements by selective <errno.h> inclusion).
+ */
+#define __STDLIB_H_SOURCED__ 1
+/*
+ * errno.h
+ *
+ * Definition of error codes, and error code retrieval mechanism.
+ *
+ * $Id: errno.h,v 17d9ae7b7327 2020/01/17 15:39:44 keith $
+ *
+ * Written by Colin Peters <colin@bird.fu.is.saga-u.ac.jp>
+ * Copyright (C) 1997-1999, 2001, 2003-2005, 2007, 2016, 2020,
+ *   MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+#ifndef _ERRNO_H
+#pragma GCC system_header
+
+/* Although ISO-C requires inclusion of <errno.h>, for all content
+ * provided herein, Microsoft contravenes this by assuming that the
+ * "errno" variable is also declared in <stdlib.h>; allow partial
+ * inclusion, to support this anomaly...
+ */
+#ifndef __STDLIB_H_SOURCED__
+/* ...defining the _ERRNO_H multiple inclusion guard, only when
+ * <errno.h> is included explicitl, other than by <stdlib.h>
+ */
+#define _ERRNO_H
+
+/* All MinGW headers are expected to include <_mingw.h>; however...
+ */
+#ifndef __ASSEMBLER__
+/* ...the overhead of doing so is unwarranted, when <errno.h> has been
+ * included directly in preprocessed assembly language code.
+ */
+#endif
+
+/* Error code numbers -- these are as documented at
+ * https://docs.microsoft.com/en-us/cpp/c-runtime-library/
+ * errno-doserrno-sys-errlist-and-sys-nerr?view=vs-2019
+ */
+#define EPERM		 1	/* Operation not permitted */
+#define ENOENT		 2	/* No such file or directory */
+#define ENOFILE 	 2	/* Microsoft legacy alias for ENOENT */
+#define ESRCH		 3	/* No such process */
+#define EINTR		 4	/* Interrupted function call */
+#define EIO		 5	/* Input/output error */
+#define ENXIO		 6	/* No such device or address */
+#define E2BIG		 7	/* Arg list too long */
+#define ENOEXEC 	 8	/* Exec format error */
+#define EBADF		 9	/* Bad file descriptor */
+#define ECHILD		10	/* No child processes */
+#define EAGAIN		11	/* Resource temporarily unavailable */
+#define ENOMEM		12	/* Not enough space */
+#define EACCES		13	/* Permission denied */
+#define EFAULT		14	/* Bad address */
+
+/* 15 - Unknown Error */
+
+#define EBUSY		16	/* Device or resource busy */
+#define EEXIST		17	/* File exists */
+#define EXDEV		18	/* Improper link (cross-device link) */
+#define ENODEV		19	/* No such device */
+#define ENOTDIR 	20	/* Not a directory */
+#define EISDIR		21	/* Is a directory */
+
+#endif	/* !__STDLIB_H_SOURCED__ */
+/* Microsoft's non-standard _get_errno() and _set_errno(), which are
+ * declared in <stdlib.h>, and for which we provide in-line support on
+ * legacy Windows versions, (also in <stdlib.h>), demand exposure of
+ * EINVAL within <stdlib.h>, (for legacy support), regardless of the
+ * state of _ERRNO_H.
+ */
+#define EINVAL		22	/* Invalid argument */
+
+#ifdef _ERRNO_H
+/* The remaining error codes are to be exposed only when <errno.h> has
+ * been included explicitly.
+ */
+#define ENFILE		23	/* Too many open files in system */
+#define EMFILE		24	/* Too many open files */
+#define ENOTTY		25	/* Inappropriate I/O control operation */
+
+/* 26 - Unknown Error */
+
+#define EFBIG		27	/* File too large */
+#define ENOSPC		28	/* No space left on device */
+#define ESPIPE		29	/* Invalid seek (seek on a pipe?) */
+#define EROFS		30	/* Read-only file system */
+#define EMLINK		31	/* Too many links */
+#define EPIPE		32	/* Broken pipe */
+#define EDOM		33	/* Domain error (math functions) */
+#define ERANGE		34	/* Result too large (possibly too small) */
+
+/* 35 - Unknown Error */
+
+#define EDEADLK 	36	/* Resource deadlock avoided (non-Cyg) */
+#define EDEADLOCK	36	/* Microsoft legacy alias for EDEADLK */
+
+/* 37 - Unknown Error */
+
+#define ENAMETOOLONG	38	/* Filename too long (91 in Cyg?) */
+#define ENOLCK		39	/* No locks available (46 in Cyg?) */
+#define ENOSYS		40	/* Function not implemented (88 in Cyg?) */
+#define ENOTEMPTY	41	/* Directory not empty (90 in Cyg?) */
+#define EILSEQ		42	/* Illegal byte sequence */
+
+#endif	/* _ERRNO_H */
+#if ! (defined _ERRNO_H && defined _STDLIB_H)
+/* ISO-C requires that the standard errno feature is defined here, in
+ * <errno.h>, but Microsoft require it to also be defined in <stdlib.h>;
+ * we expose it for inclusion of both <errno.h> and <stdlib.h>, but we
+ * process it once only.
+ */
+#if ! defined RC_INVOKED && ! defined __ASSEMBLER__
+/* C language function prototype declarations are unnecessary, when
+ * compiling resource files, and they actually represent syntactically
+ * invalid statements, in preprocessed assembly language code.
+ */
+_BEGIN_C_DECLS
+
+/* Definitions of errno.  For _doserrno, sys_nerr and * sys_errlist,
+ * see <stdlib.h>
+ */
+#ifdef _UWIN
+#undef errno
+extern int errno;
+#else
+_CRTIMP int* __cdecl __MINGW_NOTHROW _errno(void);
+#define	errno		(*_errno())
+#endif
+
+_END_C_DECLS
+
+#endif	/* ! RC_INVOKED && !__ASSEMBLY__ */
+#endif	/* ! (_ERRNO_H && _STDLIB_H) */
+
+#if defined _ERRNO_H && defined __PTW32_H && ! defined _PTW32_ERRNO_H
+/* As a courtesy to users of pthreads-win32, ensure that the appropriate
+ * additional error codes, as defined by that package, are automatically
+ * defined when <errno.h> is included AFTER any pthreads-win32 header; a
+ * complementary hook, in <_ptw32.h>, ensures that such additional error
+ * codes are defined, if <errno.h> is included BEFORE any pthreads-win32
+ * header is subsequently included.
+ *
+ * NOTE: this assumes pthreads-win32-2.10 or later, with corresponding
+ * MinGW.org patches applied; it will favour "ptw32_errno.h" installed
+ * in the mingwrt system include directory.
+ */
+
+
+#endif	/* __PTW32_H */
+#endif	/* !_ERRNO_H: $RCSfile: errno.h,v $: end of file */
+ 
+#if __MSVCRT_VERSION__ < __MSVCR80_DLL && _WIN32_WINNT < _WIN32_WINNT_VISTA
+/* These in-line implementations will support universal use of this API,
+ * even on legacy Windows versions pre-dating Vista, without requiring use
+ * of non-free MSVCRT80.DLL or later.
+ */
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  int _get_errno( int *__val )
+{ return (__val == NULL) ? (errno = EINVAL) : 0 & (*__val = errno); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  int _set_errno( int __val )
+{ errno = __val; return 0; }
+
+#endif
+#undef __STDLIB_H_SOURCED__
+
+_CRTIMP __cdecl __MINGW_NOTHROW  int *__doserrno(void);
+#define _doserrno  (*__doserrno())
+
+#if !defined (__STRICT_ANSI__)
+/* Use environ from the DLL, not as a global.
+ */
+#ifdef __MSVCRT__
+# define _environ  (*__p__environ())
+extern _CRTIMP __cdecl __MINGW_NOTHROW  char ***__p__environ(void);
+# define _wenviron  (*__p__wenviron())
+extern _CRTIMP __cdecl __MINGW_NOTHROW  wchar_t ***__p__wenviron(void);
+
+#else  /* ! __MSVCRT__ */
+# ifndef __DECLSPEC_SUPPORTED
+# define _environ (*_imp___environ_dll)
+extern char ***_imp___environ_dll;
+
+# else  /* __DECLSPEC_SUPPORTED */
+# define _environ  _environ_dll
+__MINGW_IMPORT char ** _environ_dll;
+# endif  /* __DECLSPEC_SUPPORTED */
+#endif  /* ! __MSVCRT__ */
+
+#define environ _environ
+
+#ifdef	__MSVCRT__
+/* One of the MSVCRTxx libraries */
+
+#ifndef __DECLSPEC_SUPPORTED
+# define sys_nerr  (*_imp___sys_nerr)
+extern int *_imp___sys_nerr;
+
+#else /* __DECLSPEC_SUPPORTED */
+__MINGW_IMPORT int _sys_nerr;
+
+# ifndef _UWIN
+# define sys_nerr  _sys_nerr
+# endif  /* _UWIN */
+#endif  /* __DECLSPEC_SUPPORTED */
+
+#else  /* ! __MSVCRT__ */
+/* CRTDLL run time library */
+
+#ifndef __DECLSPEC_SUPPORTED
+  extern int*	_imp___sys_nerr_dll;
+# define sys_nerr	(*_imp___sys_nerr_dll)
+#else  /* __DECLSPEC_SUPPORTED */
+  __MINGW_IMPORT int	_sys_nerr_dll;
+# define sys_nerr	_sys_nerr_dll
+#endif  /* __DECLSPEC_SUPPORTED */
+
+#endif  /* ! __MSVCRT__ */
+
+#ifndef __DECLSPEC_SUPPORTED
+#define sys_errlist  (*_imp___sys_errlist)
+extern char ***_imp__sys_errlist;
+
+#else  /* __DECLSPEC_SUPPORTED */
+__MINGW_IMPORT char *_sys_errlist[];
+
+#ifndef _UWIN
+#define sys_errlist  _sys_errlist
+#endif  /* _UWIN */
+#endif  /* __DECLSPEC_SUPPORTED */
+
+/* OS version and such constants.
+ */
+#ifdef	__MSVCRT__ /* MSVCRT.DLL and MSVCRxx.DLL variants */
+
+extern _CRTIMP __cdecl __MINGW_NOTHROW  unsigned int *__p__osver(void);
+extern _CRTIMP __cdecl __MINGW_NOTHROW  unsigned int *__p__winver(void);
+extern _CRTIMP __cdecl __MINGW_NOTHROW  unsigned int *__p__winmajor(void);
+extern _CRTIMP __cdecl __MINGW_NOTHROW  unsigned int *__p__winminor(void);
+
+#ifndef __DECLSPEC_SUPPORTED
+# define _osver     (*__p__osver())
+# define _winver    (*__p__winver())
+# define _winmajor  (*__p__winmajor())
+# define _winminor  (*__p__winminor())
+
+#else /* __DECLSPEC_SUPPORTED */
+__MINGW_IMPORT  unsigned int _osver;
+__MINGW_IMPORT  unsigned int _winver;
+__MINGW_IMPORT  unsigned int _winmajor;
+__MINGW_IMPORT  unsigned int _winminor;
+#endif  /* __DECLSPEC_SUPPORTED */
+
+#else  /* ! __MSVCRT__; thus CRTDLL */
+#ifndef __DECLSPEC_SUPPORTED
+
+#define _osver	    (*_imp___osver_dll)
+#define _winver    (*_imp___winver_dll)
+#define _winmajor  (*_imp___winmajor_dll)
+#define _winminor  (*_imp___winminor_dll)
+
+extern unsigned int *_imp___osver_dll;
+extern unsigned int *_imp___winver_dll;
+extern unsigned int *_imp___winmajor_dll;
+extern unsigned int *_imp___winminor_dll;
+
+#else  /* __DECLSPEC_SUPPORTED */
+
+#define _osver	    _osver_dll
+#define _winver    _winver_dll
+#define _winmajor  _winmajor_dll
+#define _winminor  _winminor_dll
+
+__MINGW_IMPORT unsigned int _osver_dll;
+__MINGW_IMPORT unsigned int _winver_dll;
+__MINGW_IMPORT unsigned int _winmajor_dll;
+__MINGW_IMPORT unsigned int _winminor_dll;
+
+#endif  /* __DECLSPEC_SUPPORTED */
+#endif  /* CRTDLL */
+
+#if defined  __MSVCRT__
+/* Although _pgmptr is exported as DATA, be safe and use the access
+ * function __p__pgmptr() to get it.
+ */
+#define _pgmptr  (*__p__pgmptr())
+_CRTIMP __cdecl __MINGW_NOTHROW  char **__p__pgmptr(void);
+
+#define _wpgmptr  (*__p__wpgmptr())
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t **__p__wpgmptr(void);
+
+#else  /* ! __MSVCRT__; thus CRTDLL */
+
+# ifndef __DECLSPEC_SUPPORTED
+# define _pgmptr  (*_imp___pgmptr_dll)
+extern char **__imp__pgmptr_dll;
+
+# else  /* __DECLSPEC_SUPPORTED */
+
+# define _pgmptr _pgmptr_dll
+__MINGW_IMPORT  char *_pgmptr_dll;
+/* no wide version in CRTDLL */
+
+# endif /* __DECLSPEC_SUPPORTED */
+#endif	/* CRTDLL */
+
+/* This variable determines the default file mode.
+ * TODO: Which flags work?
+ */
+#if !defined (__DECLSPEC_SUPPORTED) || defined (__IN_MINGW_RUNTIME)
+
+#ifdef __MSVCRT__
+#define _fmode  (*_imp___fmode)
+extern int *_imp___fmode;
+#else
+/* CRTDLL */
+#define _fmode  (*_imp___fmode_dll)
+extern int *_imp___fmode_dll;
+#endif
+
+#else  /* __DECLSPEC_SUPPORTED */
+#ifdef __MSVCRT__
+__MINGW_IMPORT  int _fmode;
+
+#else  /* ! __MSVCRT__ */
+#define _fmode	_fmode_dll
+__MINGW_IMPORT  int _fmode_dll;
+
+#endif  /* !__MSVCRT__ */
+#endif  /* __DECLSPEC_SUPPORTED */
+#endif  /* !__STRICT_ANSI__ */
+
+_CRTIMP __cdecl __MINGW_NOTHROW  int atoi (const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  long atol (const char *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  double strtod (const char *, char **);
+_CRTIMP __cdecl __MINGW_NOTHROW  double atof (const char *);
+
+#if !defined (__STRICT_ANSI__)
+_CRTIMP __cdecl __MINGW_NOTHROW  double _wtof (const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wtoi (const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  long _wtol (const wchar_t *);
+#endif
+
+#if __USE_MINGW_ANSI_STDIO
+/* Microsoft's strtod() and atof() implementations, (in MSVCRT.DLL),
+ * mishandle infinities and NaNs; on the basis that this conditional
+ * exposes a more ISO-C conforming printf() I/O family implementaion,
+ * we substitute a similarly more conforming implementation for each
+ * of this pair of (somewhat related) functions.
+ *
+ * Note that we provide neither __JMPSTUB__ nor __LIBIMPL__ external
+ * equivalents for either of these two inline functions, because they
+ * would conflict with the runtime DLL implementations; users needing
+ * an address reference for either must provide an equivalent of the
+ * inline implementation, as non-inlined within their own code.
+ */
+extern __cdecl __MINGW_NOTHROW
+double __strtod (const char *__restrict__, char **__restrict__);
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+double strtod (const char *__restrict__ __nptr, char **__restrict__ __endptr)
+{ return __strtod( __nptr, __endptr ); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+double atof (const char *__nptr) { return __strtod( __nptr, NULL ); }
+
+#endif  /* __USE_MINGW_ANSI_STDIO */
+
+#ifdef _ISOC99_SOURCE
+/* Irrespective of requested standards conformity, where MSVCRT.DLL
+ * falls short, ISO-C99 offers this pair of alternative return type
+ * specific variants of strtod(), which MSVCRT.DLL does not, but we
+ * do, in libmingwex.a:
+ */
+__cdecl __MINGW_NOTHROW
+float strtof (const char *__restrict__, char **__restrict__);
+
+__cdecl __MINGW_NOTHROW
+long double strtold (const char *__restrict__, char **__restrict__);
+#endif  /* _ISOC99_SOURCE */
+
+_CRTIMP __cdecl __MINGW_NOTHROW  long strtol (const char *, char **, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  unsigned long strtoul (const char *, char **, int);
+
+#endif	/* _STDLIB_H only */
+#if ! (defined _STDLIB_H && defined _WCHAR_H)
+/* Prototypes which are to be declared both here, in <stdlib.h>,
+ * and also in <wchar.h>; declare them here, such that they may be
+ * selectively included by <wchar.h>.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW
+long wcstol (const wchar_t *, wchar_t **, int);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+unsigned long wcstoul (const wchar_t *, wchar_t **, int);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  double wcstod (const wchar_t *, wchar_t **);
+
+/* The following MinGW specific alternatives to wcstod(), which may
+ * offer more robust performance than the MSVCRT.DLL implementation,
+ * are provided in libmingwex.a; (the float and long double variants
+ * are simply aliases for the ISO-C99 equivalents which follow).
+ */
+__cdecl __MINGW_NOTHROW
+double __mingw_wcstod (const wchar_t *__restrict__, wchar_t **__restrict__);
+
+__cdecl __MINGW_NOTHROW
+float __mingw_wcstof (const wchar_t *__restrict__, wchar_t **__restrict__);
+
+__cdecl __MINGW_NOTHROW
+long double __mingw_wcstold (const wchar_t *__restrict__, wchar_t **__restrict__);
+
+#ifdef _ISOC99_SOURCE
+/* Variants on wcstod(), specified by ISO-C99; once again, MSVCRT.DLL
+ * doesn't have them, but we offer them in libmingwex.a
+ */
+__cdecl __MINGW_NOTHROW
+float wcstof (const wchar_t *__restrict__, wchar_t **__restrict__);
+
+__cdecl __MINGW_NOTHROW
+long double wcstold (const wchar_t *__restrict__, wchar_t **__restrict__);
+#endif  /* _ISOC99_SOURCE */
+
+#ifdef __MSVCRT__
+#if __MSVCRT_VERSION__ >= __MSVCR70_DLL || _WIN32_WINNT >= _WIN32_WINNT_WINXP
+/* This pair of wide character equivalents for ISO-C99's strtoll() and
+ * strtoull() require either WinXP (or later), or a non-free MSVC runtime
+ * from MSVCR70.DLL onwards...
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW
+__int64 _wcstoi64(const wchar_t *, wchar_t **, int);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+unsigned __int64 _wcstoui64(const wchar_t *, wchar_t **, int);
+
+#endif	/* WinXP || MSVCR70.DLL || later */
+
+#if __MSVCRT_VERSION__ >= __MSVCR80_DLL || _WIN32_WINNT >= _WIN32_WINNT_VISTA
+/* ...while the following pair require Win-Vista (or later), or non-free
+ * MSVCRT runtime from MSVCR80.DLL onwards; they also require...
+ */
+#ifndef __have_typedef_locale_t
+/* ...this opaque data type, which we may obtain by selective inclusion
+ * from <locale.h>.  (Note that this may render them unusable for users of
+ * MSVCRT.DLL; see the explanation in <locale.h>, regarding the difficulty
+ * in creating, or otherwise acquiring a reference to, a _locale_t object,
+ * notwithstanding the availability of the functions in MSVCRT.DLL, from
+ * the release of Win-Vista onwards).
+ */
+#define __need_locale_t
+#endif	/* !__have_typedef_locale_t */
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+__int64 _wcstoi64_l(const wchar_t *, wchar_t **, int, _locale_t);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+unsigned __int64 _wcstoui64_l(const wchar_t *, wchar_t **, int, _locale_t);
+
+#endif	/* Win-Vista || MSVCR80.DLL || later */
+
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wgetenv (const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wputenv (const wchar_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+void _wsearchenv (const wchar_t *, const wchar_t *, wchar_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wsystem (const wchar_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+void _wmakepath (wchar_t *, const wchar_t *, const wchar_t *, const wchar_t *,
+    const wchar_t *
+  );
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+void _wsplitpath (const wchar_t *, wchar_t *, wchar_t *, wchar_t *, wchar_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+wchar_t *_wfullpath (wchar_t *, const wchar_t *, size_t);
+
+#endif	/* __MSVCRT__ */
+#endif	/* _STDLIB_H || _WCHAR_H */
+
+#ifdef _STDLIB_H  /* <stdlib.h> only */
+_CRTIMP __cdecl __MINGW_NOTHROW  size_t wcstombs (char *, const wchar_t *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int wctomb (char *, wchar_t);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  int mblen (const char *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  size_t mbstowcs (wchar_t *, const char *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int mbtowc (wchar_t *, const char *, size_t);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  int rand (void);
+_CRTIMP __cdecl __MINGW_NOTHROW  void srand (unsigned int);
+
+/* rand() is devoid of entropy, and is thus a mediocre pseudo-random number
+ * generator.  Microsoft do offer a better quality (bogusly dubbed as a more
+ * secure) PRNG, in the guise of rand_s(), but it
+ *
+ *   1) must be explicitly enabled, by user defined feature test macro;
+ */
+#ifdef _CRT_RAND_S
+/*
+ *   2) is not supported on Win9x, nor any WinNT version prior to WinXP;
+ *   3) on WinXP, requires linking with non-free MSVCR80.DLL, or later;
+ *   4) is provided by MSVCRT.DLL, only from Vista onward.
+ */
+#if __MSVCRT_VERSION__ >= __MSVCR80_DLL || _WIN32_WINNT >= _WIN32_WINNT_VISTA
+
+_CRTIMP __cdecl __MINGW_NOTHROW  int rand_s (unsigned int *);
+
+#endif	/* Win-Vista || MSVCR80.DLL || later */
+#endif	/* _CRT_RAND_S enabled */
+
+_CRTIMP __cdecl __MINGW_NOTHROW  void abort (void) __MINGW_ATTRIB_NORETURN;
+_CRTIMP __cdecl __MINGW_NOTHROW  void exit (int) __MINGW_ATTRIB_NORETURN;
+
+/* Note: this is in startup code, not imported directly from the runtime DLL
+ */
+int __cdecl __MINGW_NOTHROW atexit (void (*)(void));
+
+_CRTIMP __cdecl __MINGW_NOTHROW  int system (const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *getenv (const char *);
+
+#ifndef __STRICT_ANSI__
+/* For GNU compatibility, in addition to the standard memory allocation
+ * functions (declared below), we also include the non-standard alloca()
+ * API declarations here, in accordance with GNU convention.
+ */
+/*
+ * alloca.h
+ *
+ * Declarations for the alloca() function API, conforming to both GNU and
+ * Microsoft's implementation conventions.
+ *
+ *
+ * $Id: alloca.h,v b3d874172359 2019/07/01 20:48:01 keith $
+ *
+ * Written by Keith Marshall <keith@users.osdn.me>
+ * Copyright (C) 2018, 2019, MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice (including the next
+ * paragraph) shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+#ifndef _ALLOCA_H
+#define _ALLOCA_H
+/* Microsoft requires the alloca() API to be declared in <malloc.h>;
+ * GNU declares it in <alloca.h>, with default inclusion by <stdlib.h>
+ * when !__STRICT_ANSI__.  To achieve compatibility with both, we will
+ * define it in the GNU manner, conditionally including this file when
+ * reading <stdlib.h>, and UNCONDITIONALLY including it in <malloc.h>
+ */
+#ifdef __GNUC__
+#pragma GCC system_header
+/* This implementation is unsupported, for any compiler other than GCC,
+ * (which is the standard MinGW compiler, in any case); all MinGW source
+ * may assume that <_mingw.h> has been included, so ensure that it is.
+ */
+#define __need_size_t
+#if defined _GNU_SOURCE || ! defined _NO_OLDNAMES
+/* This is the GNU standard API; it is also compatible with Microsoft's
+ * original, but now deprecated, OLDNAMES naming convention.
+ */
+#undef alloca
+void *alloca( size_t );
+#define alloca( __request )  __builtin_alloca( __request )
+#endif	/* _GNU_SOURCE || !_NO_OLDNAMES */
+
+/* This represents the same API, but conforms to Microsoft's currently
+ * preferred naming convention.
+ */
+#undef _alloca
+void *_alloca( size_t );
+#define _alloca( __request )  __builtin_alloca( __request )
+
+_END_C_DECLS
+
+#endif	/* __GNUC__ */
+#endif	/* !_ALLOCA_H: $RCSfile: alloca.h,v $: end of file */
+ #endif	/* !__STRICT_ANSI__ */
+
+_CRTIMP __cdecl __MINGW_NOTHROW  void *calloc (size_t, size_t) __MINGW_ATTRIB_MALLOC;
+_CRTIMP __cdecl __MINGW_NOTHROW  void *malloc (size_t) __MINGW_ATTRIB_MALLOC;
+_CRTIMP __cdecl __MINGW_NOTHROW  void *realloc (void *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  void free (void *);
+
+/* The following pair of MinGW alternatives to realloc() and free() are
+ * always suitable as substitutes for their MSVCRT.DLL counterparts; the
+ * advantage of such substitutions is that these alternatives are able to
+ * operate on heap memory which has been allocated by the MinGW aligned
+ * memory allocation API functions, (but NOT the corresponding Microsoft
+ * functions), in addition to memory allocated by malloc() or calloc().
+ */
+__cdecl __MINGW_NOTHROW  void *__mingw_realloc (void *, size_t);
+__cdecl __MINGW_NOTHROW  void __mingw_free (void *);
+
+/* Since MinGW's __mingw_free() and __mingw_realloc() are able to
+ * operate transparently on pointers returned by any of Microsoft's
+ * heap allocators, except their over-aligned variants, just as they
+ * operate on pointers returned by MinGW's over-aligned allocators,
+ * and all of ISO-C11, C++17, and POSIX.1 require this capability,
+ * always prefer these replacements for free() and realloc().
+ */
+__JMPSTUB__(( LIB = memalign, FUNCTION = free ))
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  void free (void *__ptr)
+{ __mingw_free (__ptr); }
+
+__JMPSTUB__(( LIB = memalign, FUNCTION = realloc ))
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  void *realloc (void *__ptr, size_t __want)
+{ return __mingw_realloc (__ptr, __want); }
+
+#if __STDC_VERSION__ >= 201112L || __cplusplus >= 201703L
+/* ISO-C99 adds support for over-aligned heap memory allocation, by use
+ * of the aligned_alloc() function, (which was subsequently incorporated
+ * into ISO-C++17 as std::aligned_alloc()); we may conveniently support
+ * this by use of MinGW's __mingw_aligned_offset_malloc(), which is
+ * nominally declared in <malloc.h>, and reproduced here:
+ */
+__cdecl __MINGW_NOTHROW __MINGW_ATTRIB_MALLOC
+void *__mingw_aligned_offset_malloc (size_t, size_t, size_t);
+
+__CRT_ALIAS __LIBIMPL__(( LIB = memalign, FUNCTION = aligned_alloc ))
+
+__cdecl __MINGW_NOTHROW __MINGW_ATTRIB_MALLOC
+void *aligned_alloc (size_t __alignment, size_t __want)
+{ return __mingw_aligned_offset_malloc( __want, __alignment, (size_t)(0) ); }
+
+/* For the ISO-C++17 case, we need to ensure that the feature test
+ * macro _GLIBCXX_HAVE_ALIGNED_ALLOC is defined, with non-zero value;
+ * (it is interpreted in <cstdlib>, but only for C++17 and later).
+ */
+#undef  _GLIBCXX_HAVE_ALIGNED_ALLOC
+#define _GLIBCXX_HAVE_ALIGNED_ALLOC  1
+#endif	/* ISO-C11 || ISO-C++17 */
+
+#if _POSIX_C_SOURCE >= 200112L
+/* POSIX.1-2001 supports an (earlier) alternative to the preceding
+ * ISO-C11 aligned_alloc(), namely posix_memalign().  Once again, we
+ * may conveniently use __mingw_aligned_offset_malloc() to implement
+ * this, (duplicating its prototype once again, just in case we did
+ * not implement the ISO-C11 function).
+ */
+__cdecl __MINGW_NOTHROW __MINGW_ATTRIB_MALLOC
+void *__mingw_aligned_offset_malloc (size_t, size_t, size_t);
+
+__CRT_ALIAS __LIBIMPL__(( LIB = memalign, FUNCTION = memalign ))
+
+/* posix_memalign() differs semantically from aligned_alloc(), in
+ * returning a status code, which is zero on success, or the value
+ * of errno on failure, with the allocated memory pointer returned
+ * via a reference parameter.  Normally, the reference to errno as
+ * a possible return value would preclude inline implementation of
+ * this function, but since Microsoft gratuitously defines errno
+ * here, in <stdlib.h>, as well as in <errno.h>, this is okay.
+ */
+__cdecl __MINGW_NOTHROW
+int posix_memalign (void **__p, size_t __alignment, size_t __want)
+{ if( sizeof (void *) > __alignment ) __alignment = (sizeof (void *) << 1) - 1;
+  *__p = __mingw_aligned_offset_malloc (__want, __alignment, (size_t)(0));
+  return (*__p == NULL) ? errno : 0;
+}
+#endif	/* POSIX.1-2001 */
+
+/* bsearch() and qsort() are declared both here, in <stdlib.h>, and in
+ * non-ANSI header <search.h>; we reproduce these declarations in both,
+ * with no attempt to guard them, so the compiler may verify that they
+ * are consistent, if both headers are included.
+ */
+_CRTIMP __cdecl  void *bsearch
+(const void *, const void *, size_t, size_t, int (*)(const void *, const void *));
+
+_CRTIMP __cdecl  void qsort
+(void *, size_t, size_t, int (*)(const void *, const void *));
+
+_CRTIMP __cdecl __MINGW_NOTHROW  int abs (int) __MINGW_ATTRIB_CONST;
+_CRTIMP __cdecl __MINGW_NOTHROW  long labs (long) __MINGW_ATTRIB_CONST;
+
+/* div_t and ldiv_t are structures used to return the results of div()
+ * and ldiv() functions.
+ *
+ * NOTE: div() and ldiv() appear not to work correctly unless
+ *       -fno-pcc-struct-return is specified. This is included in the
+ *       mingw32 specs file.
+ */
+typedef struct { int quot, rem; } div_t;
+typedef struct { long quot, rem; } ldiv_t;
+
+_CRTIMP __cdecl __MINGW_NOTHROW  div_t div (int, int) __MINGW_ATTRIB_CONST;
+_CRTIMP __cdecl __MINGW_NOTHROW  ldiv_t ldiv (long, long) __MINGW_ATTRIB_CONST;
+
+#if !defined __STRICT_ANSI__ || (defined _ISOC99_SOURCE && !defined __NO_INLINE__)
+/* Although not nominally valid in "__STRICT_ANSI__" mode, when compiling C99
+ * source, we use Microsoft's _exit() function to facilitate our provision of
+ * an inline implementation of ISO-C99's _Exit() function.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  void _exit (int) __MINGW_ATTRIB_NORETURN;
+
+#ifdef __MSVCRT__
+/* Similarly, we use Microsoft's MSVCRT.DLL specific _atoi64() function,
+ * to facilitate an inline implementation of ISO-C99's atoll() function.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  __int64 _atoi64 (const char *);
+
+#endif	/* __MSVCRT__ */
+#endif	/* !__STRICT_ANSI__ || (_ISOC99_SOURCE && !__NO_INLINE__) */
+
+#if !defined (__STRICT_ANSI__)
+/* NOTE: Officially the three following functions are obsolete. The Win32 API
+ *       functions SetErrorMode, Beep and Sleep are their replacements.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  void _beep (unsigned int, unsigned int) __MINGW_ATTRIB_DEPRECATED;
+/* Not to be confused with  _set_error_mode (int).  */
+_CRTIMP __cdecl __MINGW_NOTHROW  void _seterrormode (int) __MINGW_ATTRIB_DEPRECATED;
+_CRTIMP __cdecl __MINGW_NOTHROW  void _sleep (unsigned long) __MINGW_ATTRIB_DEPRECATED;
+
+/* _onexit is a Microsoft extension. Use atexit for portability. */
+/* Note: This is in startup code, not imported directly from dll */
+typedef  int (* _onexit_t)(void);
+__cdecl __MINGW_NOTHROW  _onexit_t _onexit( _onexit_t );
+
+_CRTIMP __cdecl __MINGW_NOTHROW  int _putenv (const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW
+void _searchenv (const char *, const char *, char *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_ecvt (double, int, int *, int *);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_fcvt (double, int, int *, int *);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_gcvt (double, int, char *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+void _makepath (char *, const char *, const char *, const char *, const char *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+void _splitpath (const char *, char *, char *, char *, char *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_fullpath (char*, const char*, size_t);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_itoa (int, char *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_ltoa (long, char *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_ultoa(unsigned long, char *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_itow (int, wchar_t *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_ltow (long, wchar_t *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_ultow (unsigned long, wchar_t *, int);
+
+#ifdef __MSVCRT__
+_CRTIMP __cdecl __MINGW_NOTHROW  char* _i64toa (__int64, char *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  char* _ui64toa (unsigned __int64, char *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  __int64 _wtoi64 (const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t* _i64tow (__int64, wchar_t *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t* _ui64tow (unsigned __int64, wchar_t *, int);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  unsigned int (_rotl)(unsigned int, int) __MINGW_ATTRIB_CONST;
+_CRTIMP __cdecl __MINGW_NOTHROW  unsigned int (_rotr)(unsigned int, int) __MINGW_ATTRIB_CONST;
+_CRTIMP __cdecl __MINGW_NOTHROW  unsigned long (_lrotl)(unsigned long, int) __MINGW_ATTRIB_CONST;
+_CRTIMP __cdecl __MINGW_NOTHROW  unsigned long (_lrotr)(unsigned long, int) __MINGW_ATTRIB_CONST;
+
+_CRTIMP __cdecl __MINGW_NOTHROW  int _set_error_mode (int);
+
+# define _OUT_TO_DEFAULT	0
+# define _OUT_TO_STDERR 	1
+# define _OUT_TO_MSGBOX 	2
+# define _REPORT_ERRMODE	3
+
+# if __MSVCRT_VERSION__ >= __MSVCR80_DLL
+#  ifndef _UINTPTR_T_DEFINED
+#   define _UINTPTR_T_DEFINED
+#   ifdef _WIN64
+      typedef unsigned __int64 uintptr_t;
+#   else
+      typedef unsigned int uintptr_t;
+#   endif
+#  endif
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+unsigned int _set_abort_behavior (unsigned int, unsigned int);
+
+/* These masks work with msvcr80.dll version 8.0.50215.44 (a beta release).
+ */
+#  define _WRITE_ABORT_MSG	1
+#  define _CALL_REPORTFAULT	2
+
+typedef void
+(* _invalid_parameter_handler) (
+    const wchar_t *,
+    const wchar_t *,
+    const wchar_t *,
+    unsigned int,
+    uintptr_t);
+_invalid_parameter_handler _set_invalid_parameter_handler (_invalid_parameter_handler);
+
+# endif /* __MSVCRT_VERSION__ >= __MSVCR80_DLL */
+#endif	/* __MSVCRT__ */
+
+#ifndef _NO_OLDNAMES
+_CRTIMP __cdecl __MINGW_NOTHROW  int putenv (const char*);
+_CRTIMP __cdecl __MINGW_NOTHROW  void searchenv (const char*, const char*, char*);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  char* itoa (int, char*, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  char* ltoa (long, char*, int);
+
+#ifndef _UWIN
+_CRTIMP __cdecl __MINGW_NOTHROW  char* ecvt (double, int, int*, int*);
+_CRTIMP __cdecl __MINGW_NOTHROW  char* fcvt (double, int, int*, int*);
+_CRTIMP __cdecl __MINGW_NOTHROW  char* gcvt (double, int, char*);
+
+#endif	/* ! _UWIN */
+#endif	/* ! _NO_OLDNAMES */
+#endif	/* ! __STRICT_ANSI__ */
+
+#ifdef _ISOC99_SOURCE
+/* Further APIs required to support ISO-C99, but missing from MSVCRT.DLL;
+ * we provide them in libmingwex.a:
+ *
+ * ISO-C99 name for _exit()
+ */
+__cdecl __MINGW_NOTHROW  void _Exit(int) __MINGW_ATTRIB_NORETURN;
+
+#ifndef __NO_INLINE__
+__CRT_INLINE __JMPSTUB__(( FUNCTION = _Exit, REMAPPED = _exit ))
+__cdecl __MINGW_NOTHROW  void _Exit( int __status ){ _exit (__status); }
+#endif
+
+typedef struct { long long quot, rem; } lldiv_t;
+__cdecl __MINGW_NOTHROW  lldiv_t lldiv (long long, long long) __MINGW_ATTRIB_CONST;
+
+__cdecl __MINGW_NOTHROW  long long llabs (long long);
+
+#ifndef __NO_INLINE__
+__CRT_INLINE
+/* No JMPSTUB or LIBIMPL reference here -- we provide a free-standing
+ * implementation, along with imaxabs(), in mingwex/imaxabs.c
+ */
+__cdecl __MINGW_NOTHROW  long long llabs( long long __j )
+{ return __j >= 0 ? __j : -__j; }
+#endif
+
+__cdecl __MINGW_NOTHROW
+long long strtoll (const char *__restrict__, char **__restrict, int);
+
+__cdecl __MINGW_NOTHROW
+unsigned long long strtoull (const char *__restrict__, char **__restrict__, int);
+
+#ifdef __MSVCRT__
+/* MSVCRT.DLL does not provide ISO-C99's atoll() function, but it does
+ * provide an analogue, in _atoi64(); map it accordingly.
+ */
+__cdecl __MINGW_NOTHROW  long long atoll (const char *);
+
+#ifndef __NO_INLINE__
+__CRT_INLINE __JMPSTUB__(( FUNCTION = atoll, REMAPPED = _atoi64 ))
+__cdecl __MINGW_NOTHROW  long long atoll (const char * _c){ return _atoi64 (_c); }
+#endif
+
+#endif  /* __MSVCRT__ */
+#endif  /* _ISOC99_SOURCE */
+
+#if defined __MSVCRT__ && ! defined __STRICT_ANSI__
+#if __MSVCRT_VERSION__ >= __MSVCR70_DLL || _WIN32_WINNT >= _WIN32_WINNT_WINXP
+/* Microsoft specific alternatives to ISO-C99 strtoll() and strtoull(); the
+ * first pair require WinXP (or later) or non-free MSVCR70.DLL onwards...
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW
+__int64 _strtoi64(const char*, char **, int);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+unsigned __int64 _strtoui64(const char*, char **, int);
+
+#endif	/* WinXP || MSVCR70.DLL || later */
+#if __MSVCRT_VERSION__ >= __MSVCR80_DLL || _WIN32_WINNT >= _WIN32_WINNT_VISTA
+/* ...while the following pair require Win-Vista (or later), or non-free
+ * MSVCR80.DLL onwards; (note that, like their wide character counterparts,
+ * they may actually be unusable without MSVCR80.DLL onwards, because of
+ * the difficulty in acquiring a reference to a _locale_t object).
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW
+__int64 _strtoi64_l(const char *, char **, int, _locale_t);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+unsigned __int64 _strtoui64_l(const char *, char **, int, _locale_t);
+
+#endif	/* Win-Vista || MSVCR80.DLL || later */
+
+/* Type long long analogues for MSVCRT.DLL specific type long functions;
+ * none are actually provided by any version of MSVCRT.DLL, with names as
+ * specified here, but rather as called by the inline functions used to
+ * implement them, (i.e. the REMAPPED name specified in each__JMPSTUB__
+ * function reference respectively).
+ *
+ * FIXME: Not one of these is specified by ISO-C99, nor by POSIX, either;
+ * is there really any justification for us to specify them at all?  For
+ * the time being, declare as deprecated; perhaps remove later?
+ */
+__cdecl __MINGW_NOTHROW __MINGW_ATTRIB_DEPRECATED  long long wtoll (const wchar_t *);
+__cdecl __MINGW_NOTHROW __MINGW_ATTRIB_DEPRECATED  char *lltoa (long long, char *, int);
+__cdecl __MINGW_NOTHROW __MINGW_ATTRIB_DEPRECATED  char *ulltoa (unsigned long long , char *, int);
+__cdecl __MINGW_NOTHROW __MINGW_ATTRIB_DEPRECATED  wchar_t *lltow (long long, wchar_t *, int);
+__cdecl __MINGW_NOTHROW __MINGW_ATTRIB_DEPRECATED  wchar_t *ulltow (unsigned long long, wchar_t *, int);
+
+#ifndef __NO_INLINE__
+/* None of these functions would exist at all, without either these inline
+ * implementations, or their respective __JMPSTUB__ equivalents.
+ */
+__CRT_INLINE __JMPSTUB__(( FUNCTION = lltoa, REMAPPED = _i64toa ))
+__cdecl __MINGW_NOTHROW  char *lltoa (long long __n, char * __c, int __i)
+{ return _i64toa (__n, __c, __i); }
+
+__CRT_INLINE __JMPSTUB__(( FUNCTION = ulltoa, REMAPPED = _ui64toa ))
+__cdecl __MINGW_NOTHROW  char *ulltoa (unsigned long long __n, char * __c, int __i)
+{ return _ui64toa (__n, __c, __i); }
+
+__CRT_INLINE __JMPSTUB__(( FUNCTION = wtoll, REMAPPED = _wtoi64 ))
+__cdecl __MINGW_NOTHROW  long long wtoll (const wchar_t * __w){ return _wtoi64 (__w); }
+
+__CRT_INLINE __JMPSTUB__(( FUNCTION = lltow, REMAPPED = _i64tow ))
+__cdecl __MINGW_NOTHROW  wchar_t *lltow (long long __n, wchar_t * __w, int __i)
+{ return _i64tow (__n, __w, __i); }
+
+__CRT_INLINE __JMPSTUB__(( FUNCTION = ulltow, REMAPPED = _ui64tow ))
+__cdecl __MINGW_NOTHROW  wchar_t *ulltow (unsigned long long __n, wchar_t * __w, int __i)
+{ return _ui64tow (__n, __w, __i); }
+
+#endif  /* ! __NO_INLINE__ */
+#endif  /* __MSVCRT__ && ! __STRICT_ANSI__ */
+
+/* POSIX/BSD extensions in libmingwex.a; these should be exposed only on
+ * the basis of appropriate POSIX or BSD specific feature tests...
+ *
+ * mkstemp(3) function support; added per feature request #2003.
+ * POSIX wants _XOPEN_SOURCE >= 500, (implying _POSIX_C_SOURCE >= 200112L).
+ */
+#if _POSIX_C_SOURCE >= 200112L
+
+__cdecl __MINGW_NOTHROW  int mkstemp (char *);
+__cdecl __MINGW_NOTHROW  int __mingw_mkstemp (int, char *);
+
+/* On POSIX platforms, programmers may adopt an idiom such as:
+ *
+ *   if( mkstemp( template ) >= 0 )
+ *   { unlink( template );
+ *     . . .
+ *   }
+ *
+ * to ensure that a temporary file does NOT persist after it is
+ * closed; MS-Windows does not allow such use of unlink(2), while
+ * the file remains open.  Thus, MS-Windows programmers must take
+ * extra care, to close and unlink temporary files AFTER use, if
+ * similar behaviour is desired.
+ *
+ * To mitigate this MS-Windows limitation, we provide support for
+ * an alternative, MinGW specific idiom:
+ *
+ *   #include <fcntl.h>
+ *
+ *   _MKSTEMP_SETMODE( _O_TEMPORARY );
+ *   if( mkstemp( template ) >= 0 )
+ *   {
+ *     . . .
+ *   }
+ *
+ * to achieve a similar effect to that of the above POSIX idiom; the
+ * following macros are a MinGW specific extension, to facilite such
+ * use of _O_TEMPORARY, (in addition to the POSIX required attributes),
+ * when creating the temporary file.  Note that they require <fcntl.h>,
+ * which <stdlib.h> should NOT automatically include; we leave it to
+ * the user to explicitly include it, if using _MKSTEMP_SETMODE.
+ */
+#define _MKSTEMP_INVOKE       0
+#define _MKSTEMP_DEFAULT     _O_CREAT | _O_EXCL | _O_RDWR
+#define _MKSTEMP_SETMODE(M) __mingw_mkstemp( _MKSTEMP_DEFAULT | (M), NULL )
+
+#ifndef _NO_OLDNAMES
+#define MKSTEMP_SETMODE(M)  __mingw_mkstemp( _MKSTEMP_DEFAULT | (M), NULL )
+#endif
+
+__CRT_ALIAS __LIBIMPL__(( FUNCTION = mkstemp ))
+__cdecl __MINGW_NOTHROW  int mkstemp (char *__filename_template)
+{ return __mingw_mkstemp( _MKSTEMP_INVOKE, __filename_template ); }
+
+#endif	/* _POSIX_C_SOURCE >= 200112L (for mkstemp()) */
+
+/* mkdtemp(3) function support: added as adjunct to feature request #2003.
+ * POSIX wants _XOPEN_SOURCE >= 700, (implying _POSIX_C_SOURCE >= 200809L).
+ */
+#if _POSIX_C_SOURCE >= 200809L
+
+__cdecl __MINGW_NOTHROW  char *mkdtemp (char *);
+__cdecl __MINGW_NOTHROW  char *__mingw_mkdtemp (char *);
+
+__CRT_ALIAS __JMPSTUB__(( FUNCTION = mkdtemp ))
+__cdecl __MINGW_NOTHROW  char *mkdtemp (char *__dirname_template)
+{ return __mingw_mkdtemp( __dirname_template ); }
+
+#endif	/* _POSIX_C_SOURCE >= 200809L (for mkdtemp()) */
+
+#if _POSIX_C_SOURCE >= 200112L
+/* setenv() and unsetenv() are also available, from POSIX.1-2001 onwards.
+ */
+__cdecl __MINGW_NOTHROW  int setenv( const char *, const char *, int );
+__cdecl __MINGW_NOTHROW  int unsetenv( const char * );
+
+__cdecl __MINGW_NOTHROW  int __mingw_setenv( const char *, const char *, int );
+
+__CRT_ALIAS __JMPSTUB__(( FUNCTION = setenv ))
+__cdecl __MINGW_NOTHROW  int setenv( const char *__n, const char *__v, int __f )
+{ return __mingw_setenv( __n, __v, __f ); }
+
+__CRT_ALIAS __LIBIMPL__(( FUNCTION = unsetenv ))
+__cdecl __MINGW_NOTHROW  int unsetenv( const char *__name )
+{ return __mingw_setenv( __name, NULL, 1 ); }
+
+#endif	/* _POSIX_C_SOURCE >= 200112L (for setenv()) */
+#endif	/* _STDLIB_H */
+
+_END_C_DECLS
+
+#endif	/* ! RC_INVOKED */
+#endif	/* ! _STDLIB_H: $RCSfile: stdlib.h,v $: end of file */
+ /* ...we obtain prototypes for universally supported functions:
+ *
+ *  long wcstol (const wchar_t *, wchar_t **, int);
+ *  unsigned long wcstoul (const wchar_t *, wchar_t **, int);
+ *  double wcstod (const wchar_t *, wchar_t **);
+ *
+ * The following are Microsoft specific, and require MSCVRT.DLL,
+ * or any of its non-free derivatives; they are not available to
+ * applications which use CRTDLL.DLL:
+ *
+ *  wchar_t *_wgetenv (const wchar_t *);
+ *  int _wputenv (const wchar_t *);
+ *  void _wsearchenv (const wchar_t *, const wchar_t *, wchar_t *);
+ *  int _wsystem (const wchar_t *);
+ *  void _wmakepath (wchar_t *, const wchar_t *, const wchar_t *,
+ *          const wchar_t *, const wchar_t *
+ *        );
+ *  void _wsplitpath (const wchar_t *, wchar_t *, wchar_t *,
+ *          wchar_t *, wchar_t *
+ *        );
+ *  wchar_t *_wfullpath (wchar_t *, const wchar_t *, size_t);
+ *
+ * ...with this pair requiring either WinXP (or later), or one of
+ * the non-free MSVC runtimes from MSVCR70.DLL onwards:
+ *
+ *  __int64 _wcstoi64 (const wchar_t *, wchar_t **, int);
+ *  unsigned __int64 _wcstoui64 (const wchar_t *, wchar_t **, int);
+ *
+ *  ...and this pair requiring Win-Vista (or later), or a non-free
+ *  MSVC runtime from MSVCR80.DLL onwards:
+ *
+ *  __int64 _wcstoi64_l (const wchar_t *, wchar_t **, int, _locale_t);
+ *  unsigned __int64 _wcstoui64_l (const wchar_t *, wchar_t **,
+ *          int, _locale_t);
+ *        );
+ *
+ * ...while this pair are ISO-C99 standards, which are available
+ * in libmingwex.a, but not in any version of MSVCRT.DLL, (nor in
+ * any of its non-free derivatives prior to MSVCR120.DLL), nor in
+ * CRTDLL.DLL:
+ *
+ *  float wcstof (const wchar_t *restrict, wchar_t **restrict);
+ *  long double wcstold (const wchar_t *restrict, wchar_t **restrict);
+ *
+ *
+ * while...
+ */
+#ifndef __STRICT_ANSI__
+/* ...when NOT compiling with "__STRICT_ANSI__" conformity checking,
+ * from...
+ */
+/*
+ * direct.h
+ *
+ * Functions for manipulating paths and directories, (included from io.h),
+ * and functions for manipulating the current drive assignment.
+ *
+ * $Id: direct.h,v ac537590ff03 2016/04/26 22:05:33 keithmarshall $
+ *
+ * Written by Colin Peters <colin@bird.fu.is.saga-u.ac.jp>
+ * Copyright (C) 1997, 1999-2001, 2003, 2004, 2007, 2016, MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+#ifndef _DIRECT_H
+#pragma GCC system_header
+
+/* In addition to inclusion in its own right, this header supports
+ * selective inclusion by <wchar.h>; thus...
+ */
+#ifndef __WCHAR_H_SOURCED__
+ /* ...we defer definition of the normal multiple inclusion guard,
+  * until we know that this is NOT a selective inclusion request.
+  */
+#define _DIRECT_H
+
+#define __DIRECT_H_SOURCED__
+/* All MinGW headers are required to include <_mingw.h>; additionally,
+ * much of the content which we need here is defined in <io.h>, but we
+ * also need the declaration of the _getdiskfree() function prototype,
+ * and the definition for its associated _diskfree_t data structure,
+ * from <dos.h>; thus, we may simply include <dos.h> here, and let
+ * it take care of including both <mingw.h> and <io.h> for us.
+ */
+/*
+ * dos.h
+ *
+ * Functions and structures inherited from MS-DOS.
+ *
+ * $Id: dos.h,v b79b7fd3032b 2016/09/13 20:14:13 keithmarshall $
+ *
+ * Written by Jan-Jaap van der Heijden
+ * Copyright (C) 1997-1999, 2001-2004, 2007, 2016, MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+#ifndef	_DOS_H
+#pragma GCC system_header
+
+/* This header supports selective inclusion by <direct.h>, for delegated
+ * access to the content of <io.h>, and for declaration of the prototype
+ * and associated data structure for the _getdiskfree() function; since
+ * including <dos.h> in this manner does not make all of its content
+ * visible, we defer definition of its multiple inclusion guard...
+ */
+#ifndef __DIRECT_H_SOURCED__
+ /* ...until we have determined that this inclusion is NOT a selective
+  * request from <direct.h>; in spite of it being obsolete, it appears
+  * that the user may have included <dos.h> directly.
+  */
+#define	_DOS_H
+/* If the user does include <dos.h> directly, we should raise an alert
+ * to advise that <direct.h> is the preferred alternative; however, the
+ * warning will interfere with the testsuite result...
+ */
+#ifndef __IN_MINGWRT_TESTSUITE__
+/* ...so we suppress it in this specific instance.
+ */
+#warning "<dos.h> is obsolete; consider using <direct.h> instead."
+#endif
+#endif	/* !__DIRECT_H_SOURCED__ */
+
+/* All MinGW headers are required to include <_mingw.h>; additionally,
+ * for DOS file attributes, we must include <io.h>.  By unconditionally
+ * including <io.h> here, we may delegate the inclusion of <_mingw.h> to
+ * it, while also allowing <direct.h> to delegate responsibility for the
+ * inclusion of both <_mingw.h> and <io.h> to us.
+ */
+/*
+ * io.h
+ *
+ * System level I/O functions and types.
+ *
+ * $Id: io.h,v 4e77488c6712 2019/10/16 08:42:57 keith $
+ *
+ * Written by Colin Peters <colin@bird.fu.is.saga-u.ac.jp>
+ * Copyright (C) 1997-2004, 2007, 2009, 2010, 2014-2016, 2019,
+ *   MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ *
+ * NOTE: The file manipulation functions provided by Microsoft seem to
+ * work with either slash (/) or backslash (\) as the directory separator;
+ * (this is consistent with Microsoft's own documentation, on MSDN).
+ *
+ */
+#ifndef _IO_H
+#pragma GCC system_header
+
+/* Defer definition of the _IO_H multiple inclusion guard, to allow
+ * for selective inclusion by <wchar.h>, (in which case we should
+ * NOT define it).
+ */
+#ifndef __WCHAR_H_SOURCED__
+#define _IO_H
+
+/* All MinGW headers must include <_mingw.h>; we may do it here,
+ * assuming that <wchar.h> will have already take care to do so in
+ * the selective inclusion case.
+ */
+#endif	/* !__WCHAR_H_SOURCED__ */
+
+/* This will give us intptr_t, which we need in ALL cases, whether
+ * including <io.h> directly, or selectively via <wchar.h>; (note: we
+ * use the #include "..." form here, to ensure that we read the type
+ * definition directly from the stdint.h header located in the same
+ * directory as this <io.h> file).
+ */
+#define __need_intptr_t
+/*
+ * stdint.h
+ *
+ * Integer type definitions, as prescribed by ISO-C9x Section 7.18
+ * Based on ISO/IEC SC22/WG14 9899 Committee draft (SC22 N2794)
+ *
+ * $Id: stdint.h,v b8530dfcf7a9 2016/06/17 14:16:01 keithmarshall $
+ *
+ * Written by Danny Smith <danny_r_smith_2001@yahoo.co.nz>
+ * Copyright (C) 2000-2002, 2004, 2005, 2007, 2009, 2016, MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+#ifndef _STDINT_H
+#pragma GCC system_header
+
+/* To support selective definition of just intptr_t or uintptr_t,
+ * we defer definition of the normal multiple inclusion guard macro,
+ * until we've determined that neither selection is active.
+ */
+#if ! defined __need_intptr_t && ! defined __need_uintptr_t
+#define _STDINT_H
+
+/* All MinGW system headers are expected to include <_mingw.h>;
+ * ensure that we have done so.
+ */
+#define __need_wint_t
+#define __need_wchar_t
+#define __need_intptr_t
+#define __need_uintptr_t
+
+#endif	/* !__need_intptr_t && !__need_uintptr_t */
+
+/* 7.18.1.4  Integer types capable of holding object pointers.
+ */
+#if defined __need_intptr_t && ! defined __intptr_t
+#define __intptr_t __intptr_t
+#ifdef _WIN64
+ typedef __int64 __intptr_t;
+#else
+ typedef int __intptr_t;
+#endif
+typedef __intptr_t intptr_t;
+
+#endif	/* __need_intptr_t */
+#undef __need_intptr_t
+
+#if defined __need_uintptr_t && ! defined __uintptr_t
+#define __uintptr_t __uintptr_t
+#ifdef _WIN64
+ typedef unsigned __int64 __uintptr_t;
+#else
+ typedef unsigned int __uintptr_t;
+#endif
+typedef __uintptr_t uintptr_t;
+
+#endif	/* __need_uintptr_t */
+#undef __need_uintptr_t
+
+#ifdef  _STDINT_H
+/* 7.18.1.5  Greatest-width integer types.
+ */
+typedef long long  intmax_t;
+typedef unsigned long long uintmax_t;
+
+/* 7.18.2  Limits of specified-width integer types.
+ * (always defined in C, but C++ needs __STDC_LIMIT_MACROS)
+ */
+#if ! defined __cplusplus || defined __STDC_LIMIT_MACROS
+
+/* 7.18.2.1  Limits of exact-width integer types.
+ */
+#define INT8_MIN		(-128)
+#define INT16_MIN		(-32768)
+#define INT32_MIN		(-2147483647 - 1)
+#define INT64_MIN		(-9223372036854775807LL - 1)
+
+#define INT8_MAX		127
+#define INT16_MAX		32767
+#define INT32_MAX		2147483647
+#define INT64_MAX		9223372036854775807LL
+
+#define UINT8_MAX		0xffU			/* 255U */
+#define UINT16_MAX		0xffffU			/* 65535U */
+#define UINT32_MAX		0xffffffffUL		/* 4294967295U */
+#define UINT64_MAX		0xffffffffffffffffULL	/* 18446744073709551615ULL */
+
+/* 7.18.2.2  Limits of minimum-width integer types.
+ */
+#define INT_LEAST8_MIN		INT8_MIN
+#define INT_LEAST16_MIN 	INT16_MIN
+#define INT_LEAST32_MIN 	INT32_MIN
+#define INT_LEAST64_MIN 	INT64_MIN
+
+#define INT_LEAST8_MAX		INT8_MAX
+#define INT_LEAST16_MAX 	INT16_MAX
+#define INT_LEAST32_MAX 	INT32_MAX
+#define INT_LEAST64_MAX 	INT64_MAX
+
+#define UINT_LEAST8_MAX 	UINT8_MAX
+#define UINT_LEAST16_MAX	UINT16_MAX
+#define UINT_LEAST32_MAX	UINT32_MAX
+#define UINT_LEAST64_MAX	UINT64_MAX
+
+/* 7.18.2.3  Limits of fastest minimum-width integer types.
+ */
+#define INT_FAST8_MIN		INT8_MIN
+#define INT_FAST16_MIN		INT16_MIN
+#define INT_FAST32_MIN		INT32_MIN
+#define INT_FAST64_MIN		INT64_MIN
+
+#define INT_FAST8_MAX		INT8_MAX
+#define INT_FAST16_MAX		INT16_MAX
+#define INT_FAST32_MAX		INT32_MAX
+#define INT_FAST64_MAX		INT64_MAX
+
+#define UINT_FAST8_MAX		UINT8_MAX
+#define UINT_FAST16_MAX 	UINT16_MAX
+#define UINT_FAST32_MAX 	UINT32_MAX
+#define UINT_FAST64_MAX 	UINT64_MAX
+
+/* 7.18.2.4  Limits of integer types capable of holding object pointers.
+ */
+#ifdef _WIN64
+# define INTPTR_MIN		INT64_MIN
+# define INTPTR_MAX		INT64_MAX
+# define UINTPTR_MAX		UINT64_MAX
+#else
+# define INTPTR_MIN		INT32_MIN
+# define INTPTR_MAX		INT32_MAX
+# define UINTPTR_MAX		UINT32_MAX
+#endif
+
+/* 7.18.2.5  Limits of greatest-width integer types.
+ */
+#define INTMAX_MIN		INT64_MIN
+#define INTMAX_MAX		INT64_MAX
+#define UINTMAX_MAX		UINT64_MAX
+
+/* 7.18.3  Limits of other integer types.
+ */
+#define PTRDIFF_MIN		INTPTR_MIN
+#define PTRDIFF_MAX		INTPTR_MAX
+
+#define SIG_ATOMIC_MIN		INTPTR_MIN
+#define SIG_ATOMIC_MAX		INTPTR_MAX
+
+#define SIZE_MAX		UINTPTR_MAX
+
+/* The following pair are also defined in <wchar.h>, but leave them
+ * unguarded, so that the compiler may check for consistency.
+ */
+#define WCHAR_MIN		0
+#define WCHAR_MAX		0xffff /* UINT16_MAX */
+
+/* wint_t is unsigned short for compatibility with MS runtime
+ */
+#define WINT_MIN		0
+#define WINT_MAX		0xffff /* UINT16_MAX */
+
+#endif	/* !__cplusplus || __STDC_LIMIT_MACROS */
+
+/* 7.18.4  Macros for integer constants.
+ * (always defined in C, but C++ needs __STDC_CONSTANT_MACROS)
+ */
+#if ! defined __cplusplus || defined __STDC_CONSTANT_MACROS
+
+/* 7.18.4.1  Macros for minimum-width integer constants
+ *
+ * According to Douglas Gwyn <gwyn@arl.mil>:
+ *  "This spec was changed in ISO/IEC 9899:1999 TC1; in ISO/IEC
+ *  9899:1999 as initially published, the expansion was required
+ *  to be an integer constant of precisely matching type, which
+ *  is impossible to accomplish for the shorter types on most
+ *  platforms, because C99 provides no standard way to designate
+ *  an integer constant with width less than that of type int.
+ *  TC1 changed this to require just an integer constant
+ *  EXPRESSION with PROMOTED type".
+ */
+#define INT8_C(val)		val
+#define UINT8_C(val)		val
+#define INT16_C(val)		val
+#define UINT16_C(val)		val
+
+#define INT32_C(val)		val
+#define UINT32_C(val)		val##U
+#define INT64_C(val)		val##LL
+#define UINT64_C(val)		val##ULL
+
+/* 7.18.4.2  Macros for greatest-width integer constants.
+ */
+#define INTMAX_C(val)		INT64_C(val)
+#define UINTMAX_C(val)		UINT64_C(val)
+
+#endif  /* !__cplusplus || __STDC_CONSTANT_MACROS */
+#endif	/* _STDINT_H */
+
+#endif	/* !_STDINT_H: $RCSfile: stdint.h,v $: end of file */
+ 
+/* Attributes of files as returned by _findfirst() et al.  MSDN is not
+ * explicit about whether or not these should be defined when including
+ * <wchar.h>, but since they complement the _wfindfirst() API, which is
+ * declared there, it seems logical to make them visible in all cases
+ * of <io.h> inclusion.
+ */
+#define _A_NORMAL	0x00000000
+#define _A_RDONLY	0x00000001
+#define _A_HIDDEN	0x00000002
+#define _A_SYSTEM	0x00000004
+#define _A_VOLID	0x00000008
+#define _A_SUBDIR	0x00000010
+#define _A_ARCH 	0x00000020
+
+#ifndef RC_INVOKED
+
+/* The maximum length of a file name.  It may be better to use the Windows'
+ * GetVolumeInformation() function in preference to this constant, but hey,
+ * this works!  In any case, we use this manifest constant when we declare
+ * the _findfirst() API, so its definition must be visible in all places
+ * where this, or any of its variants, is declared.
+ *
+ * Note that <stdio.h> also defines this, but we don't guard it, so that
+ * the compiler has a chance to catch inconsistencies.
+ */
+#define FILENAME_MAX	(260)
+
+/* We must define _fsize_t, but some compilers (including GCC prior to
+ * version 4.0), may choke if we try to do so more than once...
+ */
+#if ! (defined _IO_H && defined _WCHAR_H) || defined __STRICT_ANSI__
+ /* ...so DO NOT define it during direct <io.h> inclusion, (i.e. _IO_H
+  * is defined), if <wchar.h> has already caused it to be defined, (i.e.
+  * _WCHAR_H is ALSO defined, but __STRICT_ANSI__ is NOT).
+  */
+typedef	unsigned long	_fsize_t;
+#endif	/* ! (_IO_H && _WCHAR_H) */
+
+/* Functions for searching for files: _findfirst() sets errno to ENOENT,
+ * and returns -1 if no match is found; otherwise it returns a handle to
+ * be used in _findnext() and _findclose() calls. _findnext() may then be
+ * used to identify further matches; it updates the search data, returning
+ * zero, each time a further match is found, ultimately setting errno to
+ * ENOENT, and returning -1 when no further match can be found.  When all
+ * expected matches have been identified, _findclose() should be called,
+ * to release the resources allocated to the search data.
+ *
+ * The API comprises several variants of the _findfirst() and _findnext()
+ * functions, conforming generally to the usage model:
+ *
+ *  intptr_t handle = _findfirst (filespec, &search_data );
+ *  if (handle >= (intptr_t)(0)) do { process search_data;
+ *   } while (_findnext (handle, &search_data));
+ *
+ * where "filespec" represents a char *, or a wchar_t * specification,
+ * (which may include wild cards), for a file name pattern to be matched,
+ * and "search_data" represents a variant of the structure:
+ */
+#define __struct_finddata_t(__fd_time_t, __fd_size_t)			\
+{ unsigned	attrib;		/* Attributes, see constants above. */	\
+  __fd_time_t	time_create;						\
+  __fd_time_t	time_access;	/* always midnight local time */	\
+  __fd_time_t	time_write;						\
+  __fd_size_t	size;							\
+  __fd_name_t	name[FILENAME_MAX];	/* may include spaces. */	\
+}
+
+/* Time type and file size variations for __struct_finddata_t apply, for the
+ * various functions comprising the file name search API, as tabulated below:
+ *
+ * Note: this is a reproduction of reference data as published in the MSDN
+ * online documentation for the file name search API; it applies, specifically,
+ * to the implementation of this API in the non-free run-time library versions
+ * from MSVCR80.DLL onwards, (i.e. when __MSVCRT_VERSION__ is defined, and is
+ * assigned a value >= 0x800).  When linking to the freely available MSVCRT.DLL
+ * runtime, (__MSVCRT_VERSION__ should not be defined), or any earlier version
+ * of the non-free run-time, the _USE_32BIT_TIME_T feature test is irrelevant;
+ * the information presented in this table should be interpreted as if this
+ * feature is always implicitly enabled.
+ *
+ *  Functions	       _USE_32BIT_TIME_T defined?    __fd_time_t     __fd_size_t
+ *
+ * _findfirst(),	Not defined			64-bit		32-bit
+ * _wfindfirst()
+ * _findfirst(),	Defined				32-bit		32-bit
+ * _wfindfirst()
+ *
+ * _findfirst32(),	Not affected by the macro	32-bit		32-bit
+ * _wfindfirst32()	definition
+ *
+ * _findfirst64(),	Not affected by the macro	64-bit		64-bit
+ * _wfindfirst64()	definition
+ *
+ * _findfirsti64(),	Not defined			64-bit		64-bit
+ * _wfindfirsti64()
+ * _findfirsti64(),	Defined				32-bit		64-bit
+ * _wfindfirsti64()
+ *
+ * _findfirst32i64(),	Not affected by the macro	32-bit		64-bit
+ * _wfindfirst32i64()	definition
+ *
+ * _findfirst64i32(),	Not affected by the macro	64-bit		32-bit
+ * _wfindfirst64i32()	definition
+ *
+ */
+_BEGIN_C_DECLS
+
+#ifdef _IO_H
+#define __fd_name_t  char
+
+/* The most universally available variants of the file name search
+ * API employ either a generic representation of the related data, or
+ * a variant in which the time stamps are represented generically, but
+ * the file size is explicitly expressed as a 64-bit value.
+ */
+struct _finddata_t __struct_finddata_t (time_t, _fsize_t);
+struct _finddatai64_t __struct_finddata_t (time_t, __int64);
+
+/* Functions to manipulate data in either of these representations are
+ * provided, as physical entities, in ALL versions of MSVCRT.DLL, and
+ * in the non-free variants predating MSVCR80.DLL; (each such physical
+ * function implementation interprets "generic" as 32-bit for both the
+ * time_t and _fsize_t data fields).  From MSVCR80.DLL onward, there is
+ * no physical implementation of these functions; they are emulated by
+ * inline replacements (implemented below), which introduce ambiguity
+ * in the interpretation of "generic", (noted as applicable): thus...
+ */
+#if __MSVCRT_VERSION__ < __MSVCR80_DLL
+/* ...these physical function APIs are declared only when it is NOT
+ * specified that MSVCR80.DLL or later is to be used.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _findfirst (const char *, struct _finddata_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _findnext (intptr_t, struct _finddata_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _findfirsti64 (const char *, struct _finddatai64_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _findnexti64 (intptr_t, struct _finddatai64_t *);
+
+#endif	/* __MSVCRT_VERSION__ < __MSVCR80_DLL */
+
+#if _WIN32_WINNT >= _WIN32_WINNT_WIN2K || __MSVCRT_VERSION__ >= __MSVCR61_DLL
+/* The Win2K release of MSVCRT.DLL added a third variant of the API,
+ * which had originally been introduced in MSVCR61.DLL; this variant
+ * uses a data representation having both 64-bit time stamp values,
+ * and 64-bit file size values.  (Note that there was no explictly
+ * all 32-bit variant added at this point in the evolution of the
+ * API; had there been, it would have been identically equivalent
+ * to the original generic _findfirst()/_findnext() implementation).
+ */
+struct __finddata64_t __struct_finddata_t (__time64_t, __int64);
+/*
+ * Some MSDN documents, (particularly more recent documents), may
+ * inconsistently refer to this structural type by the anomalous
+ * name of _finddata64_t; support this anomaly.
+ */
+#define _finddata64_t  __finddata64_t
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _findfirst64 (const char *, struct __finddata64_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _findnext64 (intptr_t, struct __finddata64_t *);
+
+#if __MSVCRT_VERSION__ >= __MSVCR80_DLL
+/* MSVCR80.DLL introduced three new data structures, with explicitly
+ * sized elements; in the order specified below, the first and second
+ * of these three are identically equivalent to the representations of
+ * struct _finddata_t, and struct _finddatai64_t, as they are required
+ * to be implemented to match the implementations of the corresponding
+ * functions in ALL versions of MSVCRT.DLL, whereas the third has no
+ * counterpart, in ANY version of MSVCRT.DLL.
+ */
+struct _finddata32_t __struct_finddata_t (__time32_t, __int32);
+struct _finddata32i64_t __struct_finddata_t (__time32_t, __int64);
+struct _finddata64i32_t __struct_finddata_t (__time64_t, __int32);
+
+/* The actual functions implemented in MSVCR80.DLL, and its derivatives,
+ * corresponding to each of these three data structures are:
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _findfirst32 (const char *, struct _finddata32_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _findnext32 (intptr_t, struct _finddata32_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _findfirst32i64 (const char *, struct _finddata32i64_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _findnext32i64 (intptr_t, struct _finddata32i64_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _findfirst64i32 (const char *, struct _finddata64i32_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _findnext64i32 (intptr_t, struct _finddata64i32_t *);
+
+/* Since MSVCR80.DLL, and its later derivatives, provide no physical
+ * implementations of the original file name search API functions, we
+ * must emulate them, (as Microsoft do), by providing replacements in
+ * the form of inline functions; in doing so, we also need to contend
+ * with the insane ambiguity of Microsoft's _USE_32BIT_TIME_T feature
+ * test; thus...
+ */
+#if defined _USE_32BIT_TIME_T
+/* ...when the user has defined the _USE_32BIT_TIME_T macro, we provide
+ * inline implementations which remain fully compatible with the actual
+ * functions, as provided by MSVCRT.DLL; (note that we do not provide
+ * __JMPSTUB__ or __LIBIMPL__ references here, since we have no basis
+ * for a rational choice between ambiguous alternatives).
+ */
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+intptr_t _findfirst (const char *__filespec, struct _finddata_t *__search)
+{ return _findfirst32 (__filespec, (struct _finddata32_t *)(__search)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+int _findnext (intptr_t __handle, struct _finddata_t *__search)
+{ return _findnext32 (__handle, (struct _finddata32_t *)(__search)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+intptr_t _findfirsti64 (const char *__filespec, struct _finddatai64_t *__search)
+{ return _findfirst32i64 (__filespec, (struct _finddata32i64_t *)(__search)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+int _findnexti64 (intptr_t __handle, struct _finddatai64_t *__search)
+{ return _findnext32i64 (__handle, (struct _finddata32i64_t *)(__search)); }
+
+#else	/* !_USE_32BIT_TIME_T */
+/* ...but, when the user has NOT defined _USE_32BIT_TIME_T, we emulate
+ * the brain damaged default behaviour of Microsoft's own SDKs.  This
+ * accommodates an extended range of valid time stamp values, but it
+ * utterly destroys compatibility with MSVCRT.DLL!
+ */
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+intptr_t _findfirst (const char *__filespec, struct _finddata_t *__search)
+{ return _findfirst64i32 (__filespec, (struct _finddata64i32_t *)(__search)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+int _findnext (intptr_t __handle, struct _finddata_t *__search)
+{ return _findnext64i32 (__handle, (struct _finddata64i32_t *)(__search)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+intptr_t _findfirsti64 (const char *__filespec, struct _finddatai64_t *__search)
+{ return _findfirst64 (__filespec, (struct __finddata64_t *)(__search)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+int _findnexti64 (intptr_t __handle, struct _finddatai64_t *__search)
+{ return _findnext64 (__handle, (struct __finddata64_t *)(__search)); }
+
+#endif	/* !_USE_32BIT_TIME_T */
+#endif	/* __MSVCRT_VERSION__ >= __MSVCR80_DLL */
+#endif	/* >= WIN2K || >= MSVCR61.DLL */
+
+#undef  __fd_name_t
+#endif	/* _IO_H */
+
+#if ! (defined _IO_H && defined _WCHAR_H)
+/* Wide character file name analogue of the file name search API;
+ * declared both here, in <io.h>, and via selective inclusion from
+ * <wchar.h>, it mirrors all aspects of the preceding API declarations,
+ * except that all file names are expressed as wchar_t.
+ */
+#define __fd_name_t  wchar_t
+
+/* Thus, the original API comprised this pair of generically specified
+ * data structures...
+ */
+struct _wfinddata_t __struct_finddata_t (time_t, _fsize_t);
+struct _wfinddatai64_t __struct_finddata_t (time_t, __int64);
+
+#if __MSVCRT_VERSION__ < __MSVCR80_DLL
+/* ...with corresponding functions to manipulate them; once again, there
+ * is no physical implementation of these in MSVCR80.DLL or later, so we
+ * declare them only when it is NOT specified that one of these run-time
+ * library versions is to be used.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wfindfirst (const wchar_t *, struct _wfinddata_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _wfindnext (intptr_t, struct _wfinddata_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wfindfirsti64 (const wchar_t *, struct _wfinddatai64_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _wfindnexti64 (intptr_t, struct _wfinddatai64_t *);
+
+#endif	/* __MSVCRT_VERSION__ < __MSVCR80_DLL */
+
+#if _WIN32_WINNT >= _WIN32_WINNT_WIN2K || __MSVCRT_VERSION__ >= __MSVCR61_DLL
+/* Win2K also added an all-64-bit variant of the _wfinddata API to
+ * MSVCRT.DLL, after it originally appeared in MSVCR61.DLL.
+ */
+struct __wfinddata64_t __struct_finddata_t (__time64_t, __int64);
+/*
+ * As in the case of the __finddata64_t structure, some MSDN
+ * documents, (particularly more recent documents), may refer
+ * to __wfinddata64_t by the inconsistently anomalous name of
+ * _wfinddata64_t; also support this anomaly.
+ */
+#define _wfinddata64_t  __wfinddata64_t
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wfindfirst64 (const wchar_t *, struct __wfinddata64_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _wfindnext64 (intptr_t, struct __wfinddata64_t *);
+
+#if __MSVCRT_VERSION__ >= __MSVCR80_DLL
+/* MSVCR80.DLL introduced a further three variants, which remain
+ * exclusive to it and its later derivatives; none of these are
+ * available in any version of MSVCRT.DLL.
+ */
+struct _wfinddata32_t    __struct_finddata_t (__time32_t, __int32);
+struct _wfinddata32i64_t __struct_finddata_t (__time32_t, __int64);
+struct _wfinddata64i32_t __struct_finddata_t (__time64_t, __int32);
+/*
+ * As in the __finddata64_t vs. _finddata64_t, and __wfinddata64_t
+ * vs. _wfinddata64_t anomalous cases, there is at least one historic
+ * MSDN reference to a __wfinddata32_t structural type, in a context
+ * where _wfinddata32_t may be expected.  In this case, it appears
+ * that __wfinddata32_t is the anomaly, and that it may be peculiar
+ * to the VS-2005 documentation; nevertheless, the corresponding
+ * definition is provided here, for the possible convenience of
+ * any user who may depend on it, (but please avoid it).
+ */
+#define __wfinddata32_t  _wfinddata32_t
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wfindfirst32 (const wchar_t *, struct _wfinddata32_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _wfindnext32 (intptr_t, struct _wfinddata32_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wfindfirst32i64 (const wchar_t *, struct _wfinddata32i64_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _wfindnext32i64 (intptr_t, struct _wfinddata32i64_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wfindfirst64i32 (const wchar_t *, struct _wfinddata64i32_t *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+int _wfindnext64i32 (intptr_t, struct _wfinddata64i32_t *);
+
+/* Once again, the variants of this API with generic time_t data
+ * fields are NOT supported by any physical function implementation
+ * in MSVCR80.DLL and later, so must be emulated; (again, we do not
+ * provide any __JMPSTUB__ or __LIBIMPL__ references).
+ */
+#ifdef _USE_32BIT_TIME_T
+/* First, we provide inline implementations which retain compatibility
+ * with the physical implementations in MSVCRT.DLL; they require the
+ * user to define the _USE_32BIT_TIME_T feature test macro...
+ */
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+intptr_t _wfindfirst (const wchar_t *__filespec, struct _wfinddata_t *__search)
+{ return _wfindfirst32 (__filespec, (struct _wfinddata32_t *)(__search)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+int _wfindnext (intptr_t __handle, struct _wfinddata_t *__search)
+{ return _wfindnext32 (__handle, (struct _wfinddata32_t *)(__search)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+intptr_t _wfindfirsti64 (const wchar_t *__filespec, struct _wfinddatai64_t *__search)
+{ return _wfindfirst32i64 (__filespec, (struct _wfinddata32i64_t *)(__search)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+int _wfindnexti64 (intptr_t __handle, struct _wfinddatai64_t *__search)
+{ return _wfindnext32i64 (__handle, (struct _wfinddata32i64_t *)(__search)); }
+
+#else	/* !_USE_32BIT_TIME_T */
+/* ...whereas the brain damaged Microsoft defaults, which apply when
+ * _USE_32BIT_TIME_T is not defined, break MSVCRT.DLL compatibility.
+ */
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+intptr_t _wfindfirst (const wchar_t *__filespec, struct _wfinddata_t *__search)
+{ return _wfindfirst64i32 (__filespec, (struct _wfinddata64i32_t *)(__search)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+int _wfindnext (intptr_t __handle, struct _wfinddata_t *__search)
+{ return _wfindnext64i32 (__handle, (struct _wfinddata64i32_t *)(__search)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+intptr_t _wfindfirsti64 (const wchar_t *__filespec, struct _wfinddatai64_t *__search)
+{ return _wfindfirst64 (__filespec, (struct __wfinddata64_t *)(__search)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW
+int _wfindnexti64 (intptr_t __handle, struct _wfinddatai64_t *__search)
+{ return _wfindnext64 (__handle, (struct __wfinddata64_t *)(__search)); }
+
+#endif	/* !_USE_32BIT_TIME_T */
+#endif	/* __MSVCRT_VERSION__ >= MSVCR80.DLL */
+#endif	/* >= _WIN2K || >= MSVCR61.DLL */
+
+/* MSDN documents that <io.h> must be included to get a prototype for
+ * _findclose(), which kind of negates the usefulness of declaring the
+ * wchar_t variants of the file name search API in <wchar.h>; mitigate
+ * this anomaly, by declaring _findclose() such that either <io.h> or
+ * <wchar.h> (but only the first to be included) will provide it.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _findclose (intptr_t);
+
+#undef __fd_name_t
+#endif	/* ! (_IO_H && _WCHAR_H) */
+
+/* We have no further use for the __struct_finddata_t macro; delete it!
+ */
+#undef __struct_finddata_t
+
+#ifdef _IO_H
+/* The following declarations are to be exposed only when <io.h> is
+ * included directly.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _chdir (const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_getcwd (char *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _mkdir (const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_mktemp (char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _rmdir (const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _chmod (const char *, int);
+
+#ifdef __MSVCRT__
+_CRTIMP __cdecl __MINGW_NOTHROW  __int64 _filelengthi64 (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  __int64 _lseeki64 (int, __int64, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  __int64 _telli64 (int);
+
+#ifndef __NO_MINGW_LFS
+__CRT_INLINE __off64_t lseek64 (int, __off64_t, int);
+__CRT_INLINE __JMPSTUB__(( FUNCTION = lseek64, REMAPPED = _lseeki64 ))
+__off64_t lseek64 (int fd, __off64_t offset, int whence)
+{ return _lseeki64 (fd, (__int64)(offset), whence); }
+#endif
+
+#endif /* __MSVCRT__ */
+
+#ifndef _NO_OLDNAMES
+
+#ifndef _UWIN
+_CRTIMP __cdecl __MINGW_NOTHROW  int chdir (const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *getcwd (char *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int mkdir (const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *mktemp (char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int rmdir (const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int chmod (const char *, int);
+#endif /* _UWIN */
+
+#endif /* !_NO_OLDNAMES */
+#endif	/* _IO_H */
+
+_END_C_DECLS
+
+#endif	/* ! RC_INVOKED */
+
+#ifdef _IO_H
+/* Still applicable only when <io.h> is included directly, but we also
+ * allow the resource compiler to see these.
+ *
+ * TODO: Maximum number of open handles has not been tested; we just set
+ * it the same as FOPEN_MAX.
+ */
+#define HANDLE_MAX	FOPEN_MAX
+
+/* Some defines for _access() mode checking: (Microsoft doesn't define
+ * them, but it doesn't seem to hurt to add them ... or perhaps it does
+ * hurt; on newer versions of MSVCRT.DLL, an access mode of 1 may raise
+ * an invalid parameter error!
+ */
+#define F_OK	0	/* Check for file existence */
+#define X_OK	1	/* MS access() doesn't check for execute permission. */
+#define W_OK	2	/* Check for write permission */
+#define R_OK	4	/* Check for read permission */
+#endif	/* _IO_H */
+
+#ifndef RC_INVOKED
+
+_BEGIN_C_DECLS
+
+#ifdef _IO_H
+/* Again, specific to <io.h>, but not applicable to resources.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _access (const char *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _chsize (int, long);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _close (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _commit (int);
+
+/* NOTE: The only significant permissions bit appears to be
+ * bit 7 (0x80), the "owner write permission" bit (on FAT).
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _creat (const char *, int);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  int _dup (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _dup2 (int, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  long _filelength (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  long _get_osfhandle (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _isatty (int);
+
+#ifndef	_STREAM_COMPAT
+/* In a very odd turn of events this function is excluded from those
+ * files which define _STREAM_COMPAT. This is required in order to
+ * build GNU libio because of a conflict with _eof in streambuf.h
+ * line 107. Actually I might just be able to change the name of
+ * the enum member in streambuf.h ... we'll see. TODO
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _eof (int);
+#endif
+
+/* Locking files: attribute constants are defined in <sys/locking.h>,
+ * which users are expected to include.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _locking (int, int, long);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  long _lseek (int, long, int);
+
+/* Opening files, (or streams); manifest constants for construction of
+ * the mode flags are defined in <fctl.h>, which users are expected to
+ * include.  The "optional" third argument is an unsigned int; it is
+ * REQUIRED, when creating a new file, to specify the permissions to
+ * apply when said file is released by the creating process.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _open (const char *, int, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  int _open_osfhandle (intptr_t, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _pipe (int *, unsigned int, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _read (int, void *, unsigned int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _setmode (int, int);
+
+/* Microsoft declares remove() & rename(), (but not their wchar_t
+ * counterparts), in <io.h> as well as in <stdio.h>; these should be
+ * consistent with <stdio.h>, but we trust the compiler to alert us
+ * (eventually) if not.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int remove (const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int rename (const char *, const char *);
+
+/* Open files with specified sharing attributes; manifest constants
+ * for constructing the sharing mode argument are in <share.h>, which
+ * users must include.  The optional fourth argument is an unsigned
+ * int, specifing permissions to apply after closing a new file.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _sopen (const char *, int, int, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  long _tell (int);
+
+/* FIXME: POSIX wants umask() in <sys/stat.h>, and, although vague,
+ * Microsoft may agree; we declare it here as well!
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _umask (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _unlink (const char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _write (int, const void *, unsigned int);
+#endif	/* _IO_H */
+
+#if defined __MSVCRT__ && ! (defined _IO_H && defined _WCHAR_H)
+/* These wchar_t functions are made available for selective inclusion
+ * by <wchar.h>, in addition to direct inclusion of <io.h>, but they
+ * are only supported by MSVCRT.DLL and derivatives; they don't exist
+ * in CRTDLL.DLL.  Furthermore, if both _IO_H and _WCHAR_H have been
+ * defined, by the time we get here, then this must be direct <io.h>
+ * inclusion, and we've already declared these by prior inclusion of
+ * <wchar.h>; there is no need to declare them again.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _waccess (const wchar_t *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wchmod (const wchar_t *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wcreat (const wchar_t *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wunlink (const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wopen (const wchar_t *, int, ...);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wsopen (const wchar_t *, int, int, ...);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wmktemp (wchar_t *);
+#endif /* __MSVCRT__ && ! (_IO_H && _WCHAR_H) */
+
+#if defined _IO_H && ! defined _NO_OLDNAMES
+/* Non-underscored versions of non-ANSI functions to improve portability;
+ * these are implemented in libmoldname.a, and once again are declared
+ * only when <io.h> is included directly.
+ */
+#ifndef _UWIN
+_CRTIMP __cdecl __MINGW_NOTHROW  int access (const char*, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int chsize (int, long );
+_CRTIMP __cdecl __MINGW_NOTHROW  int close (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int creat (const char*, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int dup (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int dup2 (int, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int eof (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  long filelength (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int isatty (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  long lseek (int, long, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int open (const char*, int, ...);
+_CRTIMP __cdecl __MINGW_NOTHROW  int read (int, void*, unsigned int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int setmode (int, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int sopen (const char*, int, int, ...);
+_CRTIMP __cdecl __MINGW_NOTHROW  long tell (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int umask (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int unlink (const char*);
+_CRTIMP __cdecl __MINGW_NOTHROW  int write (int, const void*, unsigned int);
+#endif /* !_UWIN */
+
+#ifdef __USE_MINGW_ACCESS
+/* Old versions of MSVCRT.DLL's access() just ignored X_OK, while the
+ * version shipped with Vista fails; this inline implementation of the
+ * portably named access() function protects against such failure.
+ */
+#define access(__fname,__mode)  __mingw_access (__fname, __mode)
+static __inline__ int __mingw_access (const char* __fname, int __mode)
+  { return  _access (__fname, __mode & ~X_OK); }
+#endif	/* _USE_MINGW_ACCESS */
+
+#if 0
+/* FIXME:
+ * Wide character versions: may also be declared in <wchar.h>.
+ * Where do these live?  Not in libmoldname.a nor in libmsvcrt.a;
+ * do they exist at all?
+ */
+int 		waccess(const wchar_t *, int);
+int 		wchmod(const wchar_t *, int);
+int 		wcreat(const wchar_t *, int);
+long 		wfindfirst(wchar_t *, struct _wfinddata_t *);
+int 		wfindnext(long, struct _wfinddata_t *);
+int 		wunlink(const wchar_t *);
+int 		wrename(const wchar_t *, const wchar_t *);
+int 		wopen(const wchar_t *, int, ...);
+int 		wsopen(const wchar_t *, int, int, ...);
+wchar_t * 	wmktemp(wchar_t *);
+#endif
+
+#endif	/* !_NO_OLDNAMES */
+
+_END_C_DECLS
+
+#endif	/* ! RC_INVOKED */
+#endif	/* !_IO_H: $RCSfile: io.h,v $: end of file */
+ 
+#ifndef RC_INVOKED
+
+_BEGIN_C_DECLS
+
+/* The following declarations are to be visible ONLY when <dos.h>
+ * is included in its own right; they represent entities which are
+ * present in CRTDLL.DLL, but not in MSVCRT.DLL
+ */
+#if defined _DOS_H && ! defined __MSVCRT__
+#ifndef __DECLSPEC_SUPPORTED
+
+# define _basemajor    (*_imp___basemajor_dll)
+# define _baseminor    (*_imp___baseminor_dll)
+# define _baseversion  (*_imp___baseversion_dll)
+# define _osmajor      (*_imp___osmajor_dll)
+# define _osminor      (*_imp___osminor_dll)
+# define _osmode       (*_imp___osmode_dll)
+
+extern unsigned int *_imp___basemajor_dll;
+extern unsigned int *_imp___baseminor_dll;
+extern unsigned int *_imp___baseversion_dll;
+extern unsigned int *_imp___osmajor_dll;
+extern unsigned int *_imp___osminor_dll;
+extern unsigned int *_imp___osmode_dll;
+
+#else /* __DECLSPEC_SUPPORTED */
+
+# define _basemajor    _basemajor_dll
+# define _baseminor    _baseminor_dll
+# define _baseversion  _baseversion_dll
+# define _osmajor      _osmajor_dll
+# define _osminor      _osminor_dll
+# define _osmode       _osmode_dll
+
+__MINGW_IMPORT unsigned int _basemajor_dll;
+__MINGW_IMPORT unsigned int _baseminor_dll;
+__MINGW_IMPORT unsigned int _baseversion_dll;
+__MINGW_IMPORT unsigned int _osmajor_dll;
+__MINGW_IMPORT unsigned int _osminor_dll;
+__MINGW_IMPORT unsigned int _osmode_dll;
+
+#endif	/* __DECLSPEC_SUPPORTED */
+#endif	/* _DOS_H && !__MSVCRT__ */
+
+/* The following section, which declares the _getdiskfree() function
+ * prototype, and also defines its associated _diskfree_t data structure,
+ * is to be processed both when including <dos.h> in its own right, and
+ * when selectively included by <direct.h>; however...
+ */
+#if ! (defined _DOS_H && defined _DIRECT_H)
+ /* ...when both the _DOS_H guard, and the _DIRECT_H multiple inclusion
+  * guards have been defined, by the time we get to here, then this is
+  * <dos.h> inclusion in its own right, and we have ALREADY processed
+  * these definitions through selective inclusion by <direct.h>; we
+  * MUST NOT process them a second time.
+  */
+#ifndef	_NO_OLDNAMES
+# define diskfree_t  _diskfree_t
+#endif
+
+struct _diskfree_t
+{ /* A structure in which to store information about disk
+   * free space, as returned by the _getdiskfree() function.
+   */
+  unsigned total_clusters;
+  unsigned avail_clusters;
+  unsigned sectors_per_cluster;
+  unsigned bytes_per_sector;
+};
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+unsigned _getdiskfree (unsigned, struct _diskfree_t *);
+
+#endif	/* ! ( _DOS_H && _DIRECT_H) */
+
+_END_C_DECLS
+
+#endif	/* ! RC_INVOKED */
+#endif  /* !_DOS_H: $RCSfile: dos.h,v $: end of file */
+ 
+#undef __DIRECT_H_SOURCED__
+#endif	/* !__WCHAR_H_SOURCED__ */
+
+#ifndef RC_INVOKED
+
+_BEGIN_C_DECLS
+
+#ifdef _DIRECT_H
+/* Functions for manipulating disk drive selection; these are declared
+ * only when <direct.h> is included in its own right.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _getdrive (void);
+_CRTIMP __cdecl __MINGW_NOTHROW  unsigned long _getdrives(void);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _chdrive (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_getdcwd (int, char*, int);
+
+#endif	/* _DIRECT_H */
+
+/* The following group of function prototypes are to be declared
+ * either when including <dirent.h> in its own right, or when it
+ * is included selectively by <wchar.h>; however...
+ */
+#if defined __MSVCRT__ && ! (defined _DIRENT_H && defined _WCHAR_H)
+ /*
+  * ...they are available only within MSVCRT.DLL, (i.e. they are
+  * NOT provided by CRTDLL.DLL), and if both _DIRENT_H and _WCHAR_H
+  * are already defined, by the time we get to here, then this must
+  * be an inclusion of <dirent.h> in its own right, AFTER they have
+  * already been declared on behalf of <wchar.h>; there is no need
+  * to declare them again.
+  */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wchdir (const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wgetcwd (wchar_t *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wgetdcwd (int, wchar_t *, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wmkdir (const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wrmdir (const wchar_t *);
+
+#endif	/* __MSVCRT__ && ! (defined _DIRENT_H && defined _WCHAR_H) */
+
+_END_C_DECLS
+
+#endif	/* ! RC_INVOKED */
+#endif  /* !_DIRECT_H: $RCSfile: direct.h,v $: end of file */
+ /* ...we obtain prototypes for each of the following functions,
+ * (none of which are available when using CRTDLL.DLL):
+ *
+ *  int _wchdir (const wchar_t *);
+ *  wchar_t *_wgetcwd (wchar_t *, int);
+ *  wchar_t *_wgetdcwd (int, wchar_t *, int);
+ *  int _wmkdir (const wchar_t *);
+ *  int _wrmdir (const wchar_t *);
+ *
+ *
+ * while from...
+ */
+/*
+ * stat.h
+ *
+ * Symbolic constants for opening and creating files, also stat, fstat and
+ * chmod functions.
+ *
+ * $Id: stat.h,v aae5e4b880b9 2016/07/14 17:59:07 keithmarshall $
+ *
+ * Written by Colin Peters <colin@bird.fu.is.saga-u.ac.jp>
+ * Copyright (C) 1997-2001, 2003-2005, 2007, 2016, MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+#ifndef _SYS_STAT_H
+#pragma GCC system_header
+
+/* To support selective (partial) inclusion by <wchar.h>...
+ */
+#ifndef __WCHAR_H_SOURCED__
+/* ...we defer the definition of the normal multiple inclusion guard macro,
+ * until we know that this is NOT the <wchar.h> selective inclusion case.
+ */
+#define _SYS_STAT_H
+
+/* All MinGW headers are required to include <_mingw.h>; however, Microsoft
+ * also stipulate that USERS MUST include <sys/types.h>, BEFORE they include
+ * <sys/stat.h>.  This is not only appallingly bad software engineering, on
+ * Microsoft's part, but it is a potential obstacle to portability of POSIX
+ * source code; (POSIX requires that <sys/stat.h> should be self-contained,
+ * with no requirement for any specific header inclusion order).  Although
+ * it is more inclusive that POSIX requires, we may mitigate the deficiency
+ * inherent in Microsoft's poor software engineering, by simply including
+ * <sys/types.h> here; in so doing, we may also delegate the inclusion of
+ * <_mingw.h>, and the definition of all data types required herein, to...
+ */
+#define _S_IFIFO 	0x1000	/* FIFO */
+#define _S_IFCHR 	0x2000	/* Character */
+#define _S_IFDIR 	0x4000	/* Directory */
+#define _S_IFREG 	0x8000	/* Regular */
+
+#ifdef _MINGW_S_IFBLK_KLUDGE
+/* For preference, this kludge should NOT be enabled; for rationale,
+ * see: https://sourceforge.net/p/mingw/bugs/1146
+ *
+ * MS-Windows doesn't support testing for block special devices via the
+ * st_mode flags; ideally, client code to be ported to Windows should not
+ * blindly assume that S_IFBLK (or _S_IFBLK) is defined, but should rather
+ * check for it, and compile dependent code conditionally.  Notwithstanding,
+ * this kludge allows the user to force a definition, which we arbitrarily
+ * choose to ensure that S_ISBLK (or _S_ISBLK) always returns FALSE, (i.e.
+ * choose a value such that _S_IFBLK & _S_IFMT can NEVER equal _S_IFBLK).
+ */
+#define _S_IFBLK 	0x3001	/* Block: unsupported on Win32 */
+#endif
+
+#define _S_IFMT  	0xF000	/* File type mask */
+
+#define _S_IEXEC 	0x0040
+#define _S_IWRITE	0x0080
+#define _S_IREAD 	0x0100
+
+#define _S_IRWXU 	(_S_IREAD | _S_IWRITE | _S_IEXEC)
+#define _S_IXUSR 	_S_IEXEC
+#define _S_IWUSR 	_S_IWRITE
+#define _S_IRUSR 	_S_IREAD
+
+#define _S_ISDIR(m)	(((m) & _S_IFMT) == _S_IFDIR)
+#define _S_ISFIFO(m)	(((m) & _S_IFMT) == _S_IFIFO)
+#define _S_ISCHR(m)	(((m) & _S_IFMT) == _S_IFCHR)
+#define _S_ISBLK(m)	(((m) & _S_IFMT) == _S_IFBLK)
+#define _S_ISREG(m)	(((m) & _S_IFMT) == _S_IFREG)
+
+#ifndef _NO_OLDNAMES
+
+#define S_IFIFO 	_S_IFIFO
+#define S_IFCHR 	_S_IFCHR
+#ifdef _S_IFBLK
+#define S_IFBLK 	_S_IFBLK
+#endif
+#define S_IFDIR 	_S_IFDIR
+#define S_IFREG 	_S_IFREG
+#define S_IFMT  	_S_IFMT
+#define S_IEXEC 	_S_IEXEC
+#define S_IWRITE	_S_IWRITE
+#define S_IREAD 	_S_IREAD
+#define S_IRWXU 	_S_IRWXU
+#define S_IXUSR 	_S_IXUSR
+#define S_IWUSR 	_S_IWUSR
+#define S_IRUSR 	_S_IRUSR
+
+#define S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)
+#define S_ISFIFO(m)	(((m) & S_IFMT) == S_IFIFO)
+#define S_ISCHR(m)	(((m) & S_IFMT) == S_IFCHR)
+#define S_ISBLK(m)	(((m) & S_IFMT) == S_IFBLK)
+#define S_ISREG(m)	(((m) & S_IFMT) == S_IFREG)
+
+#endif	/* !_NO_OLDNAMES */
+
+#ifndef _S_IFBLK
+/* When the _S_IFBLK kludge is NOT enabled, (as it ideally should not be),
+ * ensure that any attempt to use its dependent macros is denied...
+ */
+# pragma GCC poison _S_ISBLK
+
+# if defined _NO_UNSUPPORTED || defined _NO_OLDNAMES
+  /* ...including that for the standard POSIX macro, when unsupported
+   * features, or Microsoft's old names, are explicitly forbidden...
+   */
+#  pragma GCC poison S_ISBLK
+
+# else /* !(_NO_UNSUPPORTED || _NO_OLDNAMES) */
+  /* ...otherwise assume that the kludge is automatically enabled with
+   * respect to S_ISBLK, (because GCC gratuitously misuses it).
+   */
+#  define S_IFBLK 	0x3001	/* Block: unsupported on Win32 */
+
+# endif /* !(_NO_UNSUPPORTED || _NO_OLDNAMES) */
+#endif	/* !_S_IFBLK */
+#endif	/* !__WCHAR_H_SOURCED__ */
+
+#ifndef RC_INVOKED
+#ifndef __struct_stat_defined
+/* The structure manipulated and returned by stat() and fstat(); note that
+ * expansion of the macro provided below will yield variants of struct stat
+ * to conform with Microsoft's usage, (and POSIX usage up to and including
+ * POSIX.1-2001, but NOT the extended specification of POSIX.1-2008).
+ *
+ * NOTE: If called on a directory the values in the time fields are not only
+ * invalid, they will cause localtime et. al. to return NULL. And calling
+ * asctime with a NULL pointer causes an Invalid Page Fault. So watch it!
+ */
+#define __struct_stat_defined(__st_off_t, __st_time_t)			     \
+{ _dev_t	st_dev; 	/* Equivalent to drive number 0=A 1=B ... */ \
+  _ino_t	st_ino; 	/* Always zero ? */			     \
+  _mode_t	st_mode;	/* See above constants */		     \
+   short 	st_nlink;	/* Number of links. */			     \
+   short 	st_uid; 	/* User: Maybe significant on NT ? */	     \
+   short 	st_gid; 	/* Group: Ditto */			     \
+  _dev_t	st_rdev;	/* Seems useless (not even filled in) */     \
+  __st_off_t	st_size;	/* File size in bytes */		     \
+  __st_time_t	st_atime;	/* Access time (always 00:00 on FAT) */	     \
+  __st_time_t	st_mtime;	/* Modified time */			     \
+  __st_time_t	st_ctime;	/* Creation time */			     \
+}
+
+/* Here, we expand the preceding macro to yield the actual definition
+ * of struct stat, under its current Microsoft "uglified" name...
+ */
+struct _stat __struct_stat_defined( _off_t, time_t );
+
+#ifndef _NO_OLDNAMES
+/* ...while this alternative expansion yields its standard POSIX name,
+ * (and its original Microsoft name); apart from its name, this must be
+ * defined identically to struct _stat above.
+ */
+struct stat __struct_stat_defined( _off_t, time_t );
+#endif	/* !_NO_OLDNAMES */
+
+#if defined __MSVCRT__
+/* This variant of struct stat is required to support the use of the
+ * _stati64() function, which is provided by MSVCRT.DLL, but was not
+ * present in CRTDLL.DLL...
+ */
+struct _stati64 __struct_stat_defined( __off64_t, time_t );
+
+#if __MSVCRT_VERSION__ >= __MSVCR61_DLL || _WIN32_WINNT >= _WIN32_WINNT_WIN2K
+/* ...while this supports the use of the _stat64() function, introduced
+ * by MSVCR61.DLL, and subsequently added to MSVCRT.DLL for releases from
+ * Win2K onwards...
+ */
+struct __stat64 __struct_stat_defined( __off64_t, __time64_t );
+
+#if __MSVCRT_VERSION__ >= __MSVCR80_DLL
+/* ...and these are specific to additional function variants, added to
+ * the non-free MSVCR80.DLL, and its later derivatives, but not present
+ * in MSVCRT.DLL (or CRTDLL.DLL).
+ */
+struct __stat32 __struct_stat_defined( __off32_t, __time32_t );
+struct _stat32i64 __struct_stat_defined( __off64_t, __time32_t );
+struct _stat64i32 __struct_stat_defined( __off32_t, __time64_t );
+
+#endif	/* __MSVCRT_VERSION__ >= __MSVCR80_DLL */
+#endif	/* __MSVCRT_VERSION__ >= __MSVCR61_DLL */
+#endif	/* __MSVCRT__ */
+
+/* From here on, it is sufficient to leave __struct_stat_defined as
+ * a macro which expands to nothing.
+ */
+#undef  __struct_stat_defined
+#define __struct_stat_defined
+
+#endif /* !__struct_stat_defined */
+
+_BEGIN_C_DECLS
+
+#ifdef _SYS_STAT_H
+/* This set of function prototypes are to be declared only when
+ * <sys/stat.h> is included directly.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _umask (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _chmod (const char *, int);
+
+#if __MSVCRT_VERSION__ < __MSVCR80_DLL
+/* This pair of functions are present in all versions of MSVCRT.DLL, but
+ * they are NOT present in MSVCR80.DLL, nor in any of its later non-free
+ * variants, all of which rely on inline aliases (defined below).
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _fstat (int, struct _stat *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _stat (const char *, struct _stat *);
+#endif	/* __MSVCRT_VERSION__ < __MSVCR80_DLL */
+
+#ifndef	_NO_OLDNAMES
+/* These are the standard POSIX names, (and the original Microsoft names),
+ * for the preceding four functions.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int umask (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int chmod (const char *, int);
+
+#if __MSVCRT_VERSION__ < __MSVCR80_DLL
+/* Since the underlying functions, with "uglified" names, are not supported
+ * by MSVCR80.DLL and its later derivitaves, there is also nothing to which
+ * to map these originally named alternatives; declare prototypes only when
+ * using DLL versions which can support them, while falling back to the use
+ * of inline replacements (defined below) in the unsupported cases.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int fstat (int, struct stat *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int stat (const char *, struct stat *);
+#endif	/* __MSVCRT_VERSION__ < __MSVCR80_DLL */
+#endif	/* !_NO_OLDNAMES */
+
+#if defined __MSVCRT__
+#if __MSVCRT_VERSION__ < __MSVCR80_DLL
+/* This pair of functions were withdrawn from MSVCR80.DLL, and its later
+ * derivatives, but remain in all versions of MSVCRT.DLL
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _fstati64 (int, struct _stati64 *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _stati64 (const char *, struct _stati64 *);
+#endif	/* __MSVCRT_VERSION__ < __MSVCR80_DLL */
+
+#if __MSVCRT_VERSION__ >= __MSVCR61_DLL || _WIN32_WINNT >= _WIN32_WINNT_WIN2K
+/* This pair of functions were introduced in MSVCR61.DLL, and were subsequently
+ * added to MSVCRT.DLL from the release accompanying Win2K onwards...
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _fstat64 (int, struct __stat64 *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _stat64 (const char *, struct __stat64 *);
+
+#if __MSVCRT_VERSION__ >= __MSVCR80_DLL
+/* ...whereas this group were introduced in MSVCR80.DLL, and its later
+ * derivatives, but are not present in MSVCRT.DLL
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _fstat32 (int, struct __stat32 *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _stat32 (const char *, struct __stat32 *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _fstat32i64 (int, struct _stat32i64 *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _fstat64i32 (int, struct _stat64i32 *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _stat32i64 (const char *, struct _stat32i64 *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _stat64i32 (const char *, struct _stat64i32 *);
+
+#ifdef _USE_32BIT_TIME_T
+/* We must provide inline replacements for the four MSVCRT.DLL functions
+ * which have been withdrawn from MSVCR80.DLL, and its later derivatives;
+ * this first set of replacements are compatible with their MSVCRT.DLL
+ * equivalents, but require the user to define _USE_32BIT_TIME_T...
+ */
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  int _fstat (int __v1, struct _stat *__v2)
+  { return _fstat32 (__v1, (struct __stat32 *)(__v2)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  int _stat (const char *__v1, struct _stat *__v2)
+  { return _stat32  (__v1, (struct __stat32 *)(__v2)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  int _fstati64 (int __v1, struct _stati64 *__v2)
+  { return _fstat32i64 (__v1, (struct _stat32i64 *)(__v2)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  int _stati64 (const char *__v1, struct _stati64 *__v2)
+  { return _stat32i64  (__v1, (struct _stat32i64 *)(__v2)); }
+
+#else	/* !_USE_32BIT_TIME_T */
+/* ...whereas, the following alternatives emulate the brain-damaged
+ * behaviour of Microsoft's own implementations, which take effect when
+ * the user does not define _USE_32BIT_TIME_T; they break compatibility
+ * with MSVCRT.DLL
+ */
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  int _fstat (int __v1, struct _stat *__v2)
+  { return _fstat64i32 (__v1, (struct _stat64i32 *)(__v2)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  int _stat (const char *__v1, struct _stat *__v2)
+  { return _stat64i32  (__v1, (struct _stat64i32 *)(__v2)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  int _fstati64 (int __v1, struct _stati64 *__v2)
+  { return _fstat64 (__v1, (struct __stat64 *)(__v2)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  int _stati64 (const char *__v1, struct _stati64 *__v2)
+  { return _stat64  (__v1,(struct __stat64*)(__v2)); }
+#endif	/* !_USE_32BIT_TIME_T */
+
+#ifndef _NO_OLDNAMES
+/* Irrespective of the state of _USE_32BIT_TIME_T, we may provide inline
+ * replacements for the stat() and fstat() functions, (which are missing
+ * from MSVCR80.DLL and its later derivatives), simply by aliasing them
+ * to their corresponding replacements with "uglified" names.
+ */
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  int fstat (int __v1, struct _stat *__v2)
+  { return _fstat (__v1, __v2); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  int stat (const char *__v1, struct _stat *__v2)
+  { return _stat (__v1, __v2); }
+
+#endif	/* !_NO_OLDNAMES */
+#endif	/* __MSVCRT_VERSION__ >= __MSVCR80_DLL */
+#endif	/* __MSVCRT_VERSION__ >= __MSVCR61_DLL */
+#endif	/* __MSVCRT__ */
+#endif	/* _SYS_STAT_H */
+
+#if defined __MSVCRT__ && !(defined _SYS_STAT_H && defined _WCHAR_H)
+/* This final group of function prototypes, specific to MSVCRT.DLL and its
+ * non-free derivatives, are to be declared both when <sys/stat.h> is included
+ * directly, and when it is selectively included by <wchar.h>; however, if both
+ * _SYS_STAT_H and _WCHAR_H are defined, by the time we get to here, then this
+ * must be the direct inclusion case, after having already declared these via
+ * selective inclusion by <wchar.h>, and we should not declare these again;
+ * (in particular, we should not repeat inline function implementations).
+ */
+#if __MSVCRT_VERSION__ < __MSVCR80_DLL
+/* As is the case for their regular counterparts, this pair of functions
+ * remain available in MSVCRT.DLL itself, but they are not exported from its
+ * non-free derivatives from MSVCR80.DLL onwards, whence it is expected that
+ * they will be replaced by inline implementations.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wstat(const wchar_t *, struct _stat *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wstati64 (const wchar_t *, struct _stati64 *);
+#endif	/* __MSVCRT_VERSION__ < __MSVCR80_DLL */
+
+#if __MSVCRT_VERSION__ >= __MSVCR61_DLL || _WIN32_WINNT >= _WIN32_WINNT_WIN2K
+/* Similarly, this variant was introduced in MSVCR80.DLL, and was subsequently
+ * added to MSVCRT.DLL with the release of Win2K...
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wstat64 (const wchar_t *, struct __stat64 *);
+
+#if __MSVCRT_VERSION__ >= __MSVCR80_DLL
+/* ...whereas these variants are exclusive to the non-free MSVCR80.DLL, and
+ * its later derivatives; they are not available in MSVCRT.DLL.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wstat32 (const wchar_t *, struct __stat32 *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wstat32i64 (const wchar_t *, struct _stat32i64 *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wstat64i32 (const wchar_t *, struct _stat64i32 *);
+
+#ifdef _USE_32BIT_TIME_T
+/* Once again, we must furnish inline replacements for the functions which
+ * were withdrawn from MSVCR80.DLL and its later derivatives; these are the
+ * implementations which remain compatible with MSVCRT.DLL, but require the
+ * user to define _USE_32BIT_TIME_T...
+ */
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  int _wstat (const wchar_t *__v1, struct _stat *__v2)
+  { return _wstat32 (__v1, (struct __stat32 *)(__v2)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  int _wstati64 (const wchar_t *__v1, struct _stati64 *__v2)
+  { return _wstat32i64 (__v1, (struct _stat32i64 *)(__v2)); }
+
+#else	/* !_USE_32BIT_TIME_T */
+/* ...whereas these emulate the brain-damaged Microsoft behaviour, for the
+ * case when the user does not define _USE_32BIT_TIME_T, breaking MSVCRT.DLL
+ * compatibility.
+ */
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  int _wstat (const wchar_t *__v1, struct _stat *__v2)
+  { return _wstat64i32 (__v1, (struct _stat64i32 *)(__v2)); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  int _wstati64 (const wchar_t *__v1, struct _stati64 *__v2)
+  { return _wstat64 (__v1, (struct __stat64 *)(__v2)); }
+
+#endif	/* !_USE_32BIT_TIME_T */
+#endif	/* __MSVCRT_VERSION__ >= 0x0800 */
+#endif	/* __MSVCRT_VERSION__ >= 0x0601 */
+#endif	/* __MSVCRT__ && !(_SYS_STAT_H && _WCHAR_H) */
+
+_END_C_DECLS
+
+#endif	/* ! RC_INVOKED */
+#endif	/* !_SYS_STAT__H: $RCSfile: stat.h,v $: end of file */
+ /* ...we obtain function prototypes, and all associated data type
+ * definitions for this pair of actual functions, in all versions of
+ * MSVCRT.DLL, and its non-free derivatives preceding MSVCR80.DLL, (or
+ * inline replacement implementations for MSVCR80.DLL and later):
+ *
+ *  int _wstat (const wchar_t *, struct _stat *);
+ *  int _wstati64 (const wchar_t *, struct _stati64 *);
+ *
+ * ...this additional actual function, available in MSVCRT.DLL from
+ * Win2K onwards, or in non-free MSVCR61.DLL and again requiring an
+ * inline replacement from MSVCR80.DLL onwards:
+ *
+ *  int _wstat64 (const wchar_t *, struct __stat64 *);
+ *
+ * ...and these actual functions, which are available only in non-free
+ * MSVCR80.DLL, and its later derivatives:
+ *
+ *  int _wstat32 (const wchar_t *, struct __stat32 *);
+ *  int _wstat32i64 (const wchar_t *, struct _stat32i64 *);
+ *  int _wstat64i32 (const wchar_t *, struct _stat64i32 *);
+ *
+ *
+ * from...
+ */
+/*
+ * conio.h
+ *
+ * Low level console I/O functions.  Pretty please try to use the ANSI
+ * standard ones if you are writing new code.
+ *
+ * $Id: conio.h,v 7f0aa41f8caf 2018/10/21 15:39:35 keith $
+ *
+ * Written by Colin Peters <colin@bird.fu.is.saga-u.ac.jp>
+ * Copyright (C) 1997, 1999-2001, 2003, 2004, 2007, 2018, MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+#ifndef _CONIO_H
+#pragma GCC system_header
+
+/* When including <wchar.h>, some of the definitions and declarations
+ * which are nominally provided in <conio.h> must be duplicated.  Rather
+ * than require duplicated maintenance effort, we provide for partial
+ * inclusion of <conio.h> by <wchar.h>; only when not included in
+ * this partial fashion...
+ */
+#ifndef __WCHAR_H_SOURCED__
+ /* ...which is exclusive to <wchar.h>, do we assert the multiple
+  * inclusion guard for <conio.h> itself.
+  */
+#define _CONIO_H
+
+/* All MinGW.org headers are expected to include <_mingw.h>; when
+ * selectively included by <wchar.h>, that responsibility has already
+ * been addressed, but for free-standing inclusion we do so now.
+ */
+#endif	/* !__WCHAR_H_SOURCED__ */
+
+#ifndef RC_INVOKED
+/* There is nothing here which is useful to the resource compiler;
+ * for any other form of compilation, and regardless of the scope in
+ * which <conio.h> is included, we need definitions for wchar_t, and
+ * wint_t; get them by selective inclusion of <stddef.h>.
+ */
+#define __need_wint_t
+#define __need_wchar_t
+#ifdef _CONIO_H
+/* The following declarations are to be exposed only on free-standing
+ * inclusion of <conio.h>
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_cgets (char*);
+_CRTIMP __cdecl __MINGW_NOTHROW  int   _cprintf (const char*, ...);
+_CRTIMP __cdecl __MINGW_NOTHROW  int   _cputs (const char*);
+_CRTIMP __cdecl __MINGW_NOTHROW  int   _cscanf (char*, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  int   _getch (void);
+_CRTIMP __cdecl __MINGW_NOTHROW  int   _getche (void);
+_CRTIMP __cdecl __MINGW_NOTHROW  int   _kbhit (void);
+_CRTIMP __cdecl __MINGW_NOTHROW  int   _putch (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int   _ungetch (int);
+
+#if _WIN32_WINNT >= _WIN32_WINNT_WINXP || __MSVCRT_VERSION__ >= __MSVCR70_DLL
+/* Wide character variants of the console I/O functions were first
+ * introduced in non-free MSVCR70.DLL, and subsequently supported by
+ * MSVCRT.DLL from WinXP onwards.  Some are declared in <wchar.t> in
+ * addition to <conio.h>; the following are exclusive to <conio.h>
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  wint_t  _putwch (wchar_t);
+
+#if __MSVCRT_VERSION__ >= __MSVCR80_DLL
+/* Variants which do not perform thread locking require non-free
+ * MSVCR80.DLL, or later; they are not supported by MSVCRT.DLL
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int     _getch_nolock (void);
+_CRTIMP __cdecl __MINGW_NOTHROW  int     _getche_nolock (void);
+_CRTIMP __cdecl __MINGW_NOTHROW  int     _putch_nolock (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  wint_t  _putwch_nolock (wchar_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int     _ungetch_nolock (int);
+
+#endif	/* MSVCR80.DLL or later */
+#endif	/* WinXP, MSVCR70.DLL, or later */
+
+#ifndef _NO_OLDNAMES
+/* Early versions of the Microsoft runtime library provided a subset
+ * of the above functions, named without the ugly initial underscore;
+ * these remain supported, and should be used when coding to support
+ * legacy Windows platforms.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int  getch (void);
+_CRTIMP __cdecl __MINGW_NOTHROW  int  getche (void);
+_CRTIMP __cdecl __MINGW_NOTHROW  int  kbhit (void);
+_CRTIMP __cdecl __MINGW_NOTHROW  int  putch (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  int  ungetch (int);
+
+#endif	/* !_NO_OLDNAMES */
+#endif	/* _CONIO_H */
+
+#if ! (defined _CONIO_H && defined _WCHAR_H)
+/* The following are to be exposed either on free-standing inclusion
+ * of <conio.h>, or on selective inclusion by <wchar.h>, but if both
+ * guards are defined, then this is free-standing inclusion, and we
+ * have already declared these by selective inclusion; there is no
+ * need to declare them a second time.
+ */
+#if _WIN32_WINNT >= _WIN32_WINNT_WINXP || __MSVCRT_VERSION__ >= __MSVCR70_DLL
+/* Wide character variants of the console I/O functions, in this group,
+ * were first introduced in non-free Microsoft runtimes, from MSVCR70.DLL
+ * onwards; they were not supported by MSVCRT.DLL prior to WinXP.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  wint_t  _getwch (void);
+_CRTIMP __cdecl __MINGW_NOTHROW  wint_t  _getwche (void);
+_CRTIMP __cdecl __MINGW_NOTHROW  wint_t  _ungetwch (wint_t);
+
+#if __MSVCRT_VERSION__ >= __MSVCR80_DLL
+/* Variants which do not perform thread locking require non-free
+ * MSVCR80.DLL, or later; they are not supported by MSVCRT.DLL
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  wint_t  _getwch_nolock (void);
+_CRTIMP __cdecl __MINGW_NOTHROW  wint_t  _getwche_nolock (void);
+_CRTIMP __cdecl __MINGW_NOTHROW  wint_t  _ungetwch_nolock (wint_t);
+
+#endif	/* MSVCR80.DLL or later */
+#endif	/* WinXP, MSVCR70.DLL, or later */
+#endif	/* ! (_CONIO_H && _WCHAR_H) */
+
+_END_C_DECLS
+
+#endif	/* ! RC_INVOKED */
+#endif	/* !_CONIO_H: $RCSfile: conio.h,v $: end of file */
+ /* ...we obtain, depending on active MSVCRT.DLL version conformity,
+ * or non-free run-time version selection, an appropriate subset of:
+ *
+ *   wint_t _getwch (void);
+ *   wint_t _getwche (void);
+ *   wint_t _ungetwch (wint_t);
+ *
+ * ...and for non-free run-times from MSVCR80.DLL onwards only:
+ *
+ *   wint_t _getwch_nolock (void);
+ *   wint_t _getwche_nolock (void);
+ *   wint_t _ungetwch_nolock (wint_t);
+ *
+ *
+ * and from...
+ */
+#endif	/* !__STRICT_ANSI__ */
+
+/* From...
+ */
+/*
+ * time.h
+ *
+ * Type definitions and function declarations relating to date and time.
+ *
+ * $Id: time.h,v c10027655651 2018/10/18 08:50:58 keith $
+ *
+ * Written by Colin Peters <colin@bird.fu.is.saga-u.ac.jp>
+ * Copyright (C) 1997-2007, 2011, 2015-2018, MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+#if ! defined _TIME_H || defined __need_time_t
+#pragma GCC system_header
+
+/* Irrespective of whether this is normal or selective inclusion of
+ * <time.h>, we ALWAYS require the definition for time_t; get it by
+ * selective inclusion from its primary source, in <sys/types.h>;
+ * note that we must ALWAYS delegate this, when __need_time_t is
+ * defined, even when _TIME_H had been defined previously, to ensure
+ * that __need_time_t is properly reset, and thus cannot compromise
+ * a later inclusion of <sys/types.h>
+ */
+#undef __need_time_h
+#define __need_time_t  1
+#ifndef _TIME_H
+/* To support selective partial inclusion, we do not immediately define
+ * the normal _TIME_H guard macro; initially, we also clear all of those
+ * declaraction subset selection macros which are applicable herein.
+ */
+#undef __need_struct_timespec
+#undef __need_wchar_decls
+
+#if defined __SCHED_H_SOURCED__
+/* This is selective inclusion by <sched.h>; although not a standard
+ * MinGW.org header, we provide this hook to grant access from third
+ * party implementations, (e.g. pthreads-win32), to get a definition
+ * for struct timespec, which POSIX requires it to provide.
+ *
+ * Note that, in common with all selective inclusion strategies, we
+ * do not define the _TIME_H guard macro in this case, and we select
+ * only the minimally required subset of declarations to be exposed
+ * from within <time.h>, as required by <sched.h>
+ */
+# define __need_struct_timespec  1
+
+#elif defined __WCHAR_H_SOURCED__
+/* This is selective inclusion by <wchar.h>; thus, we do not define the
+ * _TIME_H guard macro, and we select only the minimally required subset
+ * of declarations to be exposed from within <time.h>
+ */
+# define __need_wchar_decls  1
+
+/* Both ISO-C and POSIX stipulate that <wchar.h> shall declare "struct tm"
+ * as an incomplete structure, with its complete declaration to be provided
+ * by <time.h>; provide an incomplete forward declaration, to satisfy this
+ * minimal requirement for selective inclusion by <wchar.h>
+ */
+struct tm;
+
+#else
+#define _TIME_H
+/* This is normal inclusion of <time.h>, in its own right.  All our system
+ * headers are required to include <_mingw.h>, but in the case of selective
+ * inclusion, we delegate that responsibility to the including header; when
+ * including <time.h> directly, we must fulfil this requirement now.
+ */
+#define CLOCKS_PER_SEC	((clock_t)(1000))
+#define CLK_TCK 	CLOCKS_PER_SEC
+
+#define __need_struct_timespec  1
+#define __need_wchar_decls  1
+#endif
+
+#ifndef RC_INVOKED
+#if defined __need_struct_timespec && ! __struct_timespec_defined
+/* Structure timespec is mandated by POSIX, for specification of
+ * intervals with the greatest precision supported by the OS kernel.
+ * Although this allows for specification to nanosecond precision, do
+ * not be deluded into any false expectation that such short intervals
+ * can be realized on Windows; on Win9x derivatives, the metronome used
+ * by the process scheduler has a period of ~55 milliseconds, while for
+ * WinNT derivatives, the corresponding period is ~15 milliseconds; thus,
+ * the shortest intervals which can be realistically timed will range
+ * from 0..55 milliseconds on Win9x hosts, and from 0..15 ms on WinNT,
+ * with period values normally distributed around means of ~27.5 ms
+ * and ~7.5 ms, for the two system types respectively.
+ */
+struct timespec
+{ /* Period is sum of tv_sec + tv_nsec; while 32-bits is sufficient
+   * to accommodate tv_nsec, we use 64-bit __time64_t for tv_sec, to
+   * ensure that we have a sufficiently large field to accommodate
+   * Microsoft's ambiguous __time32_t vs. __time64_t representation
+   * of time_t; we may resolve this ambiguity locally, by casting a
+   * pointer to a struct timespec to point to an identically sized
+   * struct __mingw32_timespec, which is defined below.
+   */
+  __time64_t	  tv_sec;	/* seconds; accept 32 or 64 bits */
+  __int32  	  tv_nsec;	/* nanoseconds */
+};
+
+# ifdef _MINGW32_SOURCE_EXTENDED
+struct __mingw32_expanded_timespec
+{
+  /* Equivalent of struct timespec, with disambiguation for the
+   * 32-bit vs. 64-bit tv_sec field declaration.  Period is the
+   * sum of tv_sec + tv_nsec; we use explicitly sized types to
+   * avoid 32-bit vs. 64-bit time_t ambiguity...
+   */
+  union
+  { /* ...within this anonymous union, allowing tv_sec to accommodate
+     * seconds expressed in either of Microsoft's (ambiguously sized)
+     * time_t representations.
+     */
+    __time64_t	__tv64_sec;	/* unambiguously 64 bits */
+    __time32_t	__tv32_sec;	/* unambiguously 32 bits */
+    time_t	  tv_sec;	/* ambiguously 32 or 64 bits */
+  };
+  __int32  	  tv_nsec;	/* nanoseconds */
+};
+# endif /* _MINGW32_SOURCE_EXTENDED */
+
+# define __struct_timespec_defined  1
+#endif
+
+#ifdef _TIME_H
+#ifdef _MINGW32_SOURCE_EXTENDED
+
+_BEGIN_C_DECLS
+
+__CRT_ALIAS __LIBIMPL__(( FUNCTION = mingw_timespec ))
+/* This non-ANSI convenience function facilitates access to entities
+ * defined as struct timespec, while exposing the broken down form of
+ * the tv_sec field, as declared within struct __mingw32_timespec.  It
+ * is exposed only when _MINGW32_SOURCE_EXTENDED is defined, which is
+ * normally implicitly the case, except when in __STRICT_ANSI__ mode
+ * unless the user defines it explicitly.
+ */
+struct __mingw32_expanded_timespec *mingw_timespec( struct timespec *__tv )
+{ return (struct __mingw32_expanded_timespec *)(__tv); }
+
+_END_C_DECLS
+
+#endif	/* _MINGW32_SOURCE_EXTENDED */
+
+/* <time.h> is also required to duplicate the following type definitions,
+ * which are nominally defined in <stddef.h>
+ */
+#define __need_NULL
+#define __need_wchar_t
+#define __need_size_t
+#if __MSVCRT_VERSION__ < __MSVCR80_DLL
+ /* Although specified as ISO-C functions, Microsoft withdrew direct
+  * support for these, with their ISO-C names, from MSVCR80.DLL onwards,
+  * preferring to map them via header file macros, to alternatively named
+  * DLL functions with ambiguous time_t representations; they remain in
+  * MSVCRT.DLL, however, with their original ISO-C names, and time_t
+  * unambiguously represented as a 32-bit data type.
+  */
+_CRTIMP __cdecl __MINGW_NOTHROW  time_t time (time_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  double difftime (time_t, time_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  time_t mktime (struct tm *);
+#endif
+
+/* These functions write to and return pointers to static buffers that may
+ * be overwritten by other function calls. Yikes!
+ *
+ * NOTE: localtime, and perhaps the others of the four functions grouped
+ * below may return NULL if their argument is not 'acceptable'. Also note
+ * that calling asctime with a NULL pointer will produce an Invalid Page
+ * Fault and crap out your program. Guess how I know. Hint: stat called on
+ * a directory gives 'invalid' times in st_atime etc...
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  char *asctime (const struct tm *);
+
+#if __MSVCRT_VERSION__ < __MSVCR80_DLL
+ /* Once again, these have been withdrawn from MSVCR80.DLL, (and later),
+  * but remain in MSVCRT.DLL, with unambiguously 32-bit time_t.
+  */
+_CRTIMP __cdecl __MINGW_NOTHROW  char *ctime (const time_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  struct tm *gmtime (const time_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  struct tm *localtime (const time_t *);
+#endif
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+size_t strftime (char *, size_t, const char *, const struct tm *);
+
+#ifndef __STRICT_ANSI__
+extern _CRTIMP __cdecl __MINGW_NOTHROW  void _tzset (void);
+
+#ifndef _NO_OLDNAMES
+extern _CRTIMP __cdecl __MINGW_NOTHROW  void tzset (void);
+#endif
+
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_strdate (char *);
+_CRTIMP __cdecl __MINGW_NOTHROW  char *_strtime (char *);
+
+#if __MSVCRT_VERSION__ >= __MSVCR61_DLL || _WIN32_WINNT >= _WIN32_WINNT_WIN2K
+/* These 64-bit time_t variant functions first became available in
+ * MSVCR61.DLL, and its descendants; they were subsequently included
+ * in MSVCRT.DLL, from its Win2K release onwards.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  __time64_t _time64( __time64_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  __time64_t _mktime64 (struct tm *);
+_CRTIMP __cdecl __MINGW_NOTHROW    char *_ctime64 (const __time64_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW    struct tm *_gmtime64 (const __time64_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW    struct tm *_localtime64 (const __time64_t *);
+
+#endif	/* __MSVCR61_DLL, _WIN32_WINNT_WIN2K, and descendants. */
+
+#if __MSVCRT_VERSION__ >= __MSVCR80_DLL || _WIN32_WINNT >= _WIN32_WINNT_VISTA
+ /* The following were introduced in MSVCR80.DLL, and they subsequently
+  * appeared in MSVCRT.DLL, from Windows-Vista onwards.
+  */
+_CRTIMP __cdecl __MINGW_NOTHROW    char *_ctime32 (const __time32_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW    double _difftime32 (__time32_t, __time32_t);
+_CRTIMP __cdecl __MINGW_NOTHROW    double _difftime64 (__time64_t, __time64_t);
+_CRTIMP __cdecl __MINGW_NOTHROW    struct tm *_gmtime32 (const __time32_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW    struct tm *_localtime32 (const __time32_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  __time32_t _mktime32 (struct tm *);
+_CRTIMP __cdecl __MINGW_NOTHROW  __time32_t _mkgmtime32 (struct tm *);
+_CRTIMP __cdecl __MINGW_NOTHROW  __time64_t _mkgmtime64 (struct tm *);
+_CRTIMP __cdecl __MINGW_NOTHROW  __time32_t _time32 (__time32_t *);
+
+# if __MSVCRT_VERSION__ >= __MSVCR80_DLL && defined _USE_32BIT_TIME_T
+  /* Users of MSVCR80.DLL and later, (but not users of MSVCRT.DLL, even
+   * for _WIN32_WINNT_VISTA and later), must contend with the omission of
+   * the following functions from their DLL of choice, thus requiring these
+   * brain damaged mappings, in terms of an ambiguously defined 'time_t';
+   * thus, when 'time_t' is declared to be equivalent to '__time32_t':
+   */
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  time_t time (time_t *__v)
+ { return _time32 (__v); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  double difftime (time_t __v1, time_t __v2)
+ { return _difftime32 (__v1, __v2); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  time_t mktime (struct tm *__v)
+ { return _mktime32 (__v); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  time_t _mkgmtime (struct tm *__v)
+ { return _mkgmtime32 (__v); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  char *ctime (const time_t *__v)
+ { return _ctime32 (__v); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  struct tm *gmtime (const time_t *__v)
+ { return _gmtime32 (__v); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  struct tm *localtime (const time_t *__v)
+ { return _localtime32 (__v); }
+
+# elif __MSVCRT_VERSION__ >= __MSVCR80_DLL
+  /* Correspondingly, for users of MSVCR80.DLL and later only, when there
+   * is no explicit declaration to direct the specification of 'time_t', and
+   * thus 'time_t' is assumed to be equivalent to '__time64_t':
+   */
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  time_t time (time_t *__v)
+ { return _time64 (__v); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  double difftime (time_t __v1, time_t __v2)
+ { return _difftime64 (__v1, __v2); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  time_t mktime (struct tm *__v)
+ { return _mktime64 (__v); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  time_t _mkgmtime (struct tm *__v)
+ { return _mkgmtime64 (__v); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  char *ctime (const time_t *__v)
+ { return _ctime64 (__v); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  struct tm *gmtime (const time_t *__v)
+ { return _gmtime64 (__v); }
+
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  struct tm *localtime (const time_t *__v)
+ { return _localtime64 (__v); }
+
+# endif /* _USE_32BIT_TIME_T brain damage */
+#endif	/* >=__MSVCR80.DLL || >=_WIN32_WINNT_VISTA */
+
+/* _daylight: non zero if daylight savings time is used.
+ * _timezone: difference in seconds between GMT and local time.
+ * _tzname: standard/daylight savings time zone names (an array with two
+ *          elements).
+ */
+#ifdef __MSVCRT__
+/* These are for compatibility with pre-VC 5.0 supplied MSVCRT.DLL
+ */
+extern _CRTIMP __cdecl __MINGW_NOTHROW  int   *__p__daylight (void);
+extern _CRTIMP __cdecl __MINGW_NOTHROW  long  *__p__timezone (void);
+extern _CRTIMP __cdecl __MINGW_NOTHROW  char **__p__tzname (void);
+
+__MINGW_IMPORT int   _daylight;
+__MINGW_IMPORT long  _timezone;
+__MINGW_IMPORT char *_tzname[2];
+
+#else /* !__MSVCRT__ (i.e. using CRTDLL.DLL) */
+#ifndef __DECLSPEC_SUPPORTED
+
+extern int   *_imp___daylight_dll;
+extern long  *_imp___timezone_dll;
+extern char **_imp___tzname;
+
+#define _daylight  (*_imp___daylight_dll)
+#define _timezone  (*_imp___timezone_dll)
+#define _tzname	   (*_imp___tzname)
+
+#else /* __DECLSPEC_SUPPORTED */
+
+__MINGW_IMPORT int   _daylight_dll;
+__MINGW_IMPORT long  _timezone_dll;
+__MINGW_IMPORT char *_tzname[2];
+
+#define _daylight  _daylight_dll
+#define _timezone  _timezone_dll
+
+#endif /* __DECLSPEC_SUPPORTED */
+#endif /* ! __MSVCRT__ */
+#endif /* ! __STRICT_ANSI__ */
+
+#ifndef _NO_OLDNAMES
+#ifdef __MSVCRT__
+
+/* These go in the oldnames import library for MSVCRT.
+ */
+__MINGW_IMPORT int   daylight;
+__MINGW_IMPORT long  timezone;
+__MINGW_IMPORT char *tzname[2];
+
+#else /* ! __MSVCRT__ */
+/* CRTDLL is royally messed up when it comes to these macros.
+ * TODO: import and alias these via oldnames import library instead
+ * of macros.
+ */
+#define daylight  _daylight
+
+/* NOTE: timezone not defined as a macro because it would conflict with
+ * struct timezone in sys/time.h.  Also, tzname used to a be macro, but
+ * now it's in moldname.
+ */
+__MINGW_IMPORT char 	*tzname[2];
+
+#endif	/* ! __MSVCRT__ */
+#endif	/* ! _NO_OLDNAMES */
+
+#if _POSIX_C_SOURCE
+/* The nanosleep() function provides the most general purpose API for
+ * process/thread suspension; it provides for specification of periods
+ * ranging from ~7.5 ms mean, (on WinNT derivatives; ~27.5 ms on Win9x),
+ * extending up to ~136 years, (effectively eternity).
+ */
+__cdecl __MINGW_NOTHROW
+int nanosleep( const struct timespec *, struct timespec * );
+
+#ifndef __NO_INLINE__
+/* We may conveniently provide an in-line implementation here,
+ * in terms of the __mingw_sleep() helper function.
+ */
+__cdecl __MINGW_NOTHROW
+int __mingw_sleep( unsigned long, unsigned long );
+
+__CRT_INLINE __LIBIMPL__(( FUNCTION = nanosleep ))
+int nanosleep( const struct timespec *period, struct timespec *residual )
+{
+  if( residual != (void *)(0) )
+    residual->tv_sec = (__time64_t)(residual->tv_nsec = 0);
+  return __mingw_sleep((unsigned)(period->tv_sec), (period->tv_sec < 0LL)
+    ? (unsigned)(-1) : (unsigned)(period->tv_nsec));
+}
+#endif	/* !__NO_INLINE__ */
+
+#if _POSIX_C_SOURCE >= 199309L
+/* POSIX.1b-1993 introduced the optional POSIX clocks API; it
+ * was subsequently moved to "base", as of POSIX.1-2008, to the
+ * extent required to support the CLOCK_REALTIME feature, with
+ * the remainder of its features remaining optional.  We choose
+ * to provide a subset, supporting CLOCK_MONOTONIC in addition
+ * to the aforementioned CLOCK_REALTIME feature.
+ *
+ * We define the POSIX clockid_t type as a pointer to an opaque
+ * structure; user code should never need to know details of the
+ * internal layout of this structure.
+ */
+typedef struct __clockid__ *clockid_t;
+
+/* POSIX prefers to have the standard clockid_t entities defined
+ * as macros, each of which represents an entity of type clockid_t.
+ * Since this is not an integer data type, POSIX does not strictly
+ * require such macros to expand to constant expressions; however,
+ * some ill-behaved applications, (GCC's Ada implementation is one
+ * such), depend on such expansions.  Thus, although it will incur
+ * a small additional run-time overhead to interpret them, we map
+ * such entities in terms of pseudo-pointer references, (which we
+ * discriminate from real pointer references, which we assume to
+ * be always to even valued addresses, by forcing odd values for
+ * the pseudo-pointer references).
+ */
+#define __MINGW_POSIX_CLOCKAPI(ID)  ((clockid_t)(1 + ((ID) << 1)))
+
+/* The standard clockid_t entities which we choose to support.
+ */
+#define CLOCK_REALTIME  __MINGW_POSIX_CLOCKAPI (0)
+#define CLOCK_MONOTONIC __MINGW_POSIX_CLOCKAPI (1)
+
+/* Prototypes for the standard POSIX functions which provide the
+ * API to these standard clockid_t entities.
+ */
+int clock_getres (clockid_t, struct timespec *);
+int clock_gettime (clockid_t, struct timespec *);
+int clock_settime (clockid_t, const struct timespec *);
+
+#endif	/* _POSIX_C_SOURCE >= 199309L */
+#endif	/* _POSIX_C_SOURCE */
+
+_END_C_DECLS
+
+#endif	/* _TIME_H included in its own right */
+
+#if __need_wchar_decls && ! (defined _TIME_H && defined _WCHAR_H)
+/* Wide character time function prototypes.  These are nominally declared
+ * both here, in <time.h>, and also in <wchar.h>; we declare them here, and
+ * make them available for selective inclusion by <wchar.h>, but such that
+ * the declarations, and in particular any in-line implementation of the
+ * _wctime() function, are visible only on the first time parse, when
+ * one of either _TIME_H, or _WCHAR_H, but not both, is defined.
+ */
+_BEGIN_C_DECLS
+
+#if defined __MSVCRT__ && ! defined __STRICT_ANSI__
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wasctime (const struct tm *);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wstrdate (wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wstrtime (wchar_t *);
+
+#if __MSVCRT_VERSION__ >= __MSVCR61_DLL || _WIN32_WINNT >= _WIN32_WINNT_WIN2K
+/* A __time64_t specific variant of _wctime(), identified as _wctime64(),
+ * first appeared in the non-free MSVC specific MSVCR61.DLL, and was added
+ * to the freely available platform MSVCRT.DLL from Win2K onwards...
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wctime64 (const __time64_t *);
+#endif
+#if __MSVCRT_VERSION__ >= __MSVCR80_DLL || _WIN32_WINNT >= _WIN32_WINNT_VISTA
+/* ...whereas its __time32_t specific counterpart, _wctime32(), did not
+ * make an appearance until MSVCR80.DLL, and was not added to MSVCRT.DLL
+ * until the release of Vista.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wctime32 (const __time32_t *);
+#endif
+#if __MSVCRT_VERSION__ < __MSVCR80_DLL
+/* Present in all versions of MSVCRT.DLL, but withdrawn from non-free
+ * MSVC specific releases from MSVCR80.DLL onwards; in all versions of
+ * MSVCRT.DLL, _wctime() accepts a 32-bit time_t argument pointer.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wctime (const time_t *);
+
+#else /* __MSVCRT_VERSION__ >= __MSVCR80_DLL */
+/* For users of the non-free MSVC libraries, we must deal with both the
+ * absence of _wctime(), and with Microsoft's attendant _USE_32BIT_TIME_T
+ * brain damage, as we map an inline replacement...
+ */
+__CRT_ALIAS __cdecl __MINGW_NOTHROW  wchar_t *_wctime (const time_t *__v)
+{
+  /* ...in terms of an appropriately selected time_t size specific
+   * alternative function, which should be available...
+   */
+# ifdef _USE_32BIT_TIME_T
+  /* ...i.e. the __time32_t specific _wctime32(), when the user has
+   * enabled this choice; (the only sane choice, if compatibility with
+   * MSVCRT.DLL is desired)...
+   */
+  return _wctime32 (__v);
+
+# else	/* !_USE_32BIT_TIME_T */
+  /* ...or otherwise, the __time64_t specific _wctime64(), (in which
+   * case, compatibility with MSVCRT.DLL must be sacrificed).
+   */
+  return _wctime64 (__v);
+# endif	/* !_USE_32BIT_TIME_T */
+}
+#endif	/* __MSVCRT_VERSION__ >= __MSVCR80_DLL */
+#endif	/* __MSVCRT__ && !__STRICT_ANSI__ */
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+size_t wcsftime (wchar_t *, size_t, const wchar_t *, const struct tm *);
+
+_END_C_DECLS
+
+#endif	/* ! (defined _TIME_H && defined _WCHAR_H) */
+
+/* We're done with all <time.h> specific content selectors; clear them.
+ */
+#undef __need_time_t
+#undef __need_struct_timespec
+#undef __need_wchar_decls
+
+#endif /* ! RC_INVOKED */
+#endif /* !_TIME_H after __need_time_t processing */
+#endif /* !_TIME_H: $RCSfile: time.h,v $: end of file */
+ /* ...we always obtain an opaque forward declaration of:
+ *
+ *  struct tm
+ *
+ * ...and prototype declarations for the following ISO-C99 function,
+ * (which is always provided):
+ *
+ *  size_t wcsftime (wchar_t *, size_t, const wchar_t *, const struct tm *);
+ *
+ * ...together with the following non-ISO-C functions, (which are
+ * NOT exposed when "__STRICT_ANSI__" checking is enabled):
+ *
+ *  wchar_t *_wctime (const time_t *);
+ *  wchar_t *_wasctime (const struct tm *);
+ *  wchar_t *_wstrdate (wchar_t *);
+ *  wchar_t *_wstrtime (wchar_t *);
+ *
+ * Of the preceding group, we also note that, while it remains in
+ * all versions of MSVCRT.DLL, (using a strictly 32-bit data type
+ * to represent its "time_t" argument), the _wctime() function is
+ * NOT present in MSVCR80.DLL, and later versions of the non-free
+ * MSVC runtime libraries, in which it is replaced by either of:
+ *
+ *  wchar_t *_wctime64 (const __time64_t *);
+ *  wchar_t *_wctime32 (const __time32_t *);
+ *
+ * ...with the actual replacement being chosen at compile time, on
+ * the basis of the user specified "_USE_32BIT_TIME_T" feature test
+ * macro, (a Microsoft specific, brain damaged concept), which maps
+ * _wctime() itself, as an in-line alias for its corresponding
+ * replacement library function.
+ *
+ */
+#ifndef __STRICT_ANSI__
+/* Once again, when NOT compiling with "__STRICT_ANSI__" conformity
+ * checking, from...
+ */
+/*
+ * process.h
+ *
+ * Declarations of functions for spawning child processes.
+ *
+ * $Id: process.h,v 4673484ef852 2020/01/17 16:58:38 keith $
+ *
+ * Written by Colin Peters <colin@bird.fu.is.saga-u.ac.jp>
+ * Copyright (C) 1997-2001, 2003-2004, 2007-2008, 2016, MinGW.org Project.
+ *
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, this permission notice, and the following
+ * disclaimer shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+#ifndef _PROCESS_H
+#pragma GCC system_header
+
+/* Defer defining the normal _PROCESS_H multiple inclusion guard macro,
+ * to facilitate selective inclusion by <wchar.h>, (in which case we do
+ * not wish to define it).
+ */
+#ifndef __WCHAR_H_SOURCED__
+#define _PROCESS_H
+
+/* All MinGW headers must include <_mingw.h>; do so here, assuming
+ * that <wchar.h> will have already taken care of it, for the case
+ * of selective inclusion.
+ */
+#define _WAIT_CHILD		0
+#define _WAIT_GRANDCHILD	1
+
+#ifndef _NO_OLDNAMES
+#define WAIT_CHILD		_WAIT_CHILD
+#define WAIT_GRANDCHILD 	_WAIT_GRANDCHILD
+#endif	/* !_NO_OLDNAMES */
+#endif	/* !__WCHAR_H_SOURCED__ */
+
+/* Mode constants for spawn() functions.
+ */
+#define _P_WAIT 		0
+#define _P_NOWAIT		1
+#define _P_OVERLAY		2
+#define _OLD_P_OVERLAY		_P_OVERLAY
+#define _P_NOWAITO		3
+#define _P_DETACH		4
+
+#ifndef _NO_OLDNAMES
+#define P_WAIT			_P_WAIT
+#define P_NOWAIT		_P_NOWAIT
+#define P_OVERLAY		_P_OVERLAY
+#define OLD_P_OVERLAY		_OLD_P_OVERLAY
+#define P_NOWAITO		_P_NOWAITO
+#define P_DETACH		_P_DETACH
+#endif	/* !_NO_OLDNAMES */
+
+#ifndef RC_INVOKED
+
+/* All Microsoft implementations of the exec() and spawn() functions
+ * are declared with intptr_t as their return type; get its definition
+ * by selective inclusion from "stdint.h"; (note: use #include "..."
+ * here, to avoid side effects from any alternative <stdint.h>, which
+ * is not in the same directory as this <process.h>).
+ */
+#define __need_intptr_t
+#ifdef _PROCESS_H
+_CRTIMP __cdecl __MINGW_NOTHROW  void _cexit (void);
+_CRTIMP __cdecl __MINGW_NOTHROW  void _c_exit (void);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  int _cwait (int *, _pid_t, int);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  _pid_t _getpid (void);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _execl (const char *, const char *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _execle (const char *, const char *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _execlp (const char *, const char *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _execlpe (const char *, const char *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _execv (const char *, const char * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _execve (const char *, const char * const *, const char * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _execvp (const char *, const char * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _execvpe (const char *, const char * const *, const char * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _spawnl (int, const char *, const char *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _spawnle (int, const char *, const char *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _spawnlp (int, const char *, const char *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _spawnlpe (int, const char *, const char *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _spawnv (int, const char *, const char * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _spawnve (int, const char *, const char * const *, const char * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _spawnvp (int, const char *, const char * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _spawnvpe (int, const char *, const char * const *, const char * const *);
+
+/* Thread initiation and termination functions.
+ *
+ * NOTE: Apparently _endthread() calls CloseHandle() on the handle of the
+ * thread, creating a potential for race conditions, if you are not careful.
+ * Basically, you MUST ensure that NOTHING attempts to do ANYTHING with the
+ * thread handle after the thread calls _endthread(), or returns from the
+ * thread function.
+ *
+ * NOTE: No old names for these functions.  Use the underscore.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW
+unsigned long _beginthread (void (*)(void *), unsigned, void *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  void _endthread (void);
+
+#ifdef __MSVCRT__
+_CRTIMP __cdecl __MINGW_NOTHROW  unsigned long _beginthreadex
+(void *, unsigned, unsigned (__stdcall *) (void *), void *, unsigned, unsigned *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  void _endthreadex (unsigned);
+#endif
+
+#ifndef _NO_OLDNAMES
+/* Functions named without the leading underscore, for portability.
+ * These functions live in liboldnames.a.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int cwait (int *, pid_t, int);
+_CRTIMP __cdecl __MINGW_NOTHROW  pid_t getpid (void);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t execl (const char *, const char *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t execle (const char *, const char *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t execlp (const char *, const char *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t execlpe (const char *, const char *,...);
+
+#if __IN_MINGWRT_TESTSUITE__ && __GNUC__ >= 7
+/* From GCC-7 onwards, with "-Wsystem-headers" enabled, the compiler may
+ * emit unwanted "-Wbuiltin-declaration-mismatch" diagnostics related to
+ * the following "execv" function declarations; these will precipitate
+ * testsuite failures, so suppress them.
+ */
+# if __GNUC__ >= 9 || defined __cplusplus
+  /* Prior to GCC-9, this limitation was apparent in the C++ compiler
+   * only; it became apparent in the C compiler, from GCC-9.
+   */
+#  pragma GCC diagnostic ignored "-Wbuiltin-declaration-mismatch"
+# endif
+#endif
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t execv (const char *, const char * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t execve (const char *, const char * const *, const char * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t execvp (const char *, const char * const *);
+
+#if defined __cplusplus && __IN_MINGWRT_TESTSUITE__ && __GNUC__ >= 7
+/* Re-enable previously suppressed "-Wbuiltin-declaration-mismatch" warnings.
+ */
+# pragma GCC diagnostic warning "-Wbuiltin-declaration-mismatch"
+#endif
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t execvpe (const char *, const char * const *, const char * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t spawnl (int, const char *, const char *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t spawnle (int, const char *, const char *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t spawnlp (int, const char *, const char *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t spawnlpe (int, const char *, const char *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t spawnv (int, const char *, const char * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t spawnve (int, const char *, const char * const *, const char * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t spawnvp (int, const char *, const char * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t spawnvpe (int, const char *, const char * const *, const char * const *);
+
+#endif	/* !_NO_OLDNAMES */
+#endif	/* _PROCESS_H */
+
+#if ! (defined _PROCESS_H && defined _WCHAR_H)
+/* Wide character variations of the exec() and spawn() functions are
+ * declared both when <process.h> is included directly, and when it is
+ * selectively included by <wchar.h>; however, if both _PROCESS_H and
+ * _WCHAR_H are defined, by the time we get to here, then this must be
+ * the direct inclusion case, and these have already been declared as
+ * a result of selective inclusion; there is no need to declare them
+ * a second time.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wexecl (const wchar_t *, const wchar_t *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wexecle (const wchar_t *, const wchar_t *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wexeclp (const wchar_t *, const wchar_t *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wexeclpe (const wchar_t *, const wchar_t *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wexecv (const wchar_t *, const wchar_t * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  intptr_t _wexecve
+(const wchar_t *, const wchar_t * const *, const wchar_t * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wexecvp (const wchar_t *, const wchar_t * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  intptr_t _wexecvpe
+(const wchar_t *, const wchar_t * const *, const wchar_t * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wspawnl (int, const wchar_t *, const wchar_t *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wspawnle (int, const wchar_t *, const wchar_t *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wspawnlp (int, const wchar_t *, const wchar_t *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wspawnlpe (int, const wchar_t *, const wchar_t *, ...);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wspawnv (int, const wchar_t *, const wchar_t * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW  intptr_t _wspawnve
+(int, const wchar_t *, const wchar_t * const *, const wchar_t * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW
+intptr_t _wspawnvp (int, const wchar_t *, const wchar_t * const *);
+
+_CRTIMP __cdecl __MINGW_NOTHROW intptr_t _wspawnvpe
+(int, const wchar_t *, const wchar_t * const *, const wchar_t * const *);
+
+#endif	/* ! (_PROCESS_H && _WCHAR_H) */
+
+_END_C_DECLS
+
+#endif	/* ! RC_INVOKED */
+#endif	/* !_PROCESS_H: $RCSfile: process.h,v $: end of file */
+ /* ...we obtain function prototypes for:
+ *
+ *  intptr_t _wexecl (const wchar_t *, const wchar_t *, ...);
+ *  intptr_t _wexecle (const wchar_t *, const wchar_t *, ...);
+ *  intptr_t _wexeclp (const wchar_t *, const wchar_t *, ...);
+ *  intptr_t _wexeclpe (const wchar_t *, const wchar_t *, ...);
+ *
+ *  intptr_t _wexecv (const wchar_t *, const wchar_t * const *);
+ *  intptr_t _wexecve (
+ *    const wchar_t *, const wchar_t * const *, const wchar_t * const *
+ *   );
+ *  intptr_t _wexecvp (const wchar_t *, const wchar_t * const *);
+ *  intptr_t _wexecvpe (
+ *    const wchar_t *, const wchar_t * const *, const wchar_t * const *
+ *   );
+ *
+ *  intptr_t _wspawnl (int, const wchar_t *, const wchar_t *, ...);
+ *  intptr_t _wspawnle (int, const wchar_t *, const wchar_t *, ...);
+ *  intptr_t _wspawnlp (int, const wchar_t *, const wchar_t *, ...);
+ *  intptr_t _wspawnlpe (int, const wchar_t *, const wchar_t *, ...);
+ *
+ *  intptr_t _wspawnv (int, const wchar_t *, const wchar_t * const *);
+ *  intptr_t _wspawnve (
+ *    int, const wchar_t *, const wchar_t * const *, const wchar_t * const *
+ *   );
+ *  intptr_t _wspawnvp (int, const wchar_t *, const wchar_t * const *);
+ *  intptr_t _wspawnvpe (
+ *    int, const wchar_t *, const wchar_t * const *, const wchar_t * const *
+ *   );
+ *
+ */
+#endif	/* !__STRICT_ANSI__ */
+
+_BEGIN_C_DECLS
+
+/* Wide character string functions must be specified here, as required
+ * by the ISO-C Standard; however, MSVC contravenes this standard by also
+ * requiring them to appear in <string.h>.  We declare them here, where
+ * they rightfully belong, but we also arrange for them to be available
+ * for selective inclusion by <string.h>; to facilitate this, we must
+ * change the declarative condition...
+ */
+#endif	/* ! RC_INVOKED */
+#endif	/* !__STRING_H_SOURCED__ */
+#if ! defined RC_INVOKED
+#if !(defined _WCHAR_H && (defined _STRING_H && ! defined __STRICT_ANSI__))
+/* ...such that these declarations are exposed when either _WCHAR_H is defined,
+ * or when _STRING_H is defined and __STRICT_ANSI__ is not, but NOT when BOTH of
+ * these apply, since that indicates that this group of declarations has already
+ * been processed, during partial inclusion of <wchar.h> by <string.h>, whereas
+ * we are now including <wchar.h> in its own right.
+ *
+ *
+ * Wide character versions of the ISO-C standard string functions.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *wcscat (wchar_t *, const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *wcschr (const wchar_t *, wchar_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int wcscmp (const wchar_t *, const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int wcscoll (const wchar_t *, const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *wcscpy (wchar_t *, const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  size_t wcscspn (const wchar_t *, const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  size_t wcslen (const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *wcsncat (wchar_t *, const wchar_t *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int wcsncmp (const wchar_t *, const wchar_t *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *wcsncpy (wchar_t *, const wchar_t *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *wcspbrk (const wchar_t *, const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *wcsrchr (const wchar_t *, wchar_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  size_t wcsspn (const wchar_t *, const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *wcsstr (const wchar_t *, const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *wcstok (wchar_t *, const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  size_t wcsxfrm (wchar_t *, const wchar_t *, size_t);
+
+#ifndef __STRICT_ANSI__
+/* UTF-16LE versions of non-ANSI string functions provided by CRTDLL.DLL
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wcsdup (const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wcsicmp (const wchar_t *, const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wcsicoll (const wchar_t *, const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wcslwr (wchar_t*);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wcsnicmp (const wchar_t *, const wchar_t *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wcsnset (wchar_t *, wchar_t, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wcsrev (wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wcsset (wchar_t *, wchar_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wcsupr (wchar_t *);
+
+#ifdef __MSVCRT__
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wcsncoll (const wchar_t *, const wchar_t *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  int _wcsnicoll (const wchar_t *, const wchar_t *, size_t);
+
+/* A wide character counterpart to the strerror() API was introduced in
+ * MSVCR70.DLL, and subsequently back-ported to MSVCRT.DLL in WinXP.
+ */
+#if __MSVCRT_VERSION__ >= __MSVCR70_DLL || NTDDI_VERSION >= NTDDI_WINXP
+ /*
+  * These are are the wide character counterparts to the strerror()
+  * function itself, and the _strerror() function, respectively.
+  */
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *_wcserror (int);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *__wcserror (const wchar_t *);
+
+#endif	/* MSVCR70.DLL || WinXP */
+#endif	/* __MSVCRT__ */
+
+/* MSVCRT.DLL provides neither _wcscmpi() nor wcscmpi(); the heritage
+ * is uncertain, but for the convenience, (and portability), of legacy
+ * applications which assume wcscmpi() should be available:
+ */
+#define _wcscmpi _wcsicmp
+int __cdecl __MINGW_NOTHROW  wcscmpi (const wchar_t *, const wchar_t *);
+
+#ifndef __NO_INLINE__
+__CRT_ALIAS __JMPSTUB__(( FUNCTION = wcscmpi, REMAPPED = _wcsicmp ))
+  int wcscmpi (const wchar_t *__ws1, const wchar_t *__ws2)
+  { return _wcsicmp (__ws1, __ws2); }
+#endif	/* __NO_INLINE__ */
+
+#ifndef _NO_OLDNAMES
+/* Older CRTDLL.DLL versions may have provided these alternatively named
+ * functions; we continue to support them, via the OLDNAME libraries:
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *wcsdup (const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int wcsicmp (const wchar_t *, const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int wcsicoll (const wchar_t *, const wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *wcslwr (wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  int wcsnicmp (const wchar_t *, const wchar_t *, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *wcsnset (wchar_t *, wchar_t, size_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *wcsrev (wchar_t *);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *wcsset (wchar_t *, wchar_t);
+_CRTIMP __cdecl __MINGW_NOTHROW  wchar_t *wcsupr (wchar_t *);
+
+#endif	/* !_NO_OLDNAMES */
+#endif	/* !__STRICT_ANSI__ */
+
+#if _POSIX_C_SOURCE >= 200809L
+#if __MSVCRT_VERSION__ >= __MSVCR80_DLL
+/* MSVCR80.DLL adds a (mostly) POSIX.1-2008 conforming wcsnlen(); (it's
+ * also available in MSVCRT.DLL from _WIN32_WINNT_VISTA onwards, but we
+ * pretend otherwise, since recent GCC will try to use the function when
+ * it can be found in libmsvcrt.a, so breaking it for use on WinXP and
+ * earlier).
+ */
+#ifndef __STRICT_ANSI__   /* N.B.: this is not an ISO-C function */
+_CRTIMP __cdecl __MINGW_NOTHROW  char *wcsnlen (const wchar_t *, size_t);
+#endif
+
+#else	/* MSVCRT.DLL || pre-MSVCR80.DLL */
+/* Emulation, to support recent POSIX.1; we prefer this for ALL versions
+ * of MSVCRT.DLL, (even those which already provide wcsnlen()); to avoid
+ * the GCC breakage noted above.  (Note that we implement wcsnlen() with
+ * the alternative external name, __mingw_wcsnlen() in libmingwex.a, to
+ * avoid possible link time collision with MSVCR80.DLL's implementation,
+ * then map this to wcsnlen() via a __CRT_ALIAS, with stubs designated
+ * for linking from within the appropriate oldname libraries.
+ */
+extern size_t __mingw_wcsnlen (const wchar_t *, size_t);
+
+__JMPSTUB__(( LIB=coldname; FUNCTION=wcsnlen ))
+__CRT_ALIAS size_t wcsnlen (const wchar_t *__text, size_t __maxlen)
+{ return __mingw_wcsnlen (__text, __maxlen); }
+
+#endif	/* MSVCRT.DLL || pre-MSVCR80.DLL */
+#endif	/* _POSIX_C_SOURCE >= 200809L */
+
+/* This completes the set of declarations which are to be duplicated by
+ * inclusion of <string.h>; revert the declarative condition, to make it
+ * specific to <wchar.h> alone.
+ */
+#endif	/* !(_WCHAR_H && (_STRING_H && !__STRICT_ANSI__)) */
+#endif	/* ! RC_INVOKED */
+
+#if defined _WCHAR_H && ! defined RC_INVOKED
+#ifndef __STRICT_ANSI__
+typedef wchar_t  _Wint_t;
+#endif
+
+typedef int mbstate_t;
+
+/* The following multi-byte character conversion functions have been
+ * implemented by Microsoft, in non-free MSVCR80.DLL and later, (and
+ * maybe also in some earlier non-free DLLs, such as MSVCP60.DLL and
+ * later); they are also available in MSVCRT.DLL, from Vista onward,
+ * but to provide continuing support for earlier Windows versions,
+ * we always use MinGW replacements, provided in libmingwex.a
+ */
+__cdecl __MINGW_NOTHROW  wint_t btowc (int);
+__cdecl __MINGW_NOTHROW  int wctob (wint_t);
+
+__cdecl __MINGW_NOTHROW  size_t mbrlen
+(const char *__restrict__, size_t, mbstate_t *__restrict__);
+
+__cdecl __MINGW_NOTHROW  size_t mbrtowc
+(wchar_t *__restrict__, const char *__restrict__, size_t, mbstate_t *__restrict__);
+
+__cdecl __MINGW_NOTHROW  size_t mbsrtowcs
+(wchar_t *__restrict__, const char **__restrict__, size_t, mbstate_t *__restrict__);
+
+__cdecl __MINGW_NOTHROW  size_t wcrtomb
+(char * __restrict__, wchar_t, mbstate_t *__restrict__);
+
+__cdecl __MINGW_NOTHROW  size_t wcsrtombs
+(char *__restrict__, const wchar_t **__restrict__, size_t, mbstate_t *__restrict__);
+
+#if defined _ISOC99_SOURCE || defined __cplusplus
+/* These ISO-C99 functions are implemented in libmingwex.a,
+ * or, in some cases, as inline stubs; while provided as MinGW
+ * extensions to support ISO-C99, they are also required by
+ * GNU C++.
+ */
+__cdecl __MINGW_NOTHROW  int fwide (FILE *, int);
+__cdecl __MINGW_NOTHROW  int mbsinit (const mbstate_t *);
+
+#ifndef __NO_INLINE__
+__CRT_INLINE __LIBIMPL__(( FUNCTION = fwide ))
+__cdecl __MINGW_NOTHROW  int fwide (FILE *__UNUSED_PARAM(__stream), int __mode)
+{ return __mode; } /* Nothing to do  */
+
+__CRT_INLINE __LIBIMPL__(( FUNCTION = mbsinit ))
+__cdecl __MINGW_NOTHROW  int mbsinit (const mbstate_t *__ps)
+{ return ((__ps == NULL) || (*__ps == (mbstate_t)(0))); }
+#endif
+
+__cdecl __MINGW_NOTHROW  wchar_t *wmemset (wchar_t *, wchar_t, size_t);
+__cdecl __MINGW_NOTHROW  wchar_t *wmemchr (const wchar_t *, wchar_t, size_t);
+
+/* FIXME: what makes this so different from every other function
+ * in this group?  Why is it not qualified with the __cdecl, and
+ * __MINGW_NOTHROW attributes?
+ */
+int wmemcmp (const wchar_t *, const wchar_t *, size_t);
+
+__cdecl __MINGW_NOTHROW
+wchar_t *wmemcpy (wchar_t *__restrict__, const wchar_t *__restrict__, size_t);
+
+__cdecl __MINGW_NOTHROW  wchar_t *wmemmove (wchar_t *, const wchar_t *, size_t);
+
+__cdecl __MINGW_NOTHROW
+long long wcstoll (const wchar_t *__restrict__, wchar_t **__restrict__, int);
+
+__cdecl __MINGW_NOTHROW  unsigned long long wcstoull
+(const wchar_t *__restrict__, wchar_t **__restrict__, int);
+#endif /* _ISOC99_SOURCE */
+
+_END_C_DECLS
+
+#undef __WCHAR_H_SOURCED__
+#endif	/* _WCHAR_H && ! RC_INVOKED */
+#endif	/* !_WCHAR_H: $RCSfile: wchar.h,v $: end of file */
+ 
+#endif /* ! __STRICT_ANSI__ */
+
+#if _POSIX_C_SOURCE >= 200809L
+#if __MSVCRT_VERSION__ >= __MSVCR80_DLL
+/* MSVCR80.DLL adds a (mostly) POSIX.1-2008 conforming strnlen(); (it's
+ * also available in MSVCRT.DLL from _WIN32_WINNT_VISTA onwards, but we
+ * pretend otherwise, since recent GCC will try to use the function when
+ * it can be found in libmsvcrt.a, so breaking it for use on WinXP and
+ * earlier).
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strnlen (const char *, size_t);
+
+#else	/* MSVCRT.DLL || pre-MSVCR80.DLL */
+/* Emulation, to support recent POSIX.1; we prefer this for ALL versions
+ * of MSVCRT.DLL, (even those which already provide strnlen()); to avoid
+ * the GCC breakage noted above.  (Note that we implement strnlen() with
+ * the alternative external name, __mingw_strnlen() in libmingwex.a, to
+ * avoid possible link time collision with MSVCR80.DLL's implementation,
+ * then map this to strnlen() via a __CRT_ALIAS, with stubs designated
+ * for linking from within the appropriate oldname libraries.
+ */
+extern size_t __mingw_strnlen (const char *, size_t);
+
+__JMPSTUB__(( LIB=coldname; FUNCTION=strnlen ))
+__CRT_ALIAS size_t strnlen (const char *__text, size_t __maxlen)
+{ return __mingw_strnlen (__text, __maxlen); }
+
+#endif	/* MSVCRT.DLL || pre-MSVCR80.DLL */
+#endif	/* _POSIX_C_SOURCE >= 200809L */
+
+#if _POSIX_C_SOURCE >= 199506L  /* SUSv2 */
+/* SUSv2 added a re-entrant variant of strtok(), which maintains state
+ * using a user supplied reference pointer, rather than the internal
+ * reference used by strtok() itself, thus making it both thread-safe,
+ * and suitable for interleaved use on multiple strings, even within a
+ * single thread context, (which isn't possible with strtok() itself,
+ * even with Microsoft's intrinsically thread-safe implementation).
+ */
+extern char *strtok_r
+(char *__restrict__, const char *__restrict__, char **__restrict__);
+
+#if _POSIX_C_SOURCE >= 200112L
+/* POSIX.1-2001 added a re-entrant variant of strerror(), which stores
+ * the message text in a user supplied buffer, rather than in (possibly
+ * volatile) system supplied storage.  Although inherently thread-safe,
+ * Microsoft's strerror() also uses a potentially volatile buffer, (in
+ * the sense that it is overwritten by successive calls within a single
+ * thread); thus, we provide our own implementation of POSIX.1-2001's
+ * strerror_r() function, to facilitate the return of non-volatile
+ * copies of strerror()'s message text.
+ */
+extern int strerror_r (int, char *, size_t);
+
+#endif	/* POSIX.1-2001 */
+#endif	/* SUSv2 */
+
+#if __MSVCRT_VERSION__>=__MSVCR80_DLL || _WIN32_WINNT >= _WIN32_WINNT_VISTA
+/* MSVCR80.DLL introduced a safer, (erroneously so called "more secure"),
+ * alternative to strerror(), named strerror_s(); it was later retrofitted
+ * to MSVCRT.DLL, from the release of Windows-Vista onwards.
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  int strerror_s (char *, size_t, int);
+
+/* Also introduced in MSVCR80.DLL, and retrofitted to MSVCRT.DLL from the
+ * release of Windows-Vista, strtok_s() is a direct analogue for POSIX.1's
+ * strtok_r() function; (contrary to Microsoft's description, it is neither
+ * a "more secure", nor even a "safer" version of strtok() itself).
+ */
+_CRTIMP __cdecl __MINGW_NOTHROW  char *strtok_s (char *, const char *, char **);
+
+#elif _POSIX_C_SOURCE >= 200112L
+/* For the benefit of pre-Vista MSVCRT.DLL users, we provide an approximate
+ * emulation of strerror_s(), in terms of inline referral to POSIX.1-2001's
+ * strerror_r() function.
+ */
+__CRT_ALIAS int strerror_s (char *__buf, size_t __len, int __err)
+{ return strerror_r (__err, __buf, __len); }
+#endif
+
+#undef __STRING_H_SOURCED__
+
+_END_C_DECLS
+
+#endif	/* ! RC_INVOKED */
+#endif	/* !_STRING_H: $RCSfile: string.h,v $: end of file */
+ 
+
+int main() {
+   char str[5][50], temp[50];
+   printf("Enter 5 words: ");
+
+   // Getting strings input
+   for (int i = 0; i < 5; ++i) {
+      fgets(str[i], sizeof(str[i]), stdin);
+   }
+
+   // storing strings in the lexicographical order
+   for (int i = 0; i < 5; ++i) {
+      for (int j = i + 1; j < 5; ++j) {
+
+         // swapping strings if they are not in the lexicographical order
+         if (strcmp(str[i], str[j]) > 0) {
+            strcpy(temp, str[i]);
+            strcpy(str[i], str[j]);
+            strcpy(str[j], temp);
+         }
+      }
+   }
+_ooooooops!
+   printf("\nIn the lexicographical order: \n");
+   for (int i = 0; i < 5; ++i) {
+      fputs(str[i], stdout);
+   }
+   return 0;
+}                               

@@ -1,6 +1,7 @@
 #ifndef __LEITOR
 #define __LEITOR
 
+#include <iostream>
 #include <fstream>
 #include <list>
 #include <string>

@@ -303,7 +303,7 @@ public:
 		//cout << "ENTRADA:\n" << entrada << endl;
 
 		string textoSemComentario = escandimento(entrada);
-		//cout << "ESCANDIMENTO:\n" << textoSemComentario << endl;
+		std::cout << "ESCANDIMENTO:\n" << textoSemComentario << endl;
 
 		quebrarEmLexemas(textoSemComentario);
 		return tokens;

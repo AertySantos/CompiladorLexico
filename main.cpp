@@ -15,8 +15,12 @@ int main() {
   list<Token> lista = l.ler("codPrecompilado.c");
 	
   //SAIDA
-  cout << "LEGENDA:\n\tr:reservada\n\ti:identificador\n\tl:literal\n\tn:numero\n\ts:simbolo\nSAIDA:\n";
-  cout << "TODOS OS IDENTIFICADORES\n";
+  cout << "\nLEGENDA:\n\tr:reservada\n\ti:identificador\n\tl:literal\n\tn:numero\n\ts:simbolo\nSAIDA:\n";
+  cout << "TODOS OS TOKENS:\n";
+  for(Token t : lista) {
+    cout <<"<" << t.getNome() << "," <<t.getValor() << "> ";
+  }
+  cout << "\n\nTODOS OS IDENTIFICADORES:\n";
   for(Token t : lista) {
   	if (t.getNome() == 'i') {
             cout << "\t<" << t.getValor() << "> \n";
@@ -34,7 +38,7 @@ int main() {
     //Gerar Tabela de simbolos    
     geradorTabela.GerarTabela(lista);
     //Mostrar Tabela 
-    cout<<"Mostrando Tabela de Símbolos\n"<<endl;
+    cout<<"\nMostrando Tabela de Símbolos\n"<<endl;
     geradorTabela.hashTable.mostrarTabela();
 	
 }

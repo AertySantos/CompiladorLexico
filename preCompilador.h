@@ -59,6 +59,7 @@ public:
   void setContif(bool);
   bool verificaContif(); // verifica o encadeamento de #if,#ifndef...
   void limpar();        // limpa as variaveis entre a inclusao e verificação dos #ifs
+  void txtComp();
 };
 
 PreCompilador::PreCompilador()
@@ -78,6 +79,7 @@ void PreCompilador::iniciar(string arq)
 
   bool op = true;       // variavel que aguarda o fim dos includes
   string arquivo = arq; // primeiro arquivo a ser lido
+  //txtComp();
   cout << endl
        << "Iniciando execução...\n"
        << endl; // notificação de inicio
@@ -509,8 +511,7 @@ void PreCompilador::trataDefinicao(char c2, string *txt, bool *destrava, int *in
     *destrava = false; // sai do tratamento
     *txt = "";         // limpa a variavel acumuladora de texto
     *ind = 0;
-    //*salve = "";//------------------------------------------->
-    // *txDef = true;//tttttttttttttttttttttttttttttttttttttttttttttt
+    
   }
   else
   { // pega a condição if
@@ -770,5 +771,12 @@ void PreCompilador::limpar()
   inclusao = "";
   arquivoInc = "";
   condicao = "";
+}
+
+void PreCompilador::txtComp(){
+  cout << endl;
+  cout <<"█▀▀█ █▀▀█ █▀▄▀█ █▀▀█ ░▀░ █░░ █▀▀█ █▀▀▄ █▀▀█ █▀▀█   █░░░ █▀▀ █░█ ░▀░ █▀▀ █▀▀█" << endl;
+  cout <<"█░░░ █░░█ █░▀░█ █░░█ ▀█▀ █░░ █▄▄█ █░░█ █░░█ █▄▄▀   █░░░ █▀▀ ▄▀▄ ▀█▀ █░░ █░░█" << endl;
+  cout <<"█▄▄█ ▀▀▀▀ ▀░░░▀ █▀▀▀ ▀▀▀ ▀▀▀ ▀░░▀ ▀▀▀░ ▀▀▀▀ ▀░▀▀   █▄▄█ ▀▀▀ ▀░▀ ▀▀▀ ▀▀▀ ▀▀▀▀" << endl;
 }
 #endif
